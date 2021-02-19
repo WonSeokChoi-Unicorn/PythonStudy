@@ -8,6 +8,7 @@ print(number[0])
 # Successfully opened dynamic library cudart64_110.dll 나오면 정상
 # import tensorflow as tf
 
+"""
 from collections import Counter
 
 
@@ -26,3 +27,10 @@ def sort_by_frequency(n):
 
 
 print(sort_by_frequency([3, 8, 8, 3, 2, 8, 1, 2, 4, 56]))
+"""
+
+import urllib.request
+ 
+url = "https://1.bp.blogspot.com/-vF3httpOv6I/YC2TYrnrBfI/AAAAAAAAjG8/zRNq4MXLHEAtwQNkNKb7WZY1MqX9yPZgQCLcBGAsYHQ/s0/07.jpg"
+res = urllib.request.urlopen(url)
+# print(res.status)  ## 200
