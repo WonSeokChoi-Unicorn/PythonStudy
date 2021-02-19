@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 import io
 import struct
 import urllib.request as urllib2
+# 에러 확인 위해 HTTPError을 import
+from urllib.request import HTTPError
 
 # 전역 변수 설정
 GGOORR_MAIN_URL = "https://ggoorr.net"                              # 꾸르 메인 주소
@@ -23,7 +25,14 @@ def getImageInfo(imgUrl):
         req = urllib2.Request(imgUrl, headers={"Range": "5000", "User-Agent": 
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"})
 
+        # try:
+        #     r = urllib2.urlopen(req)
+        #     data = r.read()
+        # except HTTPError as e:
+        #     print(e) # null을 반환하거나, break 문을 실행하거나, 기타 다른 방법을 사용
+
         r = urllib2.urlopen(req)
+
         data = r.read()
 
         size = len(data)
