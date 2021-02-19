@@ -307,6 +307,9 @@ def searchList(page):
                 if(writetime > todate):
                     print("작성 안 하고, 다음 게시물 조회")
                     pass
+                elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11074939&listStyle=viewer":
+                    print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
+                    pass
                 elif writetime <= fromdate:
                     print("작성 대상 아님 - 더 이상 게시물 조회하지 않음")
                     return False
@@ -363,6 +366,10 @@ def searchList(page):
 
 # gamechosun.co.kr 이미지 있는 경우
 # getDetail("title", "https://ggoorr.net/all/10918226")
+# sys.exit()
+
+# HTTP Error 400: Bad Request 이미지 있는 경우
+# getDetail("title", "https://ggoorr.net/all/11074939")
 # sys.exit()
 
 
