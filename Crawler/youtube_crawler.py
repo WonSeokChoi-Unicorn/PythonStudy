@@ -46,10 +46,6 @@ import os
 # LikeRing https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos
 # 사람사는세상노무현재단 https://www.youtube.com/c/%EC%82%AC%EB%9E%8C%EC%82%AC%EB%8A%94%EC%84%B8%EC%83%81%EB%85%B8%EB%AC%B4%ED%98%84%EC%9E%AC%EB%8B%A8/videos
 
-# urllist = [
-#           'https://www.youtube.com/channel/UC_Aly3X5CdojHdRDGmKi1ow'
-#           ]
-
 # 추출할 유튜브 채널의 동영상 탭
 urllist = [
            'https://www.youtube.com/c/14FMBC/videos',
@@ -174,33 +170,27 @@ for u in range(0, len(urllist)):
 
         if '분 전' in time[x]:
             # 분일 경우 작성 시간 확인
-            # timenumber = time[x][0:time[x].find('분 전')]
             timenumber = re.findall("\d+", time[x])
             writetime = datetime.today() - timedelta(minutes=int(timenumber[0]))
         elif '시간 전' in time[x]:
             # 시간일 경우 작성 시간 확인
-            # timenumber = time[x][0:time[x].find('시간 전')]
             timenumber = re.findall("\d+", time[x])
             writetime = datetime.today() - timedelta(hours=int(timenumber[0]))
         elif '일 전' in time[x]:
             # 일일 경우 작성 시간 확인
-            # timenumber = time[x][0:time[x].find('일 전')]
             timenumber = re.findall("\d+", time[x])
             writetime = datetime.today() - timedelta(days=int(timenumber[0]))
         elif '주 전' in time[x]:
             # 주일 경우 작성 시간 확인
-            # timenumber = time[x][0:time[x].find('주 전')]
             timenumber = re.findall("\d+", time[x])
             writetime = datetime.today() - timedelta(weeks=int(timenumber[0]))
         elif '개월 전' in time[x]:
             # 개월일 경우 작성 시간 확인
-            # timenumber = time[x][0:time[x].find('개월 전')]
             timenumber = re.findall("\d+", time[x])
             delta = relativedelta(months=int(timenumber[0]))
             writetime = datetime.today() - delta
         elif '년 전' in time:
             # 년일 경우 작성 시간 확인
-            # timenumber = time[x][0:time[x].find('년 전')]
             timenumber = re.findall("\d+", time[x])
             delta = relativedelta(years=int(timenumber[0]))
             writetime = datetime.today() - delta
