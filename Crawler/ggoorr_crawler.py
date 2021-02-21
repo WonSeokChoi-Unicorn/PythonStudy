@@ -319,6 +319,9 @@ def searchList(page):
                 elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11074939&listStyle=viewer":
                     print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
                     pass
+                elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11090562&listStyle=viewer":
+                    print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
+                    pass
                 elif writetime <= fromdate:
                     print("작성 대상 아님 - 더 이상 게시물 조회하지 않음")
                     return False
