@@ -72,6 +72,6 @@ def getImageInfo(imgUrl):
 #imageUrl = "https://t1.daumcdn.net/cfile/tistory/9924734F5AE03D2729?original"
 #imageUrl = "https://cdn.ggoorr.net/files/attach/images/124/189/857/010/7ce4a5dd1a74b5bd506426424aab3830.jpg"
 #imageUrl = "https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/aVeZ/edb3e6d61a36efa1320dd8c0a12ad7ab850cd937"
-#imageUrl = "https://t1.daumcdn.net/cafeattach/aVeZ/edb3e6d61a36efa1320dd8c0a12ad7ab850cd937"
+imageUrl = "http://https//i.imgur.com/S0I45aV.png"
 
-#print(getImageInfo(imageUrl))
+print(getImageInfo(imageUrl))
