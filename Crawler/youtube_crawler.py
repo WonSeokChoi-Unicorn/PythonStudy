@@ -102,11 +102,11 @@ for u in range(0, len(urllist)):
     # html을 'lxml' parser를 사용하여 분석합니다.
     soup = BeautifulSoup(html, 'lxml')
 
-    # channelname 조건에 맞는 모든 div 태그의 hidden style-scope paper-tooltip class들을 가져옵니다.
-    allchannelname = soup.find_all('div', 'hidden style-scope paper-tooltip')
+    # channelname 조건에 맞는 모든 div 태그의 hidden style-scope paper-tooltip class들을 가져옵니다. 2021.02.23 웹사이트 변경
+    allchannelname = soup.find_all('div', 'hidden style-scope tp-yt-paper-tooltip')
 
     # channelname 변수에 저장합니다.
-    channelname = [soup.find_all('div','hidden style-scope paper-tooltip')[6].string for n in range(0,len(allchannelname))]
+    channelname = [soup.find_all('div','hidden style-scope tp-yt-paper-tooltip')[6].string for n in range(0,len(allchannelname))]
 
     # 채널명에 줄 바꿈이 있어서 제거합니다.
     for i in range(len(channelname)):
