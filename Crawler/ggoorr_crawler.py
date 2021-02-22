@@ -393,8 +393,8 @@ def searchList(page):
 # sys.exit()
 
 # 제목 중복 지우기 (유사)
-getDetail("[놀면뭐하니] 동거동락 유경험자 탁재훈 클래스", "https://ggoorr.net/all/11100509")
-sys.exit()
+# getDetail("[놀면뭐하니] 동거동락 유경험자 탁재훈 클래스", "https://ggoorr.net/all/11100509")
+# sys.exit()
 
 
 
