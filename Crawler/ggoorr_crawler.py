@@ -8,6 +8,7 @@ import struct
 import urllib.request as urllib2
 # 에러 확인 위해 HTTPError을 import
 from urllib.request import HTTPError
+import re
 
 # 전역 변수 설정
 GGOORR_MAIN_URL = "https://ggoorr.net"                              # 꾸르 메인 주소
@@ -214,7 +215,10 @@ def getDetail(title, detailUrl):
         # articleString = articleString.replace("<img", "<p><img")
         # 04-03 img 폭을 800 2020.12.29 추가 2021.01.23 삭제
         # articleString = articleString.replace("<img", "<img width=800")
-        
+        # 제목이 포함된 태그 삭제하기 2021.02.22
+        # print(str([tag.parent for tag in articleBody.find_all(string=re.compile(title))]))
+        # articleString = articleString.replace(str(tag.parent for tag in articleBody.find_all(string=re.compile(title))), "")
+                
         # 파일에 저장
         fileContent = "<p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
         fileContent += "\n"
@@ -383,6 +387,16 @@ def searchList(page):
 # HTTP Error 400: Bad Request 이미지 있는 경우
 # getDetail("title", "https://ggoorr.net/all/11074939")
 # sys.exit()
+
+# 제목 중복 지우기 (동일)
+# getDetail("브이로그 유튜버 진훤", "https://ggoorr.net/thisthat/11095623")
+# sys.exit()
+
+# 제목 중복 지우기 (유사)
+getDetail("[놀면뭐하니] 동거동락 유경험자 탁재훈 클래스", "https://ggoorr.net/all/11100509")
+sys.exit()
+
+
 
 
 # 메인 시작 : 1-20 페이지까지 for loop
