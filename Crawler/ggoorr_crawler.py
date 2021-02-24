@@ -146,31 +146,32 @@ def getDetail(title, detailUrl):
         # for pLine in articleBody.select("p"):
         for pLine in articleBody.div.div.children:     # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
 
-            # 이미지 태그가 있는경우, 이미지의 사이즈를 체크 및 수정
-            for img in pLine.select("img"):
-                # src 속성 찾기
-                imgSrcText = str(img['src'])
-                # style 속성 삭제
-                del img['style']
-                # print(imgSrcText)
-                if imgSrcText == "None":
-                    # 이미지가 없을 경우
-                    pass
-                elif ".daumcdn.net" in imgSrcText:
-                    # .daumcdn.net가 있을 경우 폭을 800으로 변경
-                    img['src'] = imgSrcText.replace("R1024x0", "R800x0")
-                elif "gamechosun.co.kr" in imgSrcText: 
-                    # 2021.01.26 gamechosun.co.kr 문제 있어서 예외 처리
-                    img['width'] = 800
-                else:
-                    # 그 외 경우는 폭이 800을 초과할 경우 width 속성을 800으로 지정
-                    imgArr = getImageInfo( img['src'] )
-                    # print(str(imgArr))
-                    if imgArr != None and len(imgArr) == 3 and int(imgArr[1]) > 800:
-                        img['width'] = 800
-                # 이미지 태그를 P태그로 감싸기
-                img.wrap(detailSoup.new_tag("p"))
-            
+            # 2021.02.24 구글 블로거에서 자동으로 width를 810으로 맞추어 주어서 주석 처리
+            # # 이미지 태그가 있는경우, 이미지의 사이즈를 체크 및 수정
+            # for img in pLine.select("img"):
+            #     # src 속성 찾기
+            #     imgSrcText = str(img['src'])
+            #     # style 속성 삭제
+            #     del img['style']
+            #     # print(imgSrcText)
+            #     if imgSrcText == "None":
+            #         # 이미지가 없을 경우
+            #         pass
+            #     elif ".daumcdn.net" in imgSrcText:
+            #         # .daumcdn.net가 있을 경우 폭을 800으로 변경
+            #         img['src'] = imgSrcText.replace("R1024x0", "R800x0")
+            #     elif "gamechosun.co.kr" in imgSrcText: 
+            #         # 2021.01.26 gamechosun.co.kr 문제 있어서 예외 처리
+            #         img['width'] = 800
+            #     else:
+            #         # 그 외 경우는 폭이 800을 초과할 경우 width 속성을 800으로 지정
+            #         imgArr = getImageInfo( img['src'] )
+            #         # print(str(imgArr))
+            #         if imgArr != None and len(imgArr) == 3 and int(imgArr[1]) > 800:
+            #             img['width'] = 800
+            #     # 이미지 태그를 P태그로 감싸기
+            #     img.wrap(detailSoup.new_tag("p"))
+
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
             utubeShrotUrlIndex  = pLineText.find('https://youtu.be/')                  # 유튜브 짧은 주소 접두어
@@ -320,12 +321,13 @@ def searchList(page):
                 if(writetime > todate):
                     print("작성 안 하고, 다음 게시물 조회")
                     pass
-                elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11074939&listStyle=viewer":
-                    print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
-                    pass
-                elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11090562&listStyle=viewer":
-                    print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
-                    pass
+                # 2021.02.24 구글 블로거에서 자동으로 width를 810으로 맞추어 주어서 주석 처리
+                # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11074939&listStyle=viewer":
+                #     print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
+                #     pass
+                # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11090562&listStyle=viewer":
+                #     print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
+                #     pass                
                 elif writetime <= fromdate:
                     print("작성 대상 아님 - 더 이상 게시물 조회하지 않음")
                     return False
