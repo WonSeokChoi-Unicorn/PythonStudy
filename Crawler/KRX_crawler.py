@@ -33,15 +33,17 @@ afteryearpricelist = []
 for i in range(len(df)):
     # 종목 코드를 변수에 저장하기
     code = ""
-    birthdate = ""
-    atferyeardate = ""
     code = df['종목코드'][i]
     print('종목코드 : ' + code)
-    birthdate = df['상장일'][i]
+    # 상장일을 YYYYMMDD 형태로 변수에 저장하기
+    birthdate = ""
+    birthdate = df['상장일'][i]    
     formattedbirthDate = birthdate.strftime("%Y%m%d")
-    afteryeardate = df['상장일1년후'][i]
-    formattedafteryeardate = afteryeardate.strftime("%Y%m%d")
     # print(formattedbirthDate, type(formattedbirthDate))
+    # 상장후1년일을 YYYYMMDD 형태로 변수에 저장하기
+    atferyeardate = ""    
+    afteryeardate = df['상장일1년후'][i]
+    formattedafteryeardate = afteryeardate.strftime("%Y%m%d")    
     # print(formattedafteryeardate, type(formattedafteryeardate))
     
     # 상장 폐지 등의 이유로 네이버 증권에 검색되지 않는 종목들이 있어서 예외 처리 필요 (예. 교보메리츠 064900)
@@ -60,4 +62,4 @@ for i in range(len(df)):
 
 print(pricelist)
 print(afteryearpricelist)
-# dataframe에 넣기
+# dataframe에 넣기 추가 필요
