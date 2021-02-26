@@ -6,6 +6,7 @@ from pykrx import stock
 from datetime import datetime
 # excel 파일을 다운로드하는거와 동시에 pandas에 load하기
 # 흔히 사용하는 df라는 변수는 data frame을 의미합니다.
+# 파일 형태는 xls이지만 내용은 html
 df = pd.read_html('http://kind.krx.co.kr/corpgeneral/corpList.do?method=download&searchType=13', header=0)[0]
 
 # 종목코드에 값을 6자리 문자열로 설정 
