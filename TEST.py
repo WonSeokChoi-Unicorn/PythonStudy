@@ -50,5 +50,36 @@ res = urllib.request.urlopen(url)
 #     print("존재합니다",html)
 
 from pykrx import stock
-df1 = stock.get_market_ohlcv_by_date("20020130", "20020130", "064900")
+df1 = stock.get_market_ohlcv_by_date("19850825", "19850825", "001390")
 print(df1)
+
+"""
+import urllib.parse
+import pandas as pd
+
+MARKET_CODES = {
+    'kospi': 'stockMkt',
+    'kosdaq': 'kosdaqMkt',
+    'konex': 'konexMkt'
+}
+
+CORP_LIST_PATH = 'kind.krx.co.kr/corpgeneral/corpList.do'
+
+def get_stock_code_list(market=None, delisted=False):
+    param = {'method': 'download'}
+
+    if market.lower() in MARKET_CODES:
+        param['marketType'] = MARKET_CODES[market]
+
+    if not delisted:
+        param['searchType'] = 13
+
+    params = urllib.parse.urlencode(param)
+    url = urllib.parse.urlunsplit(['http', CORP_LIST_PATH, '', params, ''])
+    print(url)
+
+    df = pd.read_html(url, header=0)[0]
+    return df
+stocks = get_stock_code_list('kospi', 'delisted')
+print(stocks.head())
+"""
