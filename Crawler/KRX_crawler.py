@@ -49,11 +49,10 @@ for i in range(len(df)):
     afteryeardate = df['상장일1년후'][i]
     formattedafteryeardate = afteryeardate.strftime("%Y%m%d")
     # print(formattedafteryeardate, type(formattedafteryeardate))
-    
-    # 상장 폐지 등의 이유로 네이버 증권에 검색되지 않는 종목들이 있어서 예외 처리 필요 (예. 교보메리츠 064900)
 
     # 함수 통해서 나온 상장종가를 변수에 저장하기
     price = stock.get_market_ohlcv_by_date(formattedbirthDate, formattedbirthDate, code)
+    # 상장 폐지 등의 이유로 네이버 증권에 검색되지 않는 종목은 0으로 처리
     if len(price) == 0:
         pricelist = [0]
     else:
@@ -65,6 +64,7 @@ for i in range(len(df)):
         afteryearpricelist = [0]
     else:
         afteryearprice = stock.get_market_ohlcv_by_date(formattedafteryeardate, formattedafteryeardate, code)
+        # 상장 폐지 등의 이유로 네이버 증권에 검색되지 않는 종목은 0으로 처리
         if len(afteryearprice) == 0:
             afteryearpricelist = [0]
         else:
