@@ -1,5 +1,3 @@
-# -*- conding: utf-8 -*-
-
 """ 내용에서 숫자만 추출하는 방법
 import re
 temp = '<span class="style-scope ytd-grid-video-renderer">스트리밍 시간: 3주 전</span>'
@@ -38,15 +36,19 @@ res = urllib.request.urlopen(url)
 # print(res.status)  ## 200
 """
 
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 
-htmltext='''<article><div id="article_1"><div class="document_11095623_8764177 xe_content"><p>브이로그 유튜버 진훤</p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/b16ad950b981193c534e0d1c4c6a2d8acfb01dd4"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/99ae4a43d456f27aa1376abe79d08e047167a4b6"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/39dea46de597f5b72fe7a31ed931bb56045cb1e3"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/9f30e653ca20fba6db10e51359cbf0ac22a80bb6"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/57a0efbcdd20de4d6f8295dee9931ea432cb9c23"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/144999b90a37a30b81adbc4d236a00dbde012555"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/6c8b71be6a2dffdc77b756f06f26213a412cb123"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/b31b9773e7643d3ea8203762e60c331e4d47ba80"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/ea1ae1457151b6af6708366bfaa37c30fd79fd45"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/90c403a338c35324ae729ba07feb48fcdfbb07d4"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/ca5a63edfcefcc8a765a3b9efccb2d127eddf69c"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/a3551fa9b9b6b71e92362305810509e4e589ace8"/></p><p><br/></p></div></div></article>'''
+# htmltext='''<article><div id="article_1"><div class="document_11095623_8764177 xe_content"><p>브이로그 유튜버 진훤</p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/b16ad950b981193c534e0d1c4c6a2d8acfb01dd4"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/99ae4a43d456f27aa1376abe79d08e047167a4b6"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/39dea46de597f5b72fe7a31ed931bb56045cb1e3"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/9f30e653ca20fba6db10e51359cbf0ac22a80bb6"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/57a0efbcdd20de4d6f8295dee9931ea432cb9c23"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/144999b90a37a30b81adbc4d236a00dbde012555"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/6c8b71be6a2dffdc77b756f06f26213a412cb123"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/b31b9773e7643d3ea8203762e60c331e4d47ba80"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/ea1ae1457151b6af6708366bfaa37c30fd79fd45"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/90c403a338c35324ae729ba07feb48fcdfbb07d4"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/ca5a63edfcefcc8a765a3b9efccb2d127eddf69c"/></p><p><br/></p><p><img alt="브이로그 유튜버 진훤 - 꾸르" class="fr-fic fr-dii" src="https://img1.daumcdn.net/thumb/R1024x0/?fname=https://t1.daumcdn.net/cafeattach/mEr9/a3551fa9b9b6b71e92362305810509e4e589ace8"/></p><p><br/></p></div></div></article>'''
 
-html = BeautifulSoup(htmltext)
+# html = BeautifulSoup(htmltext)
 
-for pLine in html.div.div.children:
-    for p_tag in pLine.select("p"):
-        print("문자열 " + p_tag.text)
+# for pLine in html.div.div.children:
+#     for p_tag in pLine.select("p"):
+#         print("문자열 " + p_tag.text)
 
 # if "브이로그 유튜버 진훤" in html:
 #     print("존재합니다",html)
+
+from pykrx import stock
+df1 = stock.get_market_ohlcv_by_date("20020130", "20020130", "064900")
+print(df1)
