@@ -216,9 +216,13 @@ def getDetail(title, detailUrl):
         # articleString = articleString.replace("<img", "<p><img")
         # 04-03 img 폭을 800 2020.12.29 추가 2021.01.23 삭제
         # articleString = articleString.replace("<img", "<img width=800")
-        # 제목이 포함된 태그 삭제하기 2021.02.22
-        # print(str([tag.parent for tag in articleBody.find_all(string=re.compile(title))]))
-        # articleString = articleString.replace(str(tag.parent for tag in articleBody.find_all(string=re.compile(title))), "")
+        # 제목이 포함된 내용 첫 줄 삭제하기 2021.02.27
+        titleIndex = 0
+        tmpTitle = title
+        titleIndex = title.index("]")
+        if tmpTitle.startswith("[") and titleIndex >= 0:
+            tmpTitle = (title[titleIndex+1:]).strip()
+        articleString = articleString.replace(tmpTitle, "", 1)
                 
         # 파일에 저장
         fileContent = "<p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
@@ -395,8 +399,8 @@ def searchList(page):
 # sys.exit()
 
 # 제목 중복 지우기 (유사)
-# getDetail("[놀면뭐하니] 동거동락 유경험자 탁재훈 클래스", "https://ggoorr.net/all/11100509")
-# sys.exit()
+getDetail("[놀면뭐하니] 동거동락 유경험자 탁재훈 클래스", "https://ggoorr.net/all/11100509")
+sys.exit()
 
 # http://zeany.net/46 참고해서 제목 지우기 시도해보기
 
