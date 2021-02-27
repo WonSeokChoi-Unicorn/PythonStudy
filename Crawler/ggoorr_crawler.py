@@ -219,7 +219,10 @@ def getDetail(title, detailUrl):
         # 제목이 포함된 내용 첫 줄 삭제하기 2021.02.27
         titleIndex = 0
         tmpTitle = title
-        titleIndex = title.index("]")
+        # "]"가 있는 지 확인
+        if title.find("]") >= 0:
+            titleIndex = title.index("]")
+        # "[ ~ ]"가 있을 경우 처리
         if tmpTitle.startswith("[") and titleIndex >= 0:
             tmpTitle = (title[titleIndex+1:]).strip()
         articleString = articleString.replace(tmpTitle, "", 1)
