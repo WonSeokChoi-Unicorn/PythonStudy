@@ -7,7 +7,7 @@ Source
 
 유튜브 크롤러 (youtube_crawler.py),
 
-한국 증권거래소 상장 법인 크롤러 (KRX_crawler.py)
+한국 증권거래소 상장 법인 크롤러 (KRX_crawler.py),
 
 로또 번호 랜덤 생성기 (RandomLottoNumber.py)
 
