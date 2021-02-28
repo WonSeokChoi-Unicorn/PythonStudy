@@ -50,7 +50,7 @@ res = urllib.request.urlopen(url)
 #     print("존재합니다",html)
 
 from pykrx import stock
-df1 = stock.get_market_ohlcv_by_date("19850825", "19850825", "001390")
+df1 = stock.get_market_ohlcv_by_date("19910119", "19910119", "002210")
 print(df1)
 
 """
