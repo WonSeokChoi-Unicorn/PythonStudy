@@ -56,5 +56,5 @@ for t in range(len(holidaydatelist)):
     if str_today == holidaydatelist[t]:
         # print(t)
         print("###################################################")
-        print("Today is Holiday!")
+        print(str_today + " is Holiday!")
         print("###################################################")
