@@ -40,7 +40,7 @@ afteryearprice = 0
 afteryearpricelist = []
 nowDate = datetime.now()
 
-for i in range(len(df)):
+for i in range(len(df)+1):
     # 디버그 차원에서 진행 상황을 출력
     print("No : " + str(i) + ", Name : " + str(df['회사명'][i]) + ", Code : " + str(df['종목코드'][i])
     )
