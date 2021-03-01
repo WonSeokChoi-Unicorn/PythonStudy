@@ -15,7 +15,10 @@ def get_request_query(url, operation, params, serviceKey):
     request_query = url + '/' + operation + '?' + params + '&' + 'serviceKey' + '=' + serviceKey
     return request_query
 
-year = 2021
+# 검색 위한 년도를 입력 받음
+year = str(input("공휴일을 검색하고 싶은 년도는? (YYYY)> "))
+
+# year = 2021
 # data.go.kr에 가서 신청 https://www.data.go.kr/data/15012690/openapi.do 후 일반 인증키 (UTF-8) 받기
 # 2년 후 다시 신청해야 됨
 mykey = "일반 인증키"
@@ -45,7 +48,7 @@ for month in range(1,13):
             
             day = int(i.locdate.string[-2:])
             weekname = print_whichday(int(year), int(month), day)
-            print(i.datename.string, i.isholiday.string, i.locdate.string, weekname) 
+            print(i.datename.string, i.locdate.string, weekname) 
             # 공휴일을 list에 담기
             holidaydatelist.append(i.locdate.string) 
 
@@ -56,5 +59,5 @@ for t in range(len(holidaydatelist)):
     if str_today == holidaydatelist[t]:
         # print(t)
         print("###################################################")
-        print(str_today + " is Holiday!")
+        print("Today(" + str_today + ") is Holiday!")
         print("###################################################")
