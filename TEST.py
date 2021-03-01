@@ -49,9 +49,9 @@ res = urllib.request.urlopen(url)
 # if "브이로그 유튜버 진훤" in html:
 #     print("존재합니다",html)
 
-from pykrx import stock
-df1 = stock.get_market_ohlcv_by_date("19910119", "19910119", "002210")
-print(df1)
+# from pykrx import stock
+# df1 = stock.get_market_ohlcv_by_date("19910119", "19910119", "002210")
+# print(df1)
 
 """
 import urllib.parse
@@ -83,3 +83,18 @@ def get_stock_code_list(market=None, delisted=False):
 stocks = get_stock_code_list('kospi', 'delisted')
 print(stocks.head())
 """
+# 공휴일 공공 정보
+# Python 샘플 코드 #
+
+
+# from urllib.request import Request, urlopen
+# from urllib.parse import urlencode, quote_plus
+
+# url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getAnniversaryInfo'
+# queryParams = '?' + urlencode({ quote_plus('ServiceKey') : '서비스키', quote_plus('pageNo') : '1', quote_plus('numOfRows') : '100', quote_plus('solYear') : '2021', quote_plus('solMonth') : '03' })
+
+# request = Request(url + queryParams)
+# request.get_method = lambda: 'GET'
+# response_body = urlopen(request).read()
+# print(response_body)
+
