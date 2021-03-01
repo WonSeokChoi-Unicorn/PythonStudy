@@ -49,9 +49,9 @@ res = urllib.request.urlopen(url)
 # if "브이로그 유튜버 진훤" in html:
 #     print("존재합니다",html)
 
-# from pykrx import stock
-# df1 = stock.get_market_ohlcv_by_date("19910119", "19910119", "002210")
-# print(df1)
+from pykrx import stock
+df1 = stock.get_market_ohlcv_by_date("20200428", "20200505", "204270")
+print(df1)
 
 """
 import urllib.parse
