@@ -1,6 +1,8 @@
 # https://pypi.org/project/holidays/
 import datetime
 import holidays
+# 일시 정지 기능 사용 위해서 os 모듈을 import 한다.
+import os
 
 # 검색 위한 시작일과 종료일을 입력 받음
 fromdate = str(input("공휴일을 검색 위한 시작일은? (YYYYMMDD)> "))
@@ -40,3 +42,6 @@ for t in range(len(kr_holidayslistsum)):
         print("###################################################")
         print("Today(" + str_today + ") is Holiday!")
         print("###################################################")
+
+print("아무 키나 누르면 종료합니다")
+os.system('Pause')
