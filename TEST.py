@@ -97,4 +97,3 @@ print(stocks.head())
 # request.get_method = lambda: 'GET'
 # response_body = urlopen(request).read()
 # print(response_body)
-
