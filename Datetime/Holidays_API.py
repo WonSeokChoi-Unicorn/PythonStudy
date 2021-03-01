@@ -2,6 +2,8 @@ import requests
 import datetime
 # import time
 from bs4 import BeautifulSoup
+# 일시 정지 기능 사용 위해서 os 모듈을 import 한다.
+import os
 
 def print_whichday(year, month, day) :
     r = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
@@ -61,3 +63,6 @@ for t in range(len(holidaydatelist)):
         print("###################################################")
         print("Today(" + str_today + ") is Holiday!")
         print("###################################################")
+
+print("아무 키나 누르면 종료합니다")
+os.system('Pause')
