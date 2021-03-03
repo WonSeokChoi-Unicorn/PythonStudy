@@ -72,7 +72,8 @@ urllist = [
            'https://www.youtube.com/channel/UCfcgDLazgMa1L92Kl3r9ZAA/videos',
            'https://www.youtube.com/c/%ED%95%9C%EC%83%81%EA%B8%B0HanSangKi/videos',
            'https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos',
-           'https://www.youtube.com/c/%EC%82%AC%EB%9E%8C%EC%82%AC%EB%8A%94%EC%84%B8%EC%83%81%EB%85%B8%EB%AC%B4%ED%98%84%EC%9E%AC%EB%8B%A8/videos'
+           'https://www.youtube.com/c/%EC%82%AC%EB%9E%8C%EC%82%AC%EB%8A%94%EC%84%B8%EC%83%81%EB%85%B8%EB%AC%B4%ED%98%84%EC%9E%AC%EB%8B%A8/videos',
+           'https://www.youtube.com/channel/UCjHn_Os5NoCXZyoXzuKth9w/videos'
           ]
 
 # 전일 오전 7시
