@@ -48,11 +48,11 @@ res = urllib.request.urlopen(url)
 
 # if "브이로그 유튜버 진훤" in html:
 #     print("존재합니다",html)
-
+"""
 from pykrx import stock
 df1 = stock.get_market_ohlcv_by_date("20200428", "20200505", "204270")
 print(df1)
-
+"""
 """
 import urllib.parse
 import pandas as pd
@@ -97,3 +97,11 @@ print(stocks.head())
 # request.get_method = lambda: 'GET'
 # response_body = urlopen(request).read()
 # print(response_body)
+
+str = '[쓰리박] 박지성 인맥이 부러운 이청용'
+
+print(str.endswith('이청용'))
+
+print(str.startswith('[쓰리박]'))
+
+print('박지성' in str)
