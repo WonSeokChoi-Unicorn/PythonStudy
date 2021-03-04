@@ -405,6 +405,14 @@ def searchList(page):
 # getDetail("[놀면뭐하니] 동거동락 유경험자 탁재훈 클래스", "https://ggoorr.net/all/11100509")
 # sys.exit()
 
+# 제목 중복 지우기 (괄호 있는 것까지 동일) - 해결 필요
+# getDetail("[쓰리박] 박지성 인맥이 부러운 이청용", "https://ggoorr.net/enter/11157332")
+# sys.exit()
+
+# 제목 중복 지우기 (제목 뒤에 괄호 있는 동일) - 해결 필요
+# getDetail("러블리즈 정예인 레깅스 (스압)", "https://ggoorr.net/enter/11157408")
+# sys.exit()
+
 # http://zeany.net/46 참고해서 제목 지우기 시도해보기
 
 
