@@ -221,22 +221,20 @@ def getDetail(title, detailUrl):
         titleIndex = 0
         tmpTitle = title
 
-        # 05-01 제목 끝에 "(스압)" 을 제거
+        # 05-01 제목 끝에 "(스압)" 을 제거 2021.03.07
         tmpTitle = tmpTitle.replace("(스압)", "").strip()
 
-        # 05-02 제목과 100% 동일한 내용 삭제하기 
+        # 05-02 제목과 100% 동일한 본문 내용 삭제하기 2021.03.07 
         articleString = articleString.replace(tmpTitle, "")
 
         # 05-03 제목에 "[xxx]" 가 있으나 본문에는 "[xxx]"가 없는 경우 처리 > 제목의 [xxx]를 제거
         if title.find("]") >= 0:
             titleIndex = title.index("]")
-        # "[ ~ ]"가 있을 경우 처리
+        # "[ ~ ]"가 있을 경우 처리 2021.02.27
         if tmpTitle.startswith("[") and titleIndex >= 0:
             tmpTitle = (title[titleIndex+1:]).strip()
         articleString = articleString.replace(tmpTitle, "")
         
-        
-
         # 파일에 저장
         fileContent = "<p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
         fileContent += "\n"
@@ -417,20 +415,17 @@ def searchList(page):
 
 # http://zeany.net/46 참고해서 제목 지우기 시도해보기
 
-# 제목 중복 지우기 (괄호 있는 것까지 동일) - 해결 필요
+# 제목 중복 지우기 (괄호 있는 것까지 동일)
 # getDetail("[쓰리박] 박지성 인맥이 부러운 이청용", "https://ggoorr.net/enter/11157332")
 # sys.exit()
 
-# 제목 중복 지우기 (제목 뒤에 괄호 있는 동일) - 해결 필요
+# 제목 중복 지우기 (제목 뒤에 괄호 있는 동일)
 # getDetail("러블리즈 정예인 레깅스 (스압)", "https://ggoorr.net/enter/11157408")
 # sys.exit()
 
-# 제목 중복 지우기 (내용 끝에 동일한 제목) - 해결 필요
+# 제목 중복 지우기 (내용 끝에 동일한 제목)
 # getDetail("요즘 이미지 망친 회사들의 공통점", "https://ggoorr.net/all/11173591")
 # sys.exit()
-
-
-
 
 # 메인 시작 : 1-20 페이지까지 for loop
 def startCrawlering():
