@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 import io
 import struct
 import urllib.request as urllib2
+# 에러 확인 위해 HTTPError을 import
+from urllib.request import HTTPError
+import re
 
 # 전역 변수 설정
 GGOORR_MAIN_URL = "https://ggoorr.net"                              # 꾸르 메인 주소
@@ -23,7 +26,14 @@ def getImageInfo(imgUrl):
         req = urllib2.Request(imgUrl, headers={"Range": "5000", "User-Agent": 
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"})
 
+        # try:
+        #     r = urllib2.urlopen(req)
+        #     data = r.read()
+        # except HTTPError as e:
+        #     print(e) # null을 반환하거나, break 문을 실행하거나, 기타 다른 방법을 사용
+
         r = urllib2.urlopen(req)
+
         data = r.read()
 
         size = len(data)
@@ -136,31 +146,32 @@ def getDetail(title, detailUrl):
         # for pLine in articleBody.select("p"):
         for pLine in articleBody.div.div.children:     # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
 
-            # 이미지 태그가 있는경우, 이미지의 사이즈를 체크 및 수정
-            for img in pLine.select("img"):
-                # src 속성 찾기
-                imgSrcText = str(img['src'])
-                # style 속성 삭제
-                del img['style']
-                # print(imgSrcText)
-                if imgSrcText == "None":
-                    # 이미지가 없을 경우
-                    pass
-                elif ".daumcdn.net" in imgSrcText:
-                    # .daumcdn.net가 있을 경우 폭을 800으로 변경
-                    img['src'] = imgSrcText.replace("R1024x0", "R800x0")
-                elif "gamechosun.co.kr" in imgSrcText: 
-                    # 2021.01.26 gamechosun.co.kr 문제 있어서 예외 처리
-                    img['width'] = 800
-                else:
-                    # 그 외 경우는 폭이 800을 초과할 경우 width 속성을 800으로 지정
-                    imgArr = getImageInfo( img['src'] )
-                    # print(str(imgArr))
-                    if imgArr != None and len(imgArr) == 3 and int(imgArr[1]) > 800:
-                        img['width'] = 800
-                # 이미지 태그를 P태그로 감싸기
-                img.wrap(detailSoup.new_tag("p"))
-            
+            # 2021.02.24 구글 블로거에서 자동으로 width를 810으로 맞추어 주어서 주석 처리
+            # # 이미지 태그가 있는경우, 이미지의 사이즈를 체크 및 수정
+            # for img in pLine.select("img"):
+            #     # src 속성 찾기
+            #     imgSrcText = str(img['src'])
+            #     # style 속성 삭제
+            #     del img['style']
+            #     # print(imgSrcText)
+            #     if imgSrcText == "None":
+            #         # 이미지가 없을 경우
+            #         pass
+            #     elif ".daumcdn.net" in imgSrcText:
+            #         # .daumcdn.net가 있을 경우 폭을 800으로 변경
+            #         img['src'] = imgSrcText.replace("R1024x0", "R800x0")
+            #     elif "gamechosun.co.kr" in imgSrcText: 
+            #         # 2021.01.26 gamechosun.co.kr 문제 있어서 예외 처리
+            #         img['width'] = 800
+            #     else:
+            #         # 그 외 경우는 폭이 800을 초과할 경우 width 속성을 800으로 지정
+            #         imgArr = getImageInfo( img['src'] )
+            #         # print(str(imgArr))
+            #         if imgArr != None and len(imgArr) == 3 and int(imgArr[1]) > 800:
+            #             img['width'] = 800
+            #     # 이미지 태그를 P태그로 감싸기
+            #     img.wrap(detailSoup.new_tag("p"))
+
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
             utubeShrotUrlIndex  = pLineText.find('https://youtu.be/')                  # 유튜브 짧은 주소 접두어
@@ -206,6 +217,26 @@ def getDetail(title, detailUrl):
         # 04-03 img 폭을 800 2020.12.29 추가 2021.01.23 삭제
         # articleString = articleString.replace("<img", "<img width=800")
         
+        # 05.제목이 포함된 내용 첫 줄 삭제하기 2021.02.27
+        titleIndex = 0
+        tmpTitle = title
+
+        # 05-01 제목 끝에 "(스압)" 을 제거
+        tmpTitle = tmpTitle.replace("(스압)", "").strip()
+
+        # 05-02 제목과 100% 동일한 내용 삭제하기 
+        articleString = articleString.replace(tmpTitle, "")
+
+        # 05-03 제목에 "[xxx]" 가 있으나 본문에는 "[xxx]"가 없는 경우 처리 > 제목의 [xxx]를 제거
+        if title.find("]") >= 0:
+            titleIndex = title.index("]")
+        # "[ ~ ]"가 있을 경우 처리
+        if tmpTitle.startswith("[") and titleIndex >= 0:
+            tmpTitle = (title[titleIndex+1:]).strip()
+        articleString = articleString.replace(tmpTitle, "")
+        
+        
+
         # 파일에 저장
         fileContent = "<p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
         fileContent += "\n"
@@ -307,6 +338,13 @@ def searchList(page):
                 if(writetime > todate):
                     print("작성 안 하고, 다음 게시물 조회")
                     pass
+                # 2021.02.24 구글 블로거에서 자동으로 width를 810으로 맞추어 주어서 주석 처리
+                # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11074939&listStyle=viewer":
+                #     print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
+                #     pass
+                # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11090562&listStyle=viewer":
+                #     print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
+                #     pass                
                 elif writetime <= fromdate:
                     print("작성 대상 아님 - 더 이상 게시물 조회하지 않음")
                     return False
@@ -364,6 +402,34 @@ def searchList(page):
 # gamechosun.co.kr 이미지 있는 경우
 # getDetail("title", "https://ggoorr.net/all/10918226")
 # sys.exit()
+
+# HTTP Error 400: Bad Request 이미지 있는 경우
+# getDetail("title", "https://ggoorr.net/all/11074939")
+# sys.exit()
+
+# 제목 중복 지우기 (동일)
+# getDetail("브이로그 유튜버 진훤", "https://ggoorr.net/thisthat/11095623")
+# sys.exit()
+
+# 제목 중복 지우기 (유사)
+# getDetail("[놀면뭐하니] 동거동락 유경험자 탁재훈 클래스", "https://ggoorr.net/all/11100509")
+# sys.exit()
+
+# http://zeany.net/46 참고해서 제목 지우기 시도해보기
+
+# 제목 중복 지우기 (괄호 있는 것까지 동일) - 해결 필요
+# getDetail("[쓰리박] 박지성 인맥이 부러운 이청용", "https://ggoorr.net/enter/11157332")
+# sys.exit()
+
+# 제목 중복 지우기 (제목 뒤에 괄호 있는 동일) - 해결 필요
+# getDetail("러블리즈 정예인 레깅스 (스압)", "https://ggoorr.net/enter/11157408")
+# sys.exit()
+
+# 제목 중복 지우기 (내용 끝에 동일한 제목) - 해결 필요
+# getDetail("요즘 이미지 망친 회사들의 공통점", "https://ggoorr.net/all/11173591")
+# sys.exit()
+
+
 
 
 # 메인 시작 : 1-20 페이지까지 for loop
