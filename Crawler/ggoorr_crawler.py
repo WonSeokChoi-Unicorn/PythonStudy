@@ -217,7 +217,8 @@ def getDetail(title, detailUrl):
         # 04-03 img 폭을 800 2020.12.29 추가 2021.01.23 삭제
         # articleString = articleString.replace("<img", "<img width=800")
         
-        # 05.제목이 포함된 내용 첫 줄 삭제하기 2021.02.27
+        # 05.제목이 포함된 내용 삭제하기 2021.02.27
+        # 변수 초기화, 지정
         titleIndex = 0
         tmpTitle = title
 
