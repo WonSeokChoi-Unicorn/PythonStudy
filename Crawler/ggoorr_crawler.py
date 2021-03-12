@@ -169,8 +169,9 @@ def getDetail(title, detailUrl):
             #         # print(str(imgArr))
             #         if imgArr != None and len(imgArr) == 3 and int(imgArr[1]) > 800:
             #             img['width'] = 800
-            #     # 이미지 태그를 P태그로 감싸기
-            #     img.wrap(detailSoup.new_tag("p"))
+            # 이미지 태그를 P태그로 감싸기 2021.03.13 기능 살림
+            for img in pLine.select("img"):                
+                img.wrap(detailSoup.new_tag("p"))
 
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
