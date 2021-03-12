@@ -9,5 +9,5 @@ D:
 cd Backup
 REM D:\MariaDB 10.5\bin\mysqldump.exe는 본인 PC에 맞는 경로로 수정 필요
 REM [id], [password]에 괄호 제외하고 입력
-REM backup_investar_db_20210312.sql 로 파일 생성
+REM 2021년 3월 12일 실행하면 backup_investar_db_20210312.sql로 파일 생성
 "D:\MariaDB 10.5\bin\mysqldump.exe" -u[id] -p[password] investar > "backup_investar_db_%YEAR%%MONTH%%DAY%.sql"
