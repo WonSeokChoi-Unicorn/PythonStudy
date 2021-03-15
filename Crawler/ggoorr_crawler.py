@@ -345,6 +345,9 @@ def searchList(page):
                 # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11090562&listStyle=viewer":
                 #     print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
                 #     pass                
+                elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11220982&listStyle=viewer":
+                    print("<div>와 </div> 사이에 내용이 있어서, 다음 게시물 조회")
+                    pass                
                 elif writetime <= fromdate:
                     print("작성 대상 아님 - 더 이상 게시물 조회하지 않음")
                     return False
@@ -427,6 +430,10 @@ def searchList(page):
 
 # 제목 중복 지우기 (내용 끝에 동일한 제목)
 # getDetail("요즘 이미지 망친 회사들의 공통점", "https://ggoorr.net/all/11173591")
+# sys.exit()
+
+# 2021.03.15 <div>와 </div> 사이에 내용이 있을 경우 오류 발생 - <div>를 <p>로 변경할 지?
+# getDetail("악마도 울고 갈 CJ의 아이즈원 컴백및 발표 타이밍", "https://ggoorr.net/enter/11220982")
 # sys.exit()
 
 # 메인 시작 : 1-20 페이지까지 for loop
