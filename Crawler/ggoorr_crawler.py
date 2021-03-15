@@ -169,9 +169,14 @@ def getDetail(title, detailUrl):
             #         # print(str(imgArr))
             #         if imgArr != None and len(imgArr) == 3 and int(imgArr[1]) > 800:
             #             img['width'] = 800
-            # 이미지 태그를 P태그로 감싸기 2021.03.13 기능 살림
-            for img in pLine.select("img"):                
-                img.wrap(detailSoup.new_tag("p"))
+            try:
+                # 이미지 태그를 P태그로 감싸기 2021.03.13 기능 살림
+                for img in pLine.select("img"):
+                    img.wrap(detailSoup.new_tag("p"))
+            # 문자열만 있을 경우를 대비하여 except 처리
+            except AttributeError as e:
+                print("예외가 발생했습니다.", e)
+                pass
 
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
@@ -345,9 +350,9 @@ def searchList(page):
                 # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11090562&listStyle=viewer":
                 #     print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
                 #     pass                
-                elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11220982&listStyle=viewer":
-                    print("<div>와 </div> 사이에 내용이 있어서, 다음 게시물 조회")
-                    pass                
+                # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11220982&listStyle=viewer":
+                #     print("<div>와 </div> 사이에 내용이 있어서, 다음 게시물 조회")
+                #     pass                
                 elif writetime <= fromdate:
                     print("작성 대상 아님 - 더 이상 게시물 조회하지 않음")
                     return False
