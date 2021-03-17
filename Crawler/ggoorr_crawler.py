@@ -1,6 +1,7 @@
 import requests, json
 import sys
 from bs4 import BeautifulSoup
+from bs4 import NavigableString
 from datetime import datetime, timedelta
 # 이미지 해상도 확인 2021.01.23 병합
 import io
@@ -169,14 +170,17 @@ def getDetail(title, detailUrl):
             #         # print(str(imgArr))
             #         if imgArr != None and len(imgArr) == 3 and int(imgArr[1]) > 800:
             #             img['width'] = 800
-            try:
-                # 이미지 태그를 P태그로 감싸기 2021.03.13 기능 살림
-                for img in pLine.select("img"):
-                    img.wrap(detailSoup.new_tag("p"))
-            # 문자열만 있을 경우를 대비하여 except 처리
+            try:               
+                # tag 없는 일반 문자열만 있을 경우 .select() 실행시 오류 발생하여 분기 처리
+                if isinstance(pLine, NavigableString):
+                    pLine = "<div><span>" + pLine + "</span></div>"
+                else:
+                    # 이미지 태그를 P태그로 감싸기 2021.03.13 기능 살림
+                    for img in pLine.select("img"):
+                        img.wrap(detailSoup.new_tag("p"))               
             except AttributeError as e:
                 print("예외가 발생했습니다.", e)
-                pass
+                continue
 
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
