@@ -180,7 +180,7 @@ def getDetail(title, detailUrl):
                         img.wrap(detailSoup.new_tag("p"))               
             except AttributeError as e:
                 print("예외가 발생했습니다.", e)
-                continue
+                pass # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
 
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
