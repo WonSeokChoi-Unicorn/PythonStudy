@@ -107,7 +107,8 @@ for u in range(0, len(urllist)):
     allchannelname = soup.find_all('div', 'hidden style-scope tp-yt-paper-tooltip')
 
     # channelname 변수에 저장합니다.
-    channelname = [soup.find_all('div','hidden style-scope tp-yt-paper-tooltip')[6].string for n in range(0,len(allchannelname))]
+    # 2021.03.25 [6] -> [7] 로 변경
+    channelname = [soup.find_all('div','hidden style-scope tp-yt-paper-tooltip')[7].string for n in range(0,len(allchannelname))]
 
     # 채널명에 줄 바꿈이 있어서 제거합니다.
     for i in range(len(channelname)):
