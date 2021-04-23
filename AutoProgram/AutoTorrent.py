@@ -1,5 +1,8 @@
 # application 실행하기 위한 라이브러리 import
 from pywinauto import application
+# 64bit Python 사용하면서 32bit 어플리케이션 자동화시 나오는 경고를 없애기 위해 import
+import warnings
+warnings.simplefilter('ignore', category=UserWarning)
 # application 실행하기 위한 명령어 단축
 app = application.Application()
 # 경로에 기본 확장 문자(escape sequence)를 피하기 위해서 역슬래시를 2개 사용
