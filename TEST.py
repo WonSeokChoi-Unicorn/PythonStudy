@@ -49,9 +49,9 @@ res = urllib.request.urlopen(url)
 # if "브이로그 유튜버 진훤" in html:
 #     print("존재합니다",html)
 
-from pykrx import stock
-df1 = stock.get_market_ohlcv_by_date("20201230", "20201230", "005930")
-print(df1)
+# from pykrx import stock
+# df1 = stock.get_market_ohlcv_by_date("20201230", "20201230", "005930")
+# print(df1)
 
 """
 import urllib.parse
@@ -98,10 +98,22 @@ print(stocks.head())
 # response_body = urlopen(request).read()
 # print(response_body)
 
-str = '[쓰리박] 박지성 인맥이 부러운 이청용'
+# str = '[쓰리박] 박지성 인맥이 부러운 이청용'
 
-print(str.endswith('이청용'))
+# print(str.endswith('이청용'))
 
-print(str.startswith('[쓰리박]'))
+# print(str.startswith('[쓰리박]'))
 
-print('박지성' in str)
+# print('박지성' in str)
+
+# application 실행하기 위한 라이브러리 import
+from pywinauto import application
+import pywinauto
+# 64bit Python 사용하면서 32bit 어플리케이션 자동화시 나오는 UserWarning를 없애기 위해 import
+import warnings
+warnings.simplefilter('ignore', category=UserWarning)
+# application 실행하기 위한 명령어 단축
+app = application.Application()
+app.start("notepad.exe")
+dlg = app['제목 없음 - Windows 메모장']
+dlg.print_control_identifiers()
