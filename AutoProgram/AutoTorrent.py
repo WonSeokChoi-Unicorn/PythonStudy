@@ -6,6 +6,7 @@ import warnings
 warnings.simplefilter('ignore', category=UserWarning)
 # 클립보드로 복사하기 위한 라이브러리 import
 import clipboard
+import time
 # application 실행하기 위한 명령어 단축
 app = application.Application()
 # 클립보드 초기화
@@ -13,9 +14,10 @@ clipboard.copy("")
 # magnet 주소를 정리한 텍스트 파일을 한 줄씩 읽어 옵니다
 # 경로에 기본 확장 문자(escape sequence)를 피하기 위해서 역슬래시를 2개 사용
 f = open("자석 주소 파일명.txt", 'r')
+# 한 줄씩 읽기
 lines = f.readlines()
-import time
 for line in lines:
+    # 빈 줄일 경우 통과
     if line.strip() == "":
         continue
     clipboard.copy(line)
