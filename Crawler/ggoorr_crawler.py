@@ -252,7 +252,7 @@ def getDetail(writetimeString, title, detailUrl):
         
         # 파일에 저장
         fileContent = "<p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
-        fileContent += "\n"
+        # fileContent += "\n"
         # fileContent += writetimeString
         fileContent += "\n"
         fileContent += articleString
