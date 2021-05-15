@@ -398,10 +398,10 @@ def SaveSortedContentDictionary():
     # 정렬 후 value를 파일에 저장
     for (tuplekey, tuplevalue) in sortedKeyList:             
         f.write(str(tuplevalue))
-        print("fileContent write OK ")
     
     if f is not None:
         f.close
+        print("fileContent write OK ")
 
 # youtube test
 # getDetail("title", "https://ggoorr.net/enter/10765153")
