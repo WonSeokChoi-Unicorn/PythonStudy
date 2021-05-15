@@ -22,6 +22,8 @@ nowDate = datetime.now()
 f = open(nowDate.strftime('%Y-%m-%d') + '_ggoorr.txt', mode='wt', encoding='utf-8')
 # 전체 컨텐츠가 저장되는 dictionary
 contentDictionary = {}
+# 전체 컨텐츠가 sort 되어 저장되는 dictionary
+sortedKeyList = {}
 
 # 이미지 해상도 확인 2021.01.23 병합
 def getImageInfo(imgUrl):
@@ -251,6 +253,8 @@ def getDetail(writetimeString, title, detailUrl):
         # 파일에 저장
         fileContent = "<p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
         fileContent += "\n"
+        # fileContent += writetimeString
+        fileContent += "\n"
         fileContent += articleString
         fileContent += "\n"
 
@@ -372,7 +376,13 @@ def searchList(page):
                     return False
                 else :
                     print("작성 대상 맞음")
-                    getDetail(writetime.strftime('%Y-%m-%d %H:%M:%S') + str(nCnt), title, detailUrl)
+                    # 작성 시간을 (20-nCnt)만큼 빼기
+                    # writetimeref = writetime - timedelta(seconds=int(20-nCnt))
+                    # string으로 변환
+                    # stringwritetime = writetimeref.strftime('%Y-%m-%d %H:%M:%S')
+                    stringwritetime = writetime.strftime('%Y-%m-%d %H:%M:%S')
+                    # 함수로 넘김
+                    getDetail(stringwritetime, title, detailUrl)
 
             nCnt+=1
             # end of [for trOne in contentsBody.select('tr'):]
@@ -383,11 +393,12 @@ def searchList(page):
 
 # 데이터 정렬하여 파일에 저장 처리 
 def SaveSortedContentDictionary():
-    # key로 정렬
-    sortedKeyList = sorted(contentDictionary.keys())
+    # 딕셔너리는 key로 정렬하면 튜플 형태의 리스트가 됨
+    sortedKeyList = sorted(contentDictionary.items())
     # 정렬 후 value를 파일에 저장
-    for key in sortedKeyList:             
-        f.write(contentDictionary[key])
+    for (tuplekey, tuplevalue) in sortedKeyList:             
+        f.write(str(tuplevalue))
+        print("fileContent write OK ")
     
     if f is not None:
         f.close
