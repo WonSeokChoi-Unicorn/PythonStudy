@@ -20,6 +20,8 @@ headers = {'User-Agent': 'Mozilla/5.0'}                             # 봇 방지
 nowDate = datetime.now()
 # 파일 작성 시간이 길어져서 년월일로 파일명 생성
 f = open(nowDate.strftime('%Y-%m-%d') + '_ggoorr.txt', mode='wt', encoding='utf-8')
+# 전체 컨텐츠가 저장되는 dictionary
+contentDictionary = {}
 
 # 이미지 해상도 확인 2021.01.23 병합
 def getImageInfo(imgUrl):
@@ -96,7 +98,7 @@ def getImageInfo(imgUrl):
         return content_type, width, height
 
 # 상세 게시글 HTML 수집 함수
-def getDetail(title, detailUrl):
+def getDetail(writetimeString, title, detailUrl):
 
     # 상세 주소 요청 및 응답 수신
     detailRes = requests.get(detailUrl, headers=headers)
@@ -251,8 +253,11 @@ def getDetail(title, detailUrl):
         fileContent += "\n"
         fileContent += articleString
         fileContent += "\n"
-        if (f is not None) and f.write(fileContent):
-            print("fileContent write OK ")
+
+        contentDictionary[writetimeString] = fileContent
+        
+        # if (f is not None) and f.write(fileContent):
+        #     print("fileContent write OK ")
     else :
         print(" >>>> GET ERROR.....")
     
@@ -359,17 +364,31 @@ def searchList(page):
                 #     pass                
                 elif writetime <= fromdate:
                     print("작성 대상 아님 - 더 이상 게시물 조회하지 않음")
+
+                    # 데이터 정렬하여 파일에 저장 처리 
+                    sortedContentDictionary()
+
                     return False
                 else :
                     print("작성 대상 맞음")
-                    getDetail(title, detailUrl)
+                    getDetail(writetime.strftime('%Y-%m-%d %H:%M:%S') + str(nCnt), title, detailUrl)
 
             nCnt+=1
             # end of [for trOne in contentsBody.select('tr'):]
         print("=========================================== end of List =====================================")
         return True        
     else:
-        print(GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")    
+        print(GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")
+
+# 데이터 정렬하여 파일에 저장 처리 
+def sortedContentDictionary():
+    
+    sortedKeyList = sorted(contentDictionary.keys())
+    for key in sortedKeyList:             
+        f.write(contentDictionary[key])
+    
+    if f is not None:
+        f.close
 
 # youtube test
 # getDetail("title", "https://ggoorr.net/enter/10765153")
@@ -438,20 +457,21 @@ def searchList(page):
 # sys.exit()
 
 # 제목 중복 지우기 (내용 끝에 동일한 제목)
-# getDetail("요즘 이미지 망친 회사들의 공통점", "https://ggoorr.net/all/11173591")
+# getDetail("2021-05-15 12:08:02", "요즘 이미지 망친 회사들의 공통점", "https://ggoorr.net/all/11173591")
 # sys.exit()
 
-# 2021.03.15 <div>와 </div> 사이에 내용이 있을 경우 오류 발생 - <div>를 <p>로 변경할 지?
-# getDetail("악마도 울고 갈 CJ의 아이즈원 컴백및 발표 타이밍", "https://ggoorr.net/enter/11220982")
+#2021.03.15 <div>와 </div> 사이에 내용이 있을 경우 오류 발생 - <div>를 <p>로 변경할 지?
+# getDetail("2021-05-15 12:08:01", "악마도 울고 갈 CJ의 아이즈원 컴백및 발표 타이밍", "https://ggoorr.net/enter/11220982")
 # sys.exit()
+
+# contentDictionary - 데이터 정렬하여 저장하는 함수 
+# sortedContentDictionary()
+
 
 # 메인 시작 : 1-20 페이지까지 for loop
 def startCrawlering():
     for page in range(1, 20):
         if False == searchList(page):
             break
-
-    if f is not None:
-        f.close
 
 startCrawlering()
