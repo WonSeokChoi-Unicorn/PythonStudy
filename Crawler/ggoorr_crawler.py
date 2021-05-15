@@ -254,6 +254,7 @@ def getDetail(writetimeString, title, detailUrl):
         fileContent += articleString
         fileContent += "\n"
 
+        # 작성시간을 key로해서 html코드를 value로 저장
         contentDictionary[writetimeString] = fileContent
         
         # if (f is not None) and f.write(fileContent):
@@ -366,7 +367,7 @@ def searchList(page):
                     print("작성 대상 아님 - 더 이상 게시물 조회하지 않음")
 
                     # 데이터 정렬하여 파일에 저장 처리 
-                    sortedContentDictionary()
+                    SaveSortedContentDictionary()
 
                     return False
                 else :
@@ -381,9 +382,10 @@ def searchList(page):
         print(GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")
 
 # 데이터 정렬하여 파일에 저장 처리 
-def sortedContentDictionary():
-    
+def SaveSortedContentDictionary():
+    # key로 정렬
     sortedKeyList = sorted(contentDictionary.keys())
+    # 정렬 후 value를 파일에 저장
     for key in sortedKeyList:             
         f.write(contentDictionary[key])
     
@@ -460,12 +462,12 @@ def sortedContentDictionary():
 # getDetail("2021-05-15 12:08:02", "요즘 이미지 망친 회사들의 공통점", "https://ggoorr.net/all/11173591")
 # sys.exit()
 
-#2021.03.15 <div>와 </div> 사이에 내용이 있을 경우 오류 발생 - <div>를 <p>로 변경할 지?
+# 2021.03.15 <div>와 </div> 사이에 내용이 있을 경우 오류 발생 - <div>를 <p>로 변경할 지?
 # getDetail("2021-05-15 12:08:01", "악마도 울고 갈 CJ의 아이즈원 컴백및 발표 타이밍", "https://ggoorr.net/enter/11220982")
 # sys.exit()
 
 # contentDictionary - 데이터 정렬하여 저장하는 함수 
-# sortedContentDictionary()
+# SaveSortedContentDictionary()
 
 
 # 메인 시작 : 1-20 페이지까지 for loop
