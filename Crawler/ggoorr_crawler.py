@@ -100,7 +100,7 @@ def getImageInfo(imgUrl):
         return content_type, width, height
 
 # 상세 게시글 HTML 수집 함수
-def getDetail(writetimeString, title, detailUrl):
+def getDetail(nCnt, title, detailUrl):
 
     # 상세 주소 요청 및 응답 수신
     detailRes = requests.get(detailUrl, headers=headers)
@@ -111,9 +111,15 @@ def getDetail(writetimeString, title, detailUrl):
         # 게시글의 HTML을 받아 BeautifulSoup 로 파싱 저장 
         detailHtml = detailRes.text
         detailSoup = BeautifulSoup(detailHtml, 'html.parser')
-        
-        # article 태그만 데이터만 사용함
-        articleBody = detailSoup.find('article')  # article 태그 찾기 
+
+        # 작성 시간을 찾기 위해 time 태그의 데이터만 사용함
+        timeBody = detailSoup.find('time')
+
+        # 실제 게시글 작성 시간 + (20-게시판 숫자 카운트)로 key(realwritetime) 만듬
+        realwritetime = timeBody.get_text() + ' ' + str(20-int(nCnt))
+
+        # 본문을 찾기 위해 article 태그의 데이터만 사용함
+        articleBody = detailSoup.find('article')
 
         # span class="fr-video" 있는 article은 PASS 2021.01.19 수정
         articleBodyText = str(articleBody)
@@ -258,8 +264,8 @@ def getDetail(writetimeString, title, detailUrl):
         fileContent += articleString
         fileContent += "\n"
 
-        # 작성시간을 key로해서 html코드를 value로 저장
-        contentDictionary[writetimeString] = fileContent
+        # realwritetime을 key로해서 html코드를 value로 저장
+        contentDictionary[realwritetime] = fileContent
         
         # if (f is not None) and f.write(fileContent):
         #     print("fileContent write OK ")
@@ -380,9 +386,10 @@ def searchList(page):
                     # writetimeref = writetime - timedelta(seconds=int(20-nCnt))
                     # string으로 변환
                     # stringwritetime = writetimeref.strftime('%Y-%m-%d %H:%M:%S')
-                    stringwritetime = writetime.strftime('%Y-%m-%d %H:%M:%S')
+                    # 2021.05.19 본문에서 실제 작성 시간을 가져오므로 주석 처리
+                    # stringwritetime = writetime.strftime('%Y-%m-%d %H:%M:%S')
                     # 함수로 넘김
-                    getDetail(stringwritetime, title, detailUrl)
+                    getDetail(nCnt, title, detailUrl)
 
             nCnt+=1
             # end of [for trOne in contentsBody.select('tr'):]
@@ -477,9 +484,20 @@ def SaveSortedContentDictionary():
 # getDetail("2021-05-15 12:08:01", "악마도 울고 갈 CJ의 아이즈원 컴백및 발표 타이밍", "https://ggoorr.net/enter/11220982")
 # sys.exit()
 
-# contentDictionary - 데이터 정렬하여 저장하는 함수 
-# SaveSortedContentDictionary()
+# 2021.05.19 본문 파악 예제
+# getDetail("2021-05-19 00:13:00", "내일 쉬는 이유", "https://ggoorr.net/all/11566883")
+# sys.exit()
 
+# 2021.05.19 저장 안 되는 문제 파악 예제
+# getDetail("러시아, 생활수준 7년간 11% 하락...루마니아보다 어려워", "https://ggoorr.net/all/11565778")
+# SaveSortedContentDictionary - 데이터 정렬하여 저장하는 함수 
+# SaveSortedContentDictionary()
+# sys.exit()
+
+# 2021.05.19 정상 저장
+# getDetail("[유머] 남자들 샤워할때 특징.jpg", "https://ggoorr.net/all/11565798")
+# SaveSortedContentDictionary()
+# sys.exit()
 
 # 메인 시작 : 1-20 페이지까지 for loop
 def startCrawlering():
