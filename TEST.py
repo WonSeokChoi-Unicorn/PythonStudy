@@ -107,13 +107,28 @@ print(stocks.head())
 # print('박지성' in str)
 
 # application 실행하기 위한 라이브러리 import
-from pywinauto import application
-import pywinauto
+# from pywinauto import application
+# import pywinauto
 # 64bit Python 사용하면서 32bit 어플리케이션 자동화시 나오는 UserWarning를 없애기 위해 import
-import warnings
-warnings.simplefilter('ignore', category=UserWarning)
-# application 실행하기 위한 명령어 단축
-app = application.Application()
-app.start("notepad.exe")
-dlg = app['제목 없음 - Windows 메모장']
-dlg.print_control_identifiers()
+# import warnings
+# warnings.simplefilter('ignore', category=UserWarning)
+# # application 실행하기 위한 명령어 단축
+# app = application.Application()
+# app.start("notepad.exe")
+# dlg = app['제목 없음 - Windows 메모장']
+# dlg.print_control_identifiers()
+
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
+fromdate = datetime(2006, 1, 1, 0, 0, 0)
+presentmonth = datetime(datetime.today().year, datetime.today().month, 1, 0, 0, 0)
+
+i = -1
+while True:
+    i += 1
+    delta = relativedelta(months=int(i))
+    searchdate = fromdate + delta
+    print(searchdate.strftime('%Y-%m'))
+    if searchdate == presentmonth:
+        break
