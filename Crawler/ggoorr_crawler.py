@@ -123,7 +123,7 @@ def getDetail(nCnt, title, detailUrl):
 
         # 2021.05.31 <span class="fr-video fr-fvc fr-dvi"> 있어도 유튜브 iframe 방식이라서 제외하지 않도록 변경
         # span class="fr-video" 있는 article은 PASS 2021.01.19 수정
-        # articleBodyText = str(articleBody)
+        articleBodyText = str(articleBody)
         # articleBodyGIFText1 = articleBodyText.find("fr-video")
         # if articleBodyGIFText1 >=0:
         #     print("articleBody span class=fr-video >=0 is pass")
