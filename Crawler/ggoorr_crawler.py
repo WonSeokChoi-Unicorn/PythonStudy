@@ -10,6 +10,9 @@ import urllib.request as urllib2
 # 에러 확인 위해 HTTPError을 import
 from urllib.request import HTTPError
 import re
+# 파일 존재 여부 확인 위한 os를 import 한다.
+import os
+
 
 # 전역 변수 설정
 GGOORR_MAIN_URL = "https://ggoorr.net"                              # 꾸르 메인 주소
@@ -24,6 +27,14 @@ f = open(nowDate.strftime('%Y-%m-%d') + '_ggoorr.txt', mode='wt', encoding='utf-
 contentDictionary = {}
 # 전체 컨텐츠가 sort 되어 저장되는 dictionary
 sortedKeyList = {}
+
+# 2021.06.18 제외되는 게시글들을 따로 저장하기 위해서 추가
+if os.path.isfile(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt'):
+    # 파일이 존재할 경우 추가, 파일 작성 시간이 길어져서 년월일로 파일명 생성
+    fe = open(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt', mode='at', encoding='utf-8')
+else:
+    # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
+    fe = open(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt', mode='wt', encoding='utf-8')
 
 # 이미지 해상도 확인 2021.01.23 병합
 def getImageInfo(imgUrl):
@@ -133,6 +144,9 @@ def getDetail(nCnt, title, detailUrl):
         articleBodyGIFText2 = articleBodyText.find("gifmp4_video")
         if articleBodyGIFText2 >=0:
             print("articleBody video class=gifmp4_video >=0 is pass")
+            fileexcludeContent = title + "\n" + detailUrl + "\n"
+            if (fe is not None) and fe.write(fileexcludeContent):
+                print("file exclude Content write OK ")            
             return
 
         # articleBody 에서 div 영역을 찾아서, p 로 바꿈...
