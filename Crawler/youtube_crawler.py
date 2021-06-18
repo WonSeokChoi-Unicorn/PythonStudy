@@ -211,7 +211,7 @@ for u in range(0, len(urllist)):
             print(writetime)
             pass
         elif writetime <= fromdate:
-            print("작성 대상 아님 (전일 7시 미만)")
+            print("작성 대상 아님 (전일 7시 이전)")
             print(title[x])
             print(url)
             print(writetime)            
