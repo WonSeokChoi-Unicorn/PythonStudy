@@ -376,7 +376,7 @@ def searchList(page):
                 todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
 
                 if(writetime > todate):
-                    print("작성 안 하고, 다음 게시물 조회")
+                    print("작성 안 하고, 다음 게시물 조회 (당일 7시 이후)")
                     pass
                 # 2021.02.24 구글 블로거에서 자동으로 width를 810으로 맞추어 주어서 주석 처리
                 # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11074939&listStyle=viewer":
@@ -389,14 +389,14 @@ def searchList(page):
                 #     print("<div>와 </div> 사이에 내용이 있어서, 다음 게시물 조회")
                 #     pass                
                 elif writetime <= fromdate:
-                    print("작성 대상 아님 - 더 이상 게시물 조회하지 않음")
+                    print("작성 대상 아님 - 더 이상 게시물 조회하지 않음 (전일 7시 이전)")
 
                     # 데이터 정렬하여 파일에 저장 처리 
                     SaveSortedContentDictionary()
 
                     return False
                 else :
-                    print("작성 대상 맞음")
+                    print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
                     # 작성 시간을 (20-nCnt)만큼 빼기
                     # writetimeref = writetime - timedelta(seconds=int(20-nCnt))
                     # string으로 변환
@@ -514,10 +514,15 @@ def SaveSortedContentDictionary():
 # SaveSortedContentDictionary()
 # sys.exit()
 
+# 임시 작업
+getDetail(1, "비키니 입고 주유하면 무료", "https://ggoorr.net/all/11754028")
+SaveSortedContentDictionary()
+sys.exit()
+
 # 메인 시작 : 1-20 페이지까지 for loop
 def startCrawlering():
     for page in range(1, 20):
         if False == searchList(page):
             break
 
-startCrawlering()
+# startCrawlering()
