@@ -515,9 +515,9 @@ def SaveSortedContentDictionary():
 # sys.exit()
 
 # 임시 작업
-getDetail(1, "비키니 입고 주유하면 무료", "https://ggoorr.net/all/11754028")
-SaveSortedContentDictionary()
-sys.exit()
+# getDetail(1, "비키니 입고 주유하면 무료", "https://ggoorr.net/all/11754028")
+# SaveSortedContentDictionary()
+# sys.exit()
 
 # 메인 시작 : 1-20 페이지까지 for loop
 def startCrawlering():
@@ -525,4 +525,4 @@ def startCrawlering():
         if False == searchList(page):
             break
 
-# startCrawlering()
+startCrawlering()
