@@ -28,13 +28,14 @@ contentDictionary = {}
 # 전체 컨텐츠가 sort 되어 저장되는 dictionary
 sortedKeyList = {}
 
+# 2021.06.29 제외되는 게시글들을 URL로 저장
 # 2021.06.18 제외되는 게시글들을 따로 저장하기 위해서 추가
-if os.path.isfile(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt'):
-    # 파일이 존재할 경우 추가, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-    fe = open(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt', mode='at', encoding='utf-8')
-else:
-    # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-    fe = open(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt', mode='wt', encoding='utf-8')
+# if os.path.isfile(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt'):
+#     # 파일이 존재할 경우 추가, 파일 작성 시간이 길어져서 년월일로 파일명 생성
+#     fe = open(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt', mode='at', encoding='utf-8')
+# else:
+#     # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
+#     fe = open(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt', mode='wt', encoding='utf-8')
 
 # 이미지 해상도 확인 2021.01.23 병합
 def getImageInfo(imgUrl):
@@ -143,10 +144,15 @@ def getDetail(nCnt, title, detailUrl):
         # video class="gifmp4_video" 있는 article은 PASS 2021.01.26 추가
         articleBodyGIFText2 = articleBodyText.find("gifmp4_video")
         if articleBodyGIFText2 >=0:
-            print("articleBody video class=gifmp4_video >=0 is pass")
-            fileexcludeContent = title + "\n" + detailUrl + "\n"
-            if (fe is not None) and fe.write(fileexcludeContent):
-                print("file exclude Content write OK ")            
+            print("articleBody video class=gifmp4_video is written as URL")
+            # print("articleBody video class=gifmp4_video >=0 is pass")
+            # 파일에 저장
+            fileContent = "<br><br></br></br><p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
+            fileContent += "\n"
+            fileContent += "\n" + '<a target=_blank href="' + detailUrl + '">' + detailUrl + "</a>" + "\n"
+            fileContent += "\n" + "<br><br></br></br>" + "\n"
+            # realwritetime을 key로해서 html코드를 value로 저장
+            contentDictionary[realwritetime] = fileContent
             return
 
         # articleBody 에서 div 영역을 찾아서, p 로 바꿈...
