@@ -141,6 +141,7 @@ def getDetail(nCnt, title, detailUrl):
         #     print("articleBody span class=fr-video >=0 is pass")
         #     return
 
+        # 2021.06.29 제외되는 게시글들을 URL로 저장
         # video class="gifmp4_video" 있는 article은 PASS 2021.01.26 추가
         articleBodyGIFText2 = articleBodyText.find("gifmp4_video")
         if articleBodyGIFText2 >=0:
@@ -252,7 +253,9 @@ def getDetail(nCnt, title, detailUrl):
         
         # 04 3가지 변경 작업
         # 04-01 cdn.ggoorr.net은 프록시 서버 경유
-        articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R0x0/?fname=https://cdn.ggoorr.net")
+        # 2021.06.30 R0x0를 적용할 수 없어서 R1024x0으로 변경
+        # articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R0x0/?fname=https://cdn.ggoorr.net")
+        articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R1024x0/?fname=https://cdn.ggoorr.net")
         # 04-02 img 태그 앞에 줄 바꿈
         # articleString = articleString.replace("<img", "<p><img")
         # 04-03 img 폭을 800 2020.12.29 추가 2021.01.23 삭제
