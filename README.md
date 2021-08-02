@@ -8,6 +8,8 @@ Source
 
 1. 토렌트 프로그램에 자석 주소로 추가 (AutoTorrent.py)
 
+2. 구글 번역 기능을 이용하여 영어 파일 읽어서 한국어 파일 저장 (AutoTranslate.py)
+
 크롤러 시리즈
 
 1. 꾸르 크롤러 (ggoorr_crawler.py)
