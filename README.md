@@ -10,6 +10,8 @@ Source
 
 2. 구글 번역 기능을 이용하여 영어 파일 읽어서 한국어 파일 저장 (AutoTranslate.py)
 
+3. korbit을 통해서 리플(XRP)의 현재가를 10분(600초)마다 확인하고, 특정금액(1,500원)이 넘을 경우 slack으로 알림 (KORBIT_inquiry.py)
+
 크롤러 시리즈
 
 1. 꾸르 크롤러 (ggoorr_crawler.py)
