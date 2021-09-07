@@ -28,6 +28,8 @@ Source
 
 7. 한국 증권거래소 상장 법인의 1년 뒤 종가 크롤러 (KRX Closing price one year later_crawler.py)
 
+8. 오피넷 API 연동 전국 주유소 평균가격 크롤러 (Opinet_crawler.py)
+
 휴일 확인
 
 1. Holiday 라이브러리 활용 (Holidays.py)
