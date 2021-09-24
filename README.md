@@ -12,6 +12,8 @@ Source
 
 3. korbit을 통해서 리플(XRP)의 현재가를 10분(600초)마다 확인하고, 특정금액(1,500원)이 넘을 경우 slack으로 알림 (KORBIT_inquiry.py)
 
+4. 주식이나 암호화폐의 현재 금액을 확인하고, 목표가를 넘을 경우 slack으로 알림 (Price_inquiry.py)
+
 크롤러 시리즈
 
 1. 꾸르 크롤러 (ggoorr_crawler.py)
