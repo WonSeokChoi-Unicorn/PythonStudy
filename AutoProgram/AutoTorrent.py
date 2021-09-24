@@ -24,7 +24,8 @@ for line in lines:
     # 1초 대기
     time.sleep(1.0)
     # 경로에 기본 확장 문자(escape sequence)를 피하기 위해서 역슬래시를 2개 사용
-    app.start("C:\\Program Files (x86)\\Transmission Remote GUI\\transgui.exe")
+    # 2021.09.24 Application is not loaded correctly (WaitForInputIdle failed) 경고 없애기 위해서 wait_for_idle=False 옵션 추가
+    app.start("C:\\Program Files (x86)\\Transmission Remote GUI\\transgui.exe", wait_for_idle=False)
     # 3분 대기
     time.sleep(180.0)
     # 확인 버튼은 Button2
