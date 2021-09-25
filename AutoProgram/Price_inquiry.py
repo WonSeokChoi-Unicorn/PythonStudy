@@ -44,8 +44,8 @@ def inquiry1():
             print(text1)
             # Send a message to Slack channel
             post_message(myToken, "#channel", text1)
-        # 1분(60초)마다 반복 실행
-        threading.Timer(60, inquiry1).start()
+    # 1분(60초)마다 반복 실행
+    threading.Timer(60, inquiry1).start()
 # 암호화폐
 def inquiry2():
     price2 = 0
