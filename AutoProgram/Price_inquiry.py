@@ -51,22 +51,25 @@ def inquiry2():
     price2 = 0
     # 오늘 비트코인
     price2 = fdr.DataReader('BTC/KRW', today, today)
-    # 종가(Close)만 가져오기
-    closeprice2 = price2['Close'][0]
-    # 현재 시간을 YYYY/MM/DD HH:MM:SS 형태로 변경
-    now_time = '({})'.format(datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
-    # 금액을 출력
-    print(now_time + ' Cryptocurrency : ' + str(closeprice2))
-    # 목표가 설정
-    setprice2 = 53042000
-    # 목표가를 넘어가면 slack으로 알림
-    if closeprice2 > setprice2:
-        # 안내문구 설정
-        text2 = now_time + " Cryptocurrency(" + str(closeprice2) + ") exceeded the set price(" + str(setprice2) +")"
-        # 안내문구 출력
-        print(text2)
-        # Send a message to Slack channel
-        post_message(myToken, "#channel", text2)
+    if price2.empty:
+        print('There is no price!')
+    else:
+        # 종가(Close)만 가져오기
+        closeprice2 = price2['Close'][0]
+        # 현재 시간을 YYYY/MM/DD HH:MM:SS 형태로 변경
+        now_time = '({})'.format(datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
+        # 금액을 출력
+        print(now_time + ' Cryptocurrency : ' + str(closeprice2))
+        # 목표가 설정
+        setprice2 = 53042000
+        # 목표가를 넘어가면 slack으로 알림
+        if closeprice2 > setprice2:
+            # 안내문구 설정
+            text2 = now_time + " Cryptocurrency(" + str(closeprice2) + ") exceeded the set price(" + str(setprice2) +")"
+            # 안내문구 출력
+            print(text2)
+            # Send a message to Slack channel
+            post_message(myToken, "#channel", text2)
     # 1분(60초)마다 반복 실행
     threading.Timer(60, inquiry2).start()
 # 주식 알람 받으려면 inquiry1, 암호화폐 알람 받으려면 inquiry2 사용하고, 사용하지 않는 함수는 주석 처리
