@@ -198,12 +198,21 @@ for u in range(0, len(urllist)):
             delta = relativedelta(years=int(timenumber[0]))
             writetime = datetime.today() - delta
 
-        # 유튜브 Video ID 추출
-        utubeKey = firsturl[x][9 : 9 + 11]
-        # 유튜브 URL 만들기
-        url = 'https://www.youtube.com/watch?v=' + str(utubeKey)
-        # iframe 태그 생성
-        iframe = yt.video(url, width=width, height=height)
+        # 2021.10.28 shorts 영상에 대한 처리 추가
+        if "/shorts/" in firsturl[x]:
+            # 유튜브 Video ID 추출
+            utubeKey = firsturl[x][8 : 8 + 11]
+            # 유튜브 URL 만들기
+            url = 'https://www.youtube.com/shorts/' + str(utubeKey)
+            # iframe 태그 생성 - 아직 라이브러리가 없어서 수동 처리
+            iframe = '<iframe width="315" height="560" src="https://www.youtube.com/embed/' + str(utubeKey) + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+        else:
+            # 유튜브 Video ID 추출
+            utubeKey = firsturl[x][9 : 9 + 11]
+            # 유튜브 URL 만들기
+            url = 'https://www.youtube.com/watch?v=' + str(utubeKey)
+            # iframe 태그 생성
+            iframe = yt.video(url, width=width, height=height)
 
         if(writetime > todate):
             print("작성 대상 아님 (당일 7시 이후)")
