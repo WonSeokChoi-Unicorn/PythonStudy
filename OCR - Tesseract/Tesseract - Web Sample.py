@@ -22,7 +22,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tess
 # 11 - Sparse text. Find as much text as possible in no particular order.
 # 12 - Sparse text with OSD.
 # 13 - Raw line. Treat the image as a single text line, bypassing hacks that are Tesseract-specific.
-# 웹에 있는 이미지
+# 꾸르에 있는 이미지
 response = requests.get("https://cdn.ggoorr.net/files/attach/images/109/703/527/012/a47e659469540eb0d4c48e77a6b202e2.jpg")
 # requests에 대한 응답은 .content를 통해서 확인
 # 메모리 상에 있는 것(io.BytesIO)을 Image.open
