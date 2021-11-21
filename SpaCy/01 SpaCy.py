@@ -3,6 +3,7 @@
 # pip install -U pip setuptools wheel
 # pip install -U spacy
 # 2. 한국어는 공식 지원하지 않아서 다국어 모듈 필요 
+# https://spacy.io/models/xx
 # python -m spacy download xx_ent_wiki_sm
 # python -m spacy download xx_sent_ud_sm
 # 3. 첫 줄에 인코딩 방식을 주석으로 선언 필요
