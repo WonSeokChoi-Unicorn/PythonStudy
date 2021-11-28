@@ -45,6 +45,7 @@ import os
 # 한상기 오토프레스 Han Sang Ki https://www.youtube.com/c/%ED%95%9C%EC%83%81%EA%B8%B0HanSangKi/videos
 # LikeRing https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos
 # 사람사는세상노무현재단 https://www.youtube.com/c/%EC%82%AC%EB%9E%8C%EC%82%AC%EB%8A%94%EC%84%B8%EC%83%81%EB%85%B8%EB%AC%B4%ED%98%84%EC%9E%AC%EB%8B%A8/videos
+# 슈카월드 https://www.youtube.com/c/%EC%8A%88%EC%B9%B4%EC%9B%94%EB%93%9C/videos
 
 # 추출할 유튜브 채널의 동영상 탭
 urllist = [
@@ -73,6 +74,7 @@ urllist = [
            'https://www.youtube.com/c/%ED%95%9C%EC%83%81%EA%B8%B0HanSangKi/videos',
            'https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos',
            'https://www.youtube.com/c/%EC%82%AC%EB%9E%8C%EC%82%AC%EB%8A%94%EC%84%B8%EC%83%81%EB%85%B8%EB%AC%B4%ED%98%84%EC%9E%AC%EB%8B%A8/videos',
+           'https://www.youtube.com/c/%EC%8A%88%EC%B9%B4%EC%9B%94%EB%93%9C/videos',
            'https://www.youtube.com/channel/UCjHn_Os5NoCXZyoXzuKth9w/videos'
           ]
 
