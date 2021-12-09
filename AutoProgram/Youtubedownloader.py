@@ -83,8 +83,12 @@ def youtubeplaylist():
                 else:
                     print("특수 문자로 인해서 삭제 실패했을 수 있으니 0 byte인 파일(" + yt.title + ")은 삭제해주세요.")
 
-# url들을 다운로드 할 경우 사용
-youtubeurls()
-
-# playlist들을 다운로드 할 경우 사용
-# youtubeplaylist()
+run = int(input("1 : 유튜브 개별 URL 다운로드, 2 : 유튜브 재생목록 다운로드 >>"))
+if run == 1:
+    # url들을 다운로드 할 경우 사용
+    youtubeurls()
+elif run == 2:
+    # playlist들을 다운로드 할 경우 사용
+    youtubeplaylist()
+else:
+    print("잘못된 입력입니다. 1, 2 중에서 입력해주시기 바랍니다.")
