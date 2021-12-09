@@ -17,6 +17,7 @@ import re
 # 파일 존재 여부 확인 위한 os를 import 한다.
 import os
 # lxml 설치 필요합니다 (pip install lxml)
+import requests
 
 # <p>채널명 [1번만 표시]</p><p>제목</p><p><a>URL</a></p><p><iframe></p> 로 작성
 
@@ -120,8 +121,31 @@ for u in range(0, len(urllist)):
     # title 조건에 맞는 모든 a 태그의 class들을 가져옵니다.
     all_title = soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')
 
-    # title이란 변수에 저장합니다.
-    title = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
+    kakaotranslateurl = "https://translate.kakao.com/translator/translate.json"
+
+    kakaotranslateheaders = {
+    "Referer": "https://translate.kakao.com/",
+    "User-Agent": "Mozilla/5.0"
+    }
+
+    title = []
+    # 제목이 영어일 경우 한국어로 구글 번역
+    englishchannel = ['Kurzgesagt – In a Nutshell', 'TED-Ed', 'Vox']
+    if channelname[0].strip() in englishchannel:
+        engtitle = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
+        for line in engtitle:
+            data = {
+                "queryLanguage": "en",
+                "resultLanguage": "kr",
+                "q": line
+                }
+            translateresp = requests.post(kakaotranslateurl, headers=kakaotranslateheaders, data=data)
+            translatedata = translateresp.json()
+            translateoutput = translatedata['result']['output'][0][0]
+            title.append(translateoutput)
+    else:
+        # title이란 변수에 저장합니다.
+        title = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
 
     # href 조건에 맞는 모든 a 태그의 id들을 가져옵니다.
     all_url = soup.find_all('a', {'id':'video-title'})
