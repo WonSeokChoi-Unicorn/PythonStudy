@@ -14,6 +14,9 @@ Source
 
 4. 주식이나 암호화폐의 현재 금액을 확인하고, 목표가를 넘을 경우 slack으로 알림 (Price_inquiry.py)
 
+5. 유튜브 개별이나 플레이리스트 URL들로 다운로드 하는 프로그램 (Youtubedownloader.py)
+
+
 크롤러 시리즈
 
 1. 꾸르 크롤러 (ggoorr_crawler.py)
@@ -32,6 +35,7 @@ Source
 
 8. 오피넷 API 연동 전국 주유소 평균가격 크롤러 (Opinet_crawler.py)
 
+
 휴일 확인
 
 1. Holiday 라이브러리 활용 (Holidays.py)
@@ -44,9 +48,11 @@ Source
 
 2. Maria DB 백업 (MariaDBBackup.py, MariaDBBackup.bat)
 
+
 번호 생성기
 
 1. 로또 번호 랜덤 생성기 (RandomLottoNumber.py)
+
 
 자연어 처리
 
@@ -54,8 +60,10 @@ Source
 
 2. SpaCy 설치 및 사용 (SpaCy.py)
 
+
 이미지를 텍스트론 변환
 
 1. 로컬 또는 웹 상 이미지를 텍스트로 변환 (Tesseract - Sample.py, Tesseract - Web Sample.py)
+
 
 가 있습니다.
