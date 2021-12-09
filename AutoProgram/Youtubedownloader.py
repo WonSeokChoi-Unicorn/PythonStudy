@@ -48,7 +48,7 @@ def youtubeurls():
                 os.remove(file)
                 print("다운로드 실패하여 0 byte인 " + file + " 파일을 삭제했습니다.")
             else:
-                print("특수 문자로 인해서 삭제 실패했을 수 있으니 0 byte인 파일은 삭제해주세요.")
+                print("특수 문자로 인해서 삭제 실패했을 수 있으니 0 byte인 파일(" + yt.title + ")은 삭제해주세요.")
 
 def youtubeplaylist():
     # playlisturls에 있는 playlisturl를 담기
@@ -81,7 +81,7 @@ def youtubeplaylist():
                     os.remove(file)
                     print("다운로드 실패하여 0 byte인 " + file + " 파일을 삭제했습니다.")
                 else:
-                    print("특수 문자로 인해서 삭제 실패했을 수 있으니 0 byte인 파일은 삭제해주세요.")
+                    print("특수 문자로 인해서 삭제 실패했을 수 있으니 0 byte인 파일(" + yt.title + ")은 삭제해주세요.")
 
 # url들을 다운로드 할 경우 사용
 youtubeurls()
