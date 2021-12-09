@@ -15,9 +15,12 @@ import os
 
 
 # 전역 변수 설정
-GGOORR_MAIN_URL = "https://ggoorr.net"                              # 꾸르 메인 주소
-GGOORR_DETAIL_URL = 'https://ggoorr.net/index.php?mid=all&page='    # 꾸르 상세 주소
-headers = {'User-Agent': 'Mozilla/5.0'}                             # 봇 방지 웹사이트 회피
+# 꾸르 메인 주소
+GGOORR_MAIN_URL = "https://ggoorr.net"
+# 꾸르 상세 주소
+GGOORR_DETAIL_URL = 'https://ggoorr.net/index.php?mid=all&page='
+# 봇 방지 웹사이트 회피
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36'}
 
 # 파일 변수 글로벌로 이동
 nowDate = datetime.now()
@@ -524,7 +527,7 @@ def SaveSortedContentDictionary():
 # sys.exit()
 
 # 임시 작업
-# getDetail(1, "비키니 입고 주유하면 무료", "https://ggoorr.net/all/11754028")
+# getDetail(1, "역대급 민폐 반달곰 오삼이 (스압)", "https://ggoorr.net/all/12508060")
 # SaveSortedContentDictionary()
 # sys.exit()
 
