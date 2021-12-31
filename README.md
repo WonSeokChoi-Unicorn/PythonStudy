@@ -8,13 +8,15 @@ Source
 
 1. 토렌트 프로그램에 자석 주소로 추가 (AutoTorrent.py)
 
-2. 구글 번역 기능을 이용하여 영어 파일 읽어서 한국어 파일 저장 (AutoTranslate.py)
+2. 구글 번역 기능을 이용하여 영어 파일 읽어서 한국어 파일 저장 (AutoTranslate_google.py)
 
-3. korbit을 통해서 리플(XRP)의 현재가를 10분(600초)마다 확인하고, 특정금액(1,500원)이 넘을 경우 slack으로 알림 (KORBIT_inquiry.py)
+3. 카카오 번역 기능을 이용하여 영어 파일 읽어서 한국어 파일 저장 (AutoTranslate_kakao.py)
 
-4. 주식이나 암호화폐의 현재 금액을 확인하고, 목표가를 넘을 경우 slack으로 알림 (Price_inquiry.py)
+4. korbit을 통해서 리플(XRP)의 현재가를 10분(600초)마다 확인하고, 특정금액(1,500원)이 넘을 경우 slack으로 알림 (KORBIT_inquiry.py)
 
-5. 유튜브 개별이나 플레이리스트 URL들로 다운로드 하는 프로그램 (Youtubedownloader.py)
+5. 주식이나 암호화폐의 현재 금액을 확인하고, 목표가를 넘을 경우 slack으로 알림 (Price_inquiry.py)
+
+6. 유튜브 개별이나 플레이리스트 URL들로 다운로드 하는 프로그램 (Youtubedownloader.py)
 
 
 크롤러 시리즈
