@@ -118,17 +118,86 @@ print(stocks.head())
 # dlg = app['제목 없음 - Windows 메모장']
 # dlg.print_control_identifiers()
 
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
+# from datetime import datetime, timedelta
+# from dateutil.relativedelta import relativedelta
 
-fromdate = datetime(2006, 1, 1, 0, 0, 0)
-presentmonth = datetime(datetime.today().year, datetime.today().month, 1, 0, 0, 0)
+# fromdate = datetime(2006, 1, 1, 0, 0, 0)
+# presentmonth = datetime(datetime.today().year, datetime.today().month, 1, 0, 0, 0)
 
-i = -1
-while True:
-    i += 1
-    delta = relativedelta(months=int(i))
-    searchdate = fromdate + delta
-    print(searchdate.strftime('%Y-%m'))
-    if searchdate == presentmonth:
-        break
+# i = -1
+# while True:
+#     i += 1
+#     delta = relativedelta(months=int(i))
+#     searchdate = fromdate + delta
+#     print(searchdate.strftime('%Y-%m'))
+#     if searchdate == presentmonth:
+#         break
+
+
+# import pandas as pd
+
+# df = pd.DataFrame([
+#     [16, 7, 10],
+#     [15, 8, 11],
+#     [14, 9, 12]],
+#     columns = ['a', 'b', 'c'],
+#     index = [1, 2, 3]
+# )
+
+# print(df)
+
+# df = df.sort_values('a')
+
+# print(df)
+
+# import googletrans
+
+# # 번역기 개체
+# translator = googletrans.Translator()
+# # 영어를 한국어로 번역
+# result = translator.translate('How one of the most profitable companies in history rose to power - Adam Clulow', dest='ko')
+# print(result.text)
+
+# import requests
+
+# url = "https://translate.kakao.com/translator/translate.json"
+
+# headers = {
+#     "Referer": "https://translate.kakao.com/",
+#     "User-Agent": "Mozilla/5.0"
+# }
+
+# data = {
+#     "queryLanguage": "en",
+#     "resultLanguage": "kr",
+#     "q": "How one of the most profitable companies in history rose to power - Adam Clulow"
+# }
+
+# resp = requests.post(url, headers=headers, data=data)
+# data = resp.json()
+# output = data['result']['output'][0][0]
+# print(output)
+
+# from urllib.request import Request, urlopen
+# # 봇 방지 웹사이트 회피
+# headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36'}
+# urlheaders = Request('https://ggoorr.net/', headers = headers)
+# urldata = urlopen(urlheaders)
+# page = urldata.read()
+
+# print(page)
+# res = requests.get(GGOORR_DETAIL_URL + str(page), headers=headers)
+
+# url = "https://www.opinet.co.kr/api/lowTop10.do?out=json&code=F211220272&cnt=20&prodcd=D047&area=04"
+# url = "http://www.opinet.co.kr/api/lowTop10.do?out=json&code=F210906183&cnt=20&prodcd=B034&area=0108"
+# print(url.find("&area="))
+# print(str(url.find("&area=")+5))
+# print(url[89:])
+# print(url[79:82+1])
+
+from pyproj import Proj, transform
+
+print(Proj('epsg:5178')(318031.7049, 513942.4367))
+
+# transg = Transformer.from_crs(crs_proj.geodetic_crs, crs_proj)
+# transg.transform(52.067567, 5.068913)
