@@ -20,6 +20,8 @@ Source
 
 7. Webp 이미지를 Jpg 이미지로 변환하는 프로그램 (AutoImageConvert_WebptoJpg.py) 
 
+8. Jfif 이미지를 Jpg 이미지로 변환하는 프로그램 (AutoImageConvert_JfiftoJpg.py) 
+
 
 크롤러 시리즈
 
