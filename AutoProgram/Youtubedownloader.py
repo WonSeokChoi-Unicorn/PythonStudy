@@ -9,10 +9,7 @@ from pytube import Playlist
 
 # 유튜브 URL
 urls = [
-         # 다운로드 문제 없는 URL
-         "https://www.youtube.com/watch?v=ddRpw_A08LQ",
-         # 다운로드 문제 있는 URL
-         "https://www.youtube.com/watch?v=6J3EtCkFlsE"
+         "https://www.youtube.com/watch?v=LQotmaEt-TQ"
        ]
 # 유튜브 재생목록 URL
 playlisturls = [
