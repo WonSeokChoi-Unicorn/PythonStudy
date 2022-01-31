@@ -13,28 +13,37 @@ import os
 count = int(input("로또 번호를 몇 게임 생성할까요?> "))
 
 sumlotto = []
-a = []
-b = 0
+# a = []
+# b = 0
 
-for m in range(count):
-
-      lotto = []
-
-      for i in range(6):
-
-            while b in lotto:
-
-                  a=random.choices(range(1,46))
-
-                  b=a[0]
-
-            lotto.append(b)
-
-      # 로또 번호를 sort
-      lotto.sort()
-
-      # 생성된 로또 번호를 누적
+# 입력한 게임 숫자만큼 반복
+for game in range(count):
+      # 중복 없는 무작위 추출 (1부터 45까지)
+      lotto = random.sample( range( 1, 46 ), 6 )
+      # 생성된 로또 번호들을 누적
       sumlotto += lotto
+
+
+# 2022.01.31 이전 버전 (0이 나오는 문제가 있어서 위의 새로운 방식으로 변경)
+# for m in range(count):
+
+#       lotto = []
+
+#       for i in range(6):
+
+#             while b in lotto:
+
+#                   a=random.choices(range(1,46))
+
+#                   b=a[0]
+
+#             lotto.append(b)
+
+#       # 로또 번호를 sort
+#       lotto.sort()
+
+#       # 생성된 로또 번호를 누적
+#       sumlotto += lotto
 
 # 원하는 만큼 생성된 로또 번호를 다 보여줍니다. 너무 많을 경우 파일로 저장하는 기능 만들기?
 print(sumlotto)
