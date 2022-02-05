@@ -42,9 +42,11 @@ for line in lines:
     # 빈 줄일 경우 통과
     if line.strip() == "":
         continue
-    # 로그를 없애는 설정
     options = webdriver.ChromeOptions()
+    # 로그를 없애는 설정
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    # 크롬 브라우저 안 보이게
+    options.add_argument('headless')
     # driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
     driver = webdriver.Chrome(executable_path='chromedriver', options=options)
 
@@ -100,5 +102,6 @@ for line in lines:
     else:
         fw.close
     # webdriver를 종료한다.
-    driver.close()
+    # driver.close()
+    driver.quit()
 fr.close()

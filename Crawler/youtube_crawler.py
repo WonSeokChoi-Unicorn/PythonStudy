@@ -51,6 +51,7 @@ import requests
 # 추출할 유튜브 채널의 동영상 탭
 urllist = [
            'https://www.youtube.com/c/14FMBC/videos',
+           'https://www.youtube.com/c/%EC%B1%85%EC%9D%BD%EC%B0%8C%EB%9D%BC',
            'https://www.youtube.com/c/inanutshell/videos',
            'https://www.youtube.com/teded/videos',
            'https://www.youtube.com/c/Vox/videos',
@@ -88,9 +89,11 @@ todate = datetime(datetime.today().year, datetime.today().month, datetime.today(
 
 # 채널 리스트를 차례대로 불러옵니다.
 for u in range(0, len(urllist)):
-    # 로그를 없애는 설정
     options = webdriver.ChromeOptions()
+    # 로그를 없애는 설정
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    # 크롬 브라우저 안 보이게
+    options.add_argument('headless')
     # driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
     driver = webdriver.Chrome(executable_path='chromedriver', options=options)
 
@@ -274,4 +277,5 @@ for u in range(0, len(urllist)):
                 f.close
 
     # webdriver를 종료한다.
-    driver.close()
+    # driver.close()
+    driver.quit()
