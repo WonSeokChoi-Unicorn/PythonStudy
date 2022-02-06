@@ -3,8 +3,12 @@ import sys
 # selenium에서 webdriver를 사용할 수 있게 webdriver를 import 한다.
 # https://sites.google.com/a/chromium.org/chromedriver/home 
 # 에서 크롬 버전에 맞는 크롬드라이버를 다운로드 후 Scripts 폴더로 복사하기
+# pip install selenium --upgrade
 from selenium import webdriver
+# find_element 사용 위해서 import
+from selenium.webdriver.common.by import By
 # BeautifulSoup4를 import 한다.
+# pip install beautifulsoup4 --upgrade
 from bs4 import BeautifulSoup
 # 날짜 시간 처리 위해 datetime, timedelta를 import 한다.
 from datetime import datetime, timedelta
@@ -18,6 +22,9 @@ import re
 import os
 # lxml 설치 필요합니다 (pip install lxml)
 import requests
+# 카카오 번역
+# pip install kakaotrans
+from kakaotrans import Translator
 
 # <p>채널명 [1번만 표시]</p><p>제목</p><p><a>URL</a></p><p><iframe></p> 로 작성
 
@@ -51,7 +58,7 @@ import requests
 # 추출할 유튜브 채널의 동영상 탭
 urllist = [
            'https://www.youtube.com/c/14FMBC/videos',
-           'https://www.youtube.com/c/%EC%B1%85%EC%9D%BD%EC%B0%8C%EB%9D%BC',
+           'https://www.youtube.com/c/%EC%B1%85%EC%9D%BD%EC%B0%8C%EB%9D%BC/videos',
            'https://www.youtube.com/c/inanutshell/videos',
            'https://www.youtube.com/teded/videos',
            'https://www.youtube.com/c/Vox/videos',
@@ -87,8 +94,16 @@ fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
 # 당일 오전 6시 59분 59초
 todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
 
+# 카카오 번역 선언
+translator = Translator()
+
 # 채널 리스트를 차례대로 불러옵니다.
 for u in range(0, len(urllist)):
+    # 초기화
+    allchannelname = []
+    channelname = []
+    title = []
+
     options = webdriver.ChromeOptions()
     # 로그를 없애는 설정
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
@@ -101,7 +116,8 @@ for u in range(0, len(urllist)):
     driver.get(urllist[u])
 
     # body를 스크롤하기 위해 tagname이 body로 되어있는것을 추출합니다.
-    body = driver.find_element_by_tag_name('body')
+    body = driver.find_element(By.TAG_NAME, 'body')
+    # body = driver.find_element_by_tag_name('body')
 
     # 로드 된 페이지 소스를 html이란 변수에 저장합니다.
     html = driver.page_source
@@ -115,36 +131,42 @@ for u in range(0, len(urllist)):
     # channelname 변수에 저장합니다.
     # 2021.03.25 [6] -> [7] 로 변경
     # 2021.08.03 [7] -> [6] 로 변경
-    channelname = [soup.find_all('div','hidden style-scope tp-yt-paper-tooltip')[6].string for n in range(0,len(allchannelname))]
+    # 루프 돌지 않고 바로 가져 옴
+    # channelname = [soup.find_all('div','hidden style-scope tp-yt-paper-tooltip')[6].string for n in range(0,len(allchannelname))]
+    channelname = allchannelname[1].string
 
+    # 루프 돌지 않고 바로 가져 옴
     # 채널명에 줄 바꿈이 있어서 제거합니다.
-    for i in range(len(channelname)):
-        channelname[i] = channelname[i].replace("\n", "")
+    # for i in range(len(channelname)):
+    #     channelname[i] = channelname[i].replace("\n", "")
+    channelname = channelname.replace("\n", "")
 
     # title 조건에 맞는 모든 a 태그의 class들을 가져옵니다.
     all_title = soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')
 
-    kakaotranslateurl = "https://translate.kakao.com/translator/translate.json"
+    # kakaotranslateurl = "https://translate.kakao.com/translator/translate.json"
 
-    kakaotranslateheaders = {
-    "Referer": "https://translate.kakao.com/",
-    "User-Agent": "Mozilla/5.0"
-    }
+    # kakaotranslateheaders = {
+    # "Referer": "https://translate.kakao.com/",
+    # "User-Agent": "Mozilla/5.0"
+    # }
 
-    title = []
     # 제목이 영어일 경우 한국어로 구글 번역
     englishchannel = ['Kurzgesagt – In a Nutshell', 'TED-Ed', 'Vox']
-    if channelname[0].strip() in englishchannel:
+    # if channelname[0].strip() in englishchannel:
+    if channelname.strip() in englishchannel:
         engtitle = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
         for line in engtitle:
-            data = {
-                "queryLanguage": "en",
-                "resultLanguage": "kr",
-                "q": line
-                }
-            translateresp = requests.post(kakaotranslateurl, headers=kakaotranslateheaders, data=data)
-            translatedata = translateresp.json()
-            translateoutput = translatedata['result']['output'][0][0]
+            # data = {
+            #     "queryLanguage": "en",
+            #     "resultLanguage": "kr",
+            #     "q": line
+            #     }
+            # translateresp = requests.post(kakaotranslateurl, headers=kakaotranslateheaders, data=data)
+            # translatedata = translateresp.json()
+            # translateoutput = translatedata['result']['output'][0][0]
+            translateoutput = translator.translate(line, src='en', tgt='kr')
+
             title.append(translateoutput)
     else:
         # title이란 변수에 저장합니다.
@@ -178,11 +200,13 @@ for u in range(0, len(urllist)):
         f = open(nowDate.strftime('%Y-%m-%d') + '_youtube.txt', mode='wt', encoding='utf-8')
 
     # 채널명은 반복문 전 파일에 1번만 저장하도록 
-    channelheader = "<p>" + channelname[0] + "</p>"
+    # channelheader = "<p>" + channelname[0] + "</p>"
+    channelheader = "<p>" + channelname + "</p>"
     channelheader += "\n"
 
     print("##################################################################")
-    print(channelname[0])
+    # print(channelname[0])
+    print(channelname)
     print("##################################################################")
 
     fileContent = channelheader
