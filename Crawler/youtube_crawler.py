@@ -1,7 +1,7 @@
 # 시스템 함수 sys를 import 한다.
 import sys
 # selenium에서 webdriver를 사용할 수 있게 webdriver를 import 한다.
-# https://sites.google.com/a/chromium.org/chromedriver/home 
+# https://sites.google.com/chromium.org/driver/
 # 에서 크롬 버전에 맞는 크롬드라이버를 다운로드 후 Scripts 폴더로 복사하기
 # pip install selenium --upgrade
 from selenium import webdriver
