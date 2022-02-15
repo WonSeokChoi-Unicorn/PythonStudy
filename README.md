@@ -20,7 +20,11 @@ Source
 
 7. Webp 이미지를 Jpg 이미지로 변환하는 프로그램 (AutoImageConvert_WebptoJpg.py) 
 
-8. Jfif 이미지를 Jpg 이미지로 변환하는 프로그램 (AutoImageConvert_JfiftoJpg.py) 
+8. Jfif 이미지를 Jpg 이미지로 변환하는 프로그램 (AutoImageConvert_JfiftoJpg.py)
+
+9. 지정한 경로 및 하위 경로에 있는 파일 검색 프로그램 (Subpathsearch.py)
+
+10. 지정한 경로 및 하위 경로에 있는 특정 확장자를 가진 파일 검색 프로그램 (SubpathsearchForExt.py)
 
 
 크롤러 시리즈
