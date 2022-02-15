@@ -11,5 +11,5 @@ for (path, dir, files) in os.walk("Q:\\"):
         ext = os.path.splitext(filename)[-1]
         # pdf 확장자 가진 파일들을 검색
         if ext == '.pdf':
-            df = df.append({'Path&File' : path + filename}, ignore_index=True)
+            df = df.append({'Path&File' : path + '\\' + filename}, ignore_index=True)
 df.to_excel("fileextlist.xlsx")

@@ -8,5 +8,5 @@ df = pd.DataFrame(columns=['Path&File'])
 # "Q:\\"에 검색 원하는 경로 적어 주기
 for (path, dir, files) in os.walk("Q:\\"):
     for filename in files:
-        df = df.append({'Path&File' : path + filename}, ignore_index=True)
+        df = df.append({'Path&File' : path + '\\' + filename}, ignore_index=True)
 df.to_excel("filelist.xlsx")
