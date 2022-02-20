@@ -52,6 +52,8 @@ Source
 
 2. 한국 공공 데이터 API 활용 (Holidays_API.py)
 
+3. UTC <-> 서울 타임존 변환 (TimezoneConverter.py) 
+
 파일 처리 시리즈
 
 1. X일 지난 파일 삭제 (DeleteOldFile.py)
