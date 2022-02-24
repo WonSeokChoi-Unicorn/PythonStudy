@@ -43,7 +43,7 @@ nowDate = datetime.now()
 # len(df)이 5라면 0, 1, 2, 3, 4라는 뜻이라서 range에는 5가 입력되는 것이 맞음
 for i in range(len(df)):
     # 디버그 차원에서 진행 상황을 출력
-    print("No : " + str(i) + ", Name : " + str(df['회사명'][i]) + ", Code : " + str(df['종목코드'][i])
+    print("No : " + str(i+1) + "/" + str(len(df)) + ", Name : " + str(df['회사명'][i]) + ", Code : " + str(df['종목코드'][i])
     )
     # 종목 코드 변수를 선언
     code = ""
