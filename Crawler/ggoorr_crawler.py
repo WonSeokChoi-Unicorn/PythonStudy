@@ -232,18 +232,21 @@ def getDetail(nCnt, title, detailUrl):
                 utubeKeyIndex = pLineText.find('https://youtu.be/')
                 utubeKey = pLineText[utubeKeyIndex + 17 : utubeKeyIndex + 17 + 11] # 파싱 수정 2021.01.03 추가
                 # 유튜브 키값을 iframe 태그로 변경
-                tempStr = '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+                # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
+                tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             elif utubeUrlIndex >= 0:
                 utubeKeyIndex = pLineText.find('https://youtube.com/watch?v=')
                 utubeKey = pLineText[utubeKeyIndex + 28 : utubeKeyIndex + 28 + 11] # 파싱 수정 2021.01.03 추가
                 # 유튜브 키값을 iframe 태그로 변경
-                tempStr = '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+                # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
+                tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             elif utubewwwUrlIndex >= 0:
                 utubeKeyIndex = pLineText.find('https://www.youtube.com/watch?v=')
                 utubeKey = pLineText[utubeKeyIndex + 32 : utubeKeyIndex + 32 + 11]  # 파싱 추가 2021.01.18 추가
                 # 유튜브 키값을 iframe 태그로 변경
-                tempStr = '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
-            else:
+                # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
+                tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+            else:                
                 # 유튜브 주소가 없을 경우 변경 없음
                 tempStr = pLineText
 
@@ -527,7 +530,7 @@ def SaveSortedContentDictionary():
 # sys.exit()
 
 # 임시 작업
-# getDetail(1, "역대급 민폐 반달곰 오삼이 (스압)", "https://ggoorr.net/all/12508060")
+# getDetail(1, "8년 만에 조회수 4천만 넘자 직접 댓글 쓴 가수", "https://ggoorr.net/enter/13053283")
 # SaveSortedContentDictionary()
 # sys.exit()
 
