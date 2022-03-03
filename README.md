@@ -28,6 +28,8 @@ Source
 
 11. 카카오 계정으로 로그인하여 다음 카페에 글 작성하는 프로그램 (DaumCafeWrite.py)
 
+12. 카카오 계정으로 로그인하여 다음 카페에 글(HTML) 작성하는 프로그램 (DaumCafeHtmlWrite.py)
+
 
 크롤러 시리즈
 
