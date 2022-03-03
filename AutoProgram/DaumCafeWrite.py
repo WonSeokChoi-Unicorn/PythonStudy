@@ -18,7 +18,6 @@ browser = webdriver.Chrome(executable_path='chromedriver', options=options)
 browser.get("https://accounts.kakao.com/login?continue=https%3A%2F%2Flogins.daum.net%2Faccounts%2Fksso.do%3Frescue%3Dtrue%26url%3Dhttps%253A%252F%252Fwww.daum.net%252F")
 id = browser.find_element_by_css_selector("#id_email_2")
 id.send_keys(kakaoid)
-# id.send_keys("unicorn97")
 pw = browser.find_element_by_css_selector("#id_password_3")
 pw.send_keys(kakaopw)
 # 카카오톡으로 로그인 알림
