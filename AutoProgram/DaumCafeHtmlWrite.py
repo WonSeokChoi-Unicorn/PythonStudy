@@ -11,8 +11,7 @@ import time
 options = webdriver.ChromeOptions()
 # 로그를 없애는 설정
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
-# 크롬 브라우저 안 보이게 하려면 아래 주석 해제
-# options.add_argument('headless')
+# 크롬 브라우저 안 보이게 하면 커서 위치 잡을 수 없어서 options.add_argument('headless') 옵션 사용하지 않아야 정상 처리 됨
 # 창 크기 
 options.add_argument("window-size=1200x600")
 # 카카오 아이디
