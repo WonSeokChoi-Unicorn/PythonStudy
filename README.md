@@ -30,6 +30,8 @@ Source
 
 12. 카카오 계정으로 로그인하여 다음 카페에 글(HTML) 작성하는 프로그램 (DaumCafeHtmlWrite.py)
 
+13. 이미지 파일을 불러 와서 클립보드로 복사하는 프로그램 (ImagefileToClipboard.py)
+
 
 크롤러 시리즈
 
