@@ -12,6 +12,16 @@ from yt_iframe import yt
 import os
 # 날짜 시간 처리 위해 datetime, timedelta를 import 한다.
 from datetime import datetime, timedelta
+import chromedriver_autoinstaller
+
+# Check if chrome driver is installed or not
+chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
+driver_path = f'./{chrome_ver}/chromedriver.exe'
+if os.path.exists(driver_path):
+    print(f"chrom driver is insatlled: {driver_path}")
+else:
+    print(f"install the chrome driver(ver: {chrome_ver})")
+    chromedriver_autoinstaller.install(True)
 
 # 유튜브 URL 정리한 텍스트 파일을 한 줄씩 읽어 옵니다
 # 경로에 기본 확장 문자(escape sequence)를 피하기 위해서 역슬래시를 2개 사용
@@ -50,7 +60,7 @@ for line in lines:
     # 크롬 브라우저 안 보이게
     options.add_argument('headless')
     # driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
-    driver = webdriver.Chrome(executable_path='chromedriver', options=options)
+    driver = webdriver.Chrome(driver_path, options=options)
 
     # line의 공백 제거
     line = line.strip()
