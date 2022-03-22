@@ -31,7 +31,7 @@ Source
 12. 카카오 계정으로 로그인하여 다음 카페에 글(HTML) 작성하는 프로그램 (DaumCafeHtmlWrite.py)
 
 
-크롤러 시리즈
+크롤러 프로그램
 
 1. 꾸르 크롤러 (ggoorr_crawler.py)
 
