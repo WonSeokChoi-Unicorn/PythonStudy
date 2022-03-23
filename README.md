@@ -32,6 +32,7 @@ Source
 
 13. 이미지 파일을 불러 와서 클립보드로 복사하는 프로그램 (ImagefileToClipboard.py)
 
+14. text1, text2 컬럼이 있는 엑셀을 읽어와서 출력하는 프로그램 (ExcelDataReader.py)
 
 크롤러 프로그램
 
