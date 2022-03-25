@@ -36,6 +36,7 @@ Source
 
 15. PDF 파일을 Jpg 이미지로 변환하는 프로그램 (AutoImageConvert_PdftoJpg.py)
 
+
 크롤러 프로그램
 
 1. 꾸르 크롤러 (ggoorr_crawler.py)
@@ -54,6 +55,8 @@ Source
 
 8. 오피넷 API 연동 전국 주유소 평균가격 크롤러 (Opinet_crawler.py)
 
+9. 원하는 사이트 내 이미지들을 원하는 경로/파일명으로 저장하는 크롤러 (imagesave_crawler.py)
+
 
 날짜시간 시리즈
 
@@ -64,6 +67,7 @@ Source
 3. UTC <-> 서울 타임존 변환 (TimezoneConverter.py)
 
 4. 어제까지 중 가장 최근의 영업일 확인 (LastBusinessDay.py)
+
 
 파일 처리 시리즈
 
