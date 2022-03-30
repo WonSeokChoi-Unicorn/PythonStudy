@@ -107,4 +107,8 @@ Korbit
 
 1. 암호 화폐 리스트 확인 (Korbit_Ticker.py)
 
+Bithumb
+
+2. 암호 화폐 리스트 확인 (Bithumb_Ticker.py)
+
 가 있습니다.
