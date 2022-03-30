@@ -93,4 +93,14 @@ Source
 1. 로컬 또는 웹 상 이미지를 텍스트로 변환 (Tesseract - Sample.py, Tesseract - Web Sample.py)
 
 
+암호 화폐 거래소 관련
+
+FTX
+
+1. 암호 화폐 리스트 확인 (FTX_Markets.py) 
+
+Upbit
+
+1. 암호 화폐 리스트 확인 (Upbit_Ticker.py)
+
 가 있습니다.
