@@ -107,6 +107,10 @@ Korbit
 
 1. 암호 화폐 리스트 확인 (Korbit_Ticker.py)
 
+2. 암호 화폐 24시간 동안의 저가/고가/거래금액/거래량 출력 (Korbit_get_market_detail.py)
+
+3. 암호 화폐 현재가 출력 (Korbit_get_current_price.py)
+
 Bithumb
 
 1. 암호 화폐 리스트 확인 (Bithumb_Ticker.py)
