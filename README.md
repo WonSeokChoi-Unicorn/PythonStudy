@@ -109,6 +109,10 @@ Korbit
 
 Bithumb
 
-2. 암호 화폐 리스트 확인 (Bithumb_Ticker.py)
+1. 암호 화폐 리스트 확인 (Bithumb_Ticker.py)
+
+2. 암호 화폐 00시 기준으로 시가/고가/저가/종가/거래량 정보 (Bithumb_get_market_detail.py)
+
+3. 암호 화폐 시가/종가/고가/저가/거래량 정보를 DataFrame으로 출력 (Bithumb_get_candlestick.py)
 
 가 있습니다.
