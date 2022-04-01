@@ -107,6 +107,8 @@ Upbit
 
 2. 암호 화폐 현재가 출력 (Upbit_get_current_price.py)
 
+3. 암호 화폐 고가/시가/저가/종가/거래량 출력 (Upbit_get_ohlcv.py)
+
 Korbit
 
 1. 암호 화폐 리스트 확인 (Korbit_Ticker.py)
