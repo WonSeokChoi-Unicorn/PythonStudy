@@ -97,7 +97,9 @@ Source
 
 FTX
 
-1. 암호 화폐 리스트 확인 (FTX_Markets.py) 
+1. 암호 화폐 리스트 확인 (FTX_Markets.py)
+
+2. 암호 화폐의 시장 정보 출력 (FTX_Market.py)
 
 Upbit
 
