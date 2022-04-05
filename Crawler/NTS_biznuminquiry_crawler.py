@@ -29,4 +29,4 @@ for bizno in Biznum:
     # 사업자 조회 함수 호출
     inquiry = biznum(biz_no)
     # 결과 출력
-    print(bizno + " : " + inquiry)
+    print(str(Biznum.index(bizno) + 1) + " / " + str(len(Biznum)) + " - " + bizno + " : " + inquiry)
