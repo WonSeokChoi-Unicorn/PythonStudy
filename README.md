@@ -57,6 +57,8 @@ Source
 
 9. 원하는 사이트 내 이미지들을 원하는 경로/파일명으로 저장하는 크롤러 (imagesave_crawler.py)
 
+10. 사업자 등록 번호로 상태 조회하는 크롤러 (NTS_biznuminquiry_crawler.py)
+
 
 날짜시간 시리즈
 
