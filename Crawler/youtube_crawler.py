@@ -25,16 +25,8 @@ import requests
 # 카카오 번역
 # pip install kakaotrans
 from kakaotrans import Translator
-import chromedriver_autoinstaller
-
-# Check if chrome driver is installed or not
-chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
-driver_path = f'./{chrome_ver}/chromedriver.exe'
-if os.path.exists(driver_path):
-    print(f"chrom driver is insatlled: {driver_path}")
-else:
-    print(f"install the chrome driver(ver: {chrome_ver})")
-    chromedriver_autoinstaller.install(True)
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 # <p>채널명 [1번만 표시]</p><p>제목</p><p><a>URL</a></p><p><iframe></p> 로 작성
 
@@ -120,7 +112,7 @@ for u in range(0, len(urllist)):
     # 크롬 브라우저 안 보이게
     options.add_argument('headless')
     # driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
-    driver = webdriver.Chrome(driver_path, options=options)
+    driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
 
     # 원하는 사이트의 url을 입력하여 사이트를 연다.
     driver.get(urllist[u])
