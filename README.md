@@ -113,6 +113,8 @@ Upbit
 
 3. 암호 화폐 고가/시가/저가/종가/거래량 출력 (Upbit_get_ohlcv.py)
 
+4. 암호화폐 한글명 리스트 (Upbit_TickerName.py)
+
 Korbit
 
 1. 암호 화폐 리스트 확인 (Korbit_Ticker.py)
