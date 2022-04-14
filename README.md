@@ -36,6 +36,8 @@ Source
 
 15. PDF 파일을 Jpg 이미지로 변환하는 프로그램 (AutoImageConvert_PdftoJpg.py)
 
+16. 오늘에 해당하는 기념일 알림 프로그램 (Anniversary_alarm.py)
+
 
 크롤러 프로그램
 
