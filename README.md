@@ -94,7 +94,7 @@ Source
 2. SpaCy 설치 및 사용 (SpaCy.py)
 
 
-이미지를 텍스트론 변환
+이미지를 텍스트로 변환
 
 1. 로컬 또는 웹 상 이미지를 텍스트로 변환 (Tesseract - Sample.py, Tesseract - Web Sample.py)
 
