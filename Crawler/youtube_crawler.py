@@ -86,6 +86,7 @@ urllist = [
            'https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos',
            'https://www.youtube.com/c/%EC%82%AC%EB%9E%8C%EC%82%AC%EB%8A%94%EC%84%B8%EC%83%81%EB%85%B8%EB%AC%B4%ED%98%84%EC%9E%AC%EB%8B%A8/videos',
            'https://www.youtube.com/c/%EC%8A%88%EC%B9%B4%EC%9B%94%EB%93%9C/videos',
+           'https://www.youtube.com/channel/UCwWKHg9oMuuVnTRtsB_lMYA/videos',
            'https://www.youtube.com/channel/UCjHn_Os5NoCXZyoXzuKth9w/videos'
           ]
 
