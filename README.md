@@ -137,4 +137,6 @@ Bithumb
 
 1. Slack에 알림 보내기 (Slack_alarm.py)
 
+2. Telegram에 알림 보내기 (Telegram_alarm.py)
+
 가 있습니다.
