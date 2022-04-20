@@ -133,4 +133,8 @@ Bithumb
 
 3. 암호 화폐 시가/종가/고가/저가/거래량 정보를 DataFrame으로 출력 (Bithumb_get_candlestick.py)
 
+메신저
+
+1. Slack에 알림 보내기 (Slack_alarm.py)
+
 가 있습니다.
