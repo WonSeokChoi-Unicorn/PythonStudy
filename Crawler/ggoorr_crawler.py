@@ -1,4 +1,5 @@
 import requests, json
+import time
 import sys
 from bs4 import BeautifulSoup
 from bs4 import NavigableString
@@ -21,7 +22,10 @@ GGOORR_MAIN_URL = "https://ggoorr.net"
 GGOORR_DETAIL_URL = 'https://ggoorr.net/index.php?mid=all&page='
 # 봇 방지 웹사이트 회피
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36'}
-
+# 에러 발생 URL 모음
+errorurls = []
+# 검색할 패턴을 _ 으로 선언
+searchpattern = "_"
 # 파일 변수 글로벌로 이동
 nowDate = datetime.now()
 # 파일 작성 시간이 길어져서 년월일로 파일명 생성
@@ -40,85 +44,17 @@ sortedKeyList = {}
 #     # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
 #     fe = open(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt', mode='wt', encoding='utf-8')
 
-# 이미지 해상도 확인 2021.01.23 병합
-def getImageInfo(imgUrl):
-
-        req = urllib2.Request(imgUrl, headers={"Range": "5000", "User-Agent": 
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"})
-
-        # try:
-        #     r = urllib2.urlopen(req)
-        #     data = r.read()
-        # except HTTPError as e:
-        #     print(e) # null을 반환하거나, break 문을 실행하거나, 기타 다른 방법을 사용
-
-        r = urllib2.urlopen(req)
-
-        data = r.read()
-
-        size = len(data)
-        # print(size)
-        height = -1
-        width = -1
-        content_type = ''
-
-        # handle GIFs
-        if (size >= 10) and data[:6] in (b'GIF87a', b'GIF89a'):
-            # Check to see if content_type is correct
-            content_type = 'image/gif'
-            w, h = struct.unpack(b"<HH", data[6:10])
-            width = int(w)
-            height = int(h)
-
-        # See PNG 2. Edition spec (http://www.w3.org/TR/PNG/)
-        # Bytes 0-7 are below, 4-byte chunk length, then 'IHDR'
-        # and finally the 4-byte width, height
-        elif ((size >= 24) and data.startswith(b'\211PNG\r\n\032\n')
-                and (data[12:16] == b'IHDR')):
-            content_type = 'image/png'
-            w, h = struct.unpack(b">LL", data[16:24])
-            width = int(w)
-            height = int(h)
-
-        # Maybe this is for an older PNG version.
-        elif (size >= 16) and data.startswith(b'\211PNG\r\n\032\n'):
-            # Check to see if we have the right content type
-            content_type = 'image/png'
-            w, h = struct.unpack(b">LL", data[8:16])
-            width = int(w)
-            height = int(h)
-
-        # handle JPEGs
-        elif (size >= 2) and data.startswith(b'\377\330'):
-            content_type = 'image/jpeg'
-            jpeg = io.BytesIO(data)
-            jpeg.read(2)
-            b = jpeg.read(1)
-            try:
-                while (b and ord(b) != 0xDA):
-                    while (ord(b) != 0xFF): b = jpeg.read(1)
-                    while (ord(b) == 0xFF): b = jpeg.read(1)
-                    if (ord(b) >= 0xC0 and ord(b) <= 0xC3):
-                        jpeg.read(3)
-                        h, w = struct.unpack(b">HH", jpeg.read(4))
-                        break
-                    else:
-                        jpeg.read(int(struct.unpack(b">H", jpeg.read(2))[0])-2)
-                    b = jpeg.read(1)
-                width = int(w)
-                height = int(h)
-            except struct.error:
-                pass
-            except ValueError:
-                pass
-
-        return content_type, width, height
-
 # 상세 게시글 HTML 수집 함수
 def getDetail(nCnt, title, detailUrl):
 
-    # 상세 주소 요청 및 응답 수신
-    detailRes = requests.get(detailUrl, headers=headers)
+    try:
+        # 상세 주소 요청 및 응답 수신
+        detailRes = requests.get(detailUrl, headers=headers)
+    except:
+        print("오류가 발생했습니다." + detailUrl)
+        # 오류가 발생하면 errorurl에 추가
+        errorurls.append(nCnt +"_" + title + "_" + detailUrl)
+        return False
 
     # HTTP 응답 성공 200
     if detailRes.status_code == 200:
@@ -136,20 +72,12 @@ def getDetail(nCnt, title, detailUrl):
         # 본문을 찾기 위해 article 태그의 데이터만 사용함
         articleBody = detailSoup.find('article')
 
-        # 2021.05.31 <span class="fr-video fr-fvc fr-dvi"> 있어도 유튜브 iframe 방식이라서 제외하지 않도록 변경
-        # span class="fr-video" 있는 article은 PASS 2021.01.19 수정
         articleBodyText = str(articleBody)
-        # articleBodyGIFText1 = articleBodyText.find("fr-video")
-        # if articleBodyGIFText1 >=0:
-        #     print("articleBody span class=fr-video >=0 is pass")
-        #     return
 
         # 2021.06.29 제외되는 게시글들을 URL로 저장
-        # video class="gifmp4_video" 있는 article은 PASS 2021.01.26 추가
         articleBodyGIFText2 = articleBodyText.find("gifmp4_video")
         if articleBodyGIFText2 >=0:
             print("articleBody video class=gifmp4_video is written as URL")
-            # print("articleBody video class=gifmp4_video >=0 is pass")
             # 파일에 저장
             fileContent = "<br><br></br></br><p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
             fileContent += "\n"
@@ -159,18 +87,6 @@ def getDetail(nCnt, title, detailUrl):
             contentDictionary[realwritetime] = fileContent
             return
 
-        # articleBody 에서 div 영역을 찾아서, p 로 바꿈...
-        # xeContentDiv = articleBody.div.div.contents
-        # xeContentDivStr = str(xeContentDiv)
-        # xeContentDivStr = xeContentDivStr.replace("<div","<p")
-        # xeContentDivStr = xeContentDivStr.replace("div>","p>")
-        # articleBody = BeautifulSoup(xeContentDivStr, 'html.parser')
-
-        # div class xe_content 내의 child 를 순차적으로 호출하여 div 로 시작하는 첫번째 태그만 <p> 로 변경 
-        # for child in articleBody.div.div.children:
-        #     if child.name == 'div':
-        #         child.name = 'p'
-
         # 게시글 머릿말/꼬리말 설정
         articleHeader = '<article><div id="article_1"><div>'
         articleTail = '</div></div></article>'
@@ -179,58 +95,41 @@ def getDetail(nCnt, title, detailUrl):
         articleString = articleHeader
 
         # 02 article 태그 안에서 <p>태그들을 찾아서 저장함
-        # for pLine in articleBody.select("p"):
-        for pLine in articleBody.div.div.children:     # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
+        # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
+        for pLine in articleBody.div.div.children:
 
-            # 2021.02.24 구글 블로거에서 자동으로 width를 810으로 맞추어 주어서 주석 처리
-            # # 이미지 태그가 있는경우, 이미지의 사이즈를 체크 및 수정
-            # for img in pLine.select("img"):
-            #     # src 속성 찾기
-            #     imgSrcText = str(img['src'])
-            #     # style 속성 삭제
-            #     del img['style']
-            #     # print(imgSrcText)
-            #     if imgSrcText == "None":
-            #         # 이미지가 없을 경우
-            #         pass
-            #     elif ".daumcdn.net" in imgSrcText:
-            #         # .daumcdn.net가 있을 경우 폭을 800으로 변경
-            #         img['src'] = imgSrcText.replace("R1024x0", "R800x0")
-            #     elif "gamechosun.co.kr" in imgSrcText: 
-            #         # 2021.01.26 gamechosun.co.kr 문제 있어서 예외 처리
-            #         img['width'] = 800
-            #     else:
-            #         # 그 외 경우는 폭이 800을 초과할 경우 width 속성을 800으로 지정
-            #         imgArr = getImageInfo( img['src'] )
-            #         # print(str(imgArr))
-            #         if imgArr != None and len(imgArr) == 3 and int(imgArr[1]) > 800:
-            #             img['width'] = 800
-            try:               
+            try:
                 # tag 없는 일반 문자열만 있을 경우 .select() 실행시 오류 발생하여 분기 처리
                 if isinstance(pLine, NavigableString):
                     pLine = "<div><span>" + pLine + "</span></div>"
                 else:
                     # 이미지 태그를 P태그로 감싸기 2021.03.13 기능 살림
                     for img in pLine.select("img"):
-                        img.wrap(detailSoup.new_tag("p"))               
+                        img.wrap(detailSoup.new_tag("p"))
             except AttributeError as e:
                 print("예외가 발생했습니다.", e)
-                pass # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
+                # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
+                pass
 
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
-            utubeShrotUrlIndex  = pLineText.find('https://youtu.be/')                  # 유튜브 짧은 주소 접두어
-            utubeUrlIndex       = pLineText.find('https://youtube.com/watch?v=')       # 유튜브 긴 주소 접두어
-            utubewwwUrlIndex    = pLineText.find('https://www.youtube.com/watch?v=')   # 유튜브 www 긴 주소 접두어
+            # 유튜브 짧은 주소 접두어
+            utubeShrotUrlIndex  = pLineText.find('https://youtu.be/')
+            # 유튜브 긴 주소 접두어
+            utubeUrlIndex       = pLineText.find('https://youtube.com/watch?v=')
+            # 유튜브 www 긴 주소 접두어
+            utubewwwUrlIndex    = pLineText.find('https://www.youtube.com/watch?v=')
 
-            utubeKey = ""       # 유튜브 키값 초기화 2021.01.03 추가
-            utubeKeyIndex = 0   # 유튜브 키값 초기화 2021.01.03 추가
-            # tempStr = ""        # 임시 변수 초기화 2021.01.25 추가
+            # 유튜브 키값 초기화 2021.01.03 추가
+            utubeKey = ""
+            # 유튜브 키값 초기화 2021.01.03 추가
+            utubeKeyIndex = 0
 
             # 유튜브 주소 길이 판단
             if utubeShrotUrlIndex >= 0:
                 utubeKeyIndex = pLineText.find('https://youtu.be/')
-                utubeKey = pLineText[utubeKeyIndex + 17 : utubeKeyIndex + 17 + 11] # 파싱 수정 2021.01.03 추가
+                # 파싱 수정 2021.01.03 추가
+                utubeKey = pLineText[utubeKeyIndex + 17 : utubeKeyIndex + 17 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
                 # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
                 tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
@@ -242,42 +141,32 @@ def getDetail(nCnt, title, detailUrl):
                 tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             elif utubewwwUrlIndex >= 0:
                 utubeKeyIndex = pLineText.find('https://www.youtube.com/watch?v=')
-                utubeKey = pLineText[utubeKeyIndex + 32 : utubeKeyIndex + 32 + 11]  # 파싱 추가 2021.01.18 추가
+                # 파싱 추가 2021.01.18 추가
+                utubeKey = pLineText[utubeKeyIndex + 32 : utubeKeyIndex + 32 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
                 # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
                 tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
-            else:                
+            else:
                 # 유튜브 주소가 없을 경우 변경 없음
                 tempStr = pLineText
 
             # 줄 끝에 줄 바꿈 처리
             articleString += tempStr + "\n"
-        # end of [for pLine in articleBody.select("p"):]
 
         # 03 게시글 끝에 꼬릿말 추가
         articleString += articleTail   
-        
-        # 04 3가지 변경 작업
-        # 04-01 cdn.ggoorr.net은 프록시 서버 경유
-        # 2021.06.30 R0x0를 적용할 수 없어서 R1024x0으로 변경
-        # articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R0x0/?fname=https://cdn.ggoorr.net")
+
+        # 04 cdn.ggoorr.net은 프록시 서버 경유
         articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R1024x0/?fname=https://cdn.ggoorr.net")
-        # 04-02 img 태그 앞에 줄 바꿈
-        # articleString = articleString.replace("<img", "<p><img")
-        # 04-03 img 폭을 800 2020.12.29 추가 2021.01.23 삭제
-        # articleString = articleString.replace("<img", "<img width=800")
-        
+
         # 05.제목이 포함된 내용 삭제하기 2021.02.27
         # 변수 초기화, 지정
         titleIndex = 0
         tmpTitle = title
-
         # 05-01 제목 끝에 "(스압)" 을 제거 2021.03.07
         tmpTitle = tmpTitle.replace("(스압)", "").strip()
-
         # 05-02 제목과 100% 동일한 본문 내용 삭제하기 2021.03.07 
         articleString = articleString.replace(tmpTitle, "")
-
         # 05-03 제목에 "[xxx]" 가 있으나 본문에는 "[xxx]"가 없는 경우 처리 > 제목의 [xxx]를 제거
         if title.find("]") >= 0:
             titleIndex = title.index("]")
@@ -285,24 +174,19 @@ def getDetail(nCnt, title, detailUrl):
         if tmpTitle.startswith("[") and titleIndex >= 0:
             tmpTitle = (title[titleIndex+1:]).strip()
         articleString = articleString.replace(tmpTitle, "")
-        
+
         # 파일에 저장
-        fileContent = "<p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
-        # fileContent += "\n"
-        # fileContent += writetimeString
+        # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
+        fileContent = "<p>" + title + "</p>"
         fileContent += "\n"
         fileContent += articleString
         fileContent += "\n"
 
         # realwritetime을 key로해서 html코드를 value로 저장
         contentDictionary[realwritetime] = fileContent
-        
-        # if (f is not None) and f.write(fileContent):
-        #     print("fileContent write OK ")
+
     else :
         print(" >>>> GET ERROR.....")
-    
-    # print("------------------------------------ end of getDetail -----------------------------------")
 
 # 게시판 목록 처리 함수 : 게시글 목록에서 해당 게시물이 작성 대상인 경우 게시글 상세 처리(getDetail)를 호출
 # 게시글 처리 대상 - 전일 오전 7시 ~ 당일 오전 6시 59분 59초
@@ -325,6 +209,8 @@ def searchList(page):
         nCnt = 0 # 게시글 처리 순서 저장
         # tr - 개별 게시글 확인
         for trOne in contentsBody.select('tr'):
+
+            # time.sleep(2)
             print("--------------------------------------- [ " + str(page) + " page / " + str(nCnt) + " line ] ---------------------------------------")
 
             # 공지글은 생략
@@ -358,8 +244,10 @@ def searchList(page):
                         # 작성자
                         author = tdTag.get_text()
                     elif classNm == "time":
-                        time1 = tdTag.get_text()        # 1일 이내는 N분 전/N시간 전, 1일 이후는 날짜
-                        time2 = tdTag.attrs['title']    # 1일 이내는 N분 전/N시간 전, 1일 이후는 시간
+                        # 1일 이내는 N분 전/N시간 전, 1일 이후는 날짜
+                        time1 = tdTag.get_text()
+                        # 1일 이내는 N분 전/N시간 전, 1일 이후는 시간
+                        time2 = tdTag.attrs['title']
 
                         if '분' in time1:
                             # 분일 경우 작성 시간 확인
@@ -393,32 +281,11 @@ def searchList(page):
                 if(writetime > todate):
                     print("작성 안 하고, 다음 게시물 조회 (당일 7시 이후)")
                     pass
-                # 2021.02.24 구글 블로거에서 자동으로 width를 810으로 맞추어 주어서 주석 처리
-                # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11074939&listStyle=viewer":
-                #     print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
-                #     pass
-                # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11090562&listStyle=viewer":
-                #     print("HTTP Error 400 있는 경우라서, 다음 게시물 조회")
-                #     pass                
-                # elif detailUrl == "https://ggoorr.net/index.php?mid=all&document_srl=11220982&listStyle=viewer":
-                #     print("<div>와 </div> 사이에 내용이 있어서, 다음 게시물 조회")
-                #     pass                
                 elif writetime <= fromdate:
                     print("작성 대상 아님 - 더 이상 게시물 조회하지 않음 (전일 7시 이전)")
-
-                    # 데이터 정렬하여 파일에 저장 처리 
-                    SaveSortedContentDictionary()
-
                     return False
                 else :
                     print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
-                    # 작성 시간을 (20-nCnt)만큼 빼기
-                    # writetimeref = writetime - timedelta(seconds=int(20-nCnt))
-                    # string으로 변환
-                    # stringwritetime = writetimeref.strftime('%Y-%m-%d %H:%M:%S')
-                    # 2021.05.19 본문에서 실제 작성 시간을 가져오므로 주석 처리
-                    # stringwritetime = writetime.strftime('%Y-%m-%d %H:%M:%S')
-                    # 함수로 넘김
                     getDetail(nCnt, title, detailUrl)
 
             nCnt+=1
@@ -435,7 +302,7 @@ def SaveSortedContentDictionary():
     # 정렬 후 value를 파일에 저장
     for (tuplekey, tuplevalue) in sortedKeyList:             
         f.write(str(tuplevalue))
-    
+
     if f is not None:
         f.close
         print("fileContent write OK ")
@@ -530,7 +397,7 @@ def SaveSortedContentDictionary():
 # sys.exit()
 
 # 임시 작업
-# getDetail(1, "8년 만에 조회수 4천만 넘자 직접 댓글 쓴 가수", "https://ggoorr.net/enter/13053283")
+# getDetail(1, "어른들의 물놀이 장난감", "https://ggoorr.net/thisthat/13341366")
 # SaveSortedContentDictionary()
 # sys.exit()
 
@@ -538,6 +405,36 @@ def SaveSortedContentDictionary():
 def startCrawlering():
     for page in range(1, 20):
         if False == searchList(page):
+            # errorurls = ["1_어른들의 물놀이 장난감_https://ggoorr.net/thisthat/13341366", "2_표현의 자유가 보장된 중국 근황_https://ggoorr.net/thisthat/13341364","3_뭉클해지는 무빙 권은비_https://ggoorr.net/enter/13341369"]
+            # 에러 url들이 있을 경우 크롤링 시작
+            if len(errorurls) != 0:
+                # 에러 url들을 출력
+                print(errorurls)
+                # 에러 url들이 사라질 때까지 반복
+                while True:
+                    # 에러 url 가져오기
+                    for errorurl in errorurls:
+                        # _ 위치 저장할 리스트 선언(초기화)
+                        underbarlist = []
+                        # . 위치 파악
+                        underbarlist = [pos for pos, char in enumerate(errorurl) if char == searchpattern]
+                        # nCnt 추출
+                        errornCnt = int(errorurl[:underbarlist[0]])
+                        # title 추출
+                        errortitle = errorurl[underbarlist[0] + 1:underbarlist[1]]
+                        # url 추출
+                        errordetailUrl = errorurl[underbarlist[1 ] + 1:]
+                        # 크롤링 시작
+                        if False != getDetail(errornCnt, errortitle, errordetailUrl):
+                            # 정상 처리 되면 errorurls에서 에러 url 삭제
+                            errorurls.remove(errorurl)
+                    # 에러 url들이 없는 것을 확인
+                    if len(errorurls) == 0:
+                        # 에러 url들에 대한 크롤링 종료
+                        break
+            # 데이터 정렬하여 파일에 저장 처리 
+            SaveSortedContentDictionary()
+            # 종료
             break
-
+# 크롤링 시작
 startCrawlering()
