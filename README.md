@@ -61,6 +61,8 @@ Source
 
 10. 사업자 등록 번호로 상태 조회하는 크롤러 (NTS_biznuminquiry_crawler.py)
 
+11. https://instadownloader.co 활용하여 인스타그램 이미지 다운로드 (instagram_imagedownload.py)
+
 
 날짜시간 시리즈
 
