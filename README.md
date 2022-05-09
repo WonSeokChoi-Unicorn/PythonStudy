@@ -101,6 +101,11 @@ Source
 1. 로컬 또는 웹 상 이미지를 텍스트로 변환 (Tesseract - Sample.py, Tesseract - Web Sample.py)
 
 
+인터넷
+
+1. 네이버로 접속 테스트 성공한 무료 프록시 서버 리스트 확인 (FreeProxyServer.py)
+
+
 암호 화폐 거래소 관련
 
 FTX
