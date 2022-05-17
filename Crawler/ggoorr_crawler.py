@@ -290,6 +290,8 @@ def searchList(page):
                     getDetail(nCnt, title, detailUrl)
                 # 비정상 처리 (내일 작성 못할까바 오늘 작성 위해서 크롤링)
                 # getDetail(nCnt, title, detailUrl)
+                # if page == 10:
+                #     return False
 
             nCnt+=1
             # end of [for trOne in contentsBody.select('tr'):]
