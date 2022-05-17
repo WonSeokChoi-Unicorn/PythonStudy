@@ -278,6 +278,7 @@ def searchList(page):
                 # 당일 오전 6시 59분 59초
                 todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
 
+                # 정상 처리
                 if(writetime > todate):
                     print("작성 안 하고, 다음 게시물 조회 (당일 7시 이후)")
                     pass
@@ -287,6 +288,8 @@ def searchList(page):
                 else :
                     print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
                     getDetail(nCnt, title, detailUrl)
+                # 비정상 처리 (내일 작성 못할까바 오늘 작성 위해서 크롤링)
+                # getDetail(nCnt, title, detailUrl)
 
             nCnt+=1
             # end of [for trOne in contentsBody.select('tr'):]
