@@ -75,9 +75,13 @@ def getDetail(nCnt, title, detailUrl):
         articleBodyText = str(articleBody)
 
         # 2021.06.29 제외되는 게시글들을 URL로 저장
+        # gifmp4_video class가 있을 경우
         articleBodyGIFText2 = articleBodyText.find("gifmp4_video")
-        if articleBodyGIFText2 >=0:
-            print("articleBody video class=gifmp4_video is written as URL")
+        # 2022.05.23 video 태그 중 src가 /files로 시작하는 경우
+        articleBodyvideoText3 = articleBodyText.find('src="/files/')
+
+        if articleBodyGIFText2 > 0 or articleBodyvideoText3 > 0:
+            print("replace with link")
             # 파일에 저장
             fileContent = "<br><br></br></br><p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
             fileContent += "\n"
@@ -402,7 +406,7 @@ def SaveSortedContentDictionary():
 # sys.exit()
 
 # 임시 작업
-# getDetail(1, "어른들의 물놀이 장난감", "https://ggoorr.net/thisthat/13341366")
+# getDetail(1, "중국 칼질 달인", "https://ggoorr.net/all/13464890")
 # SaveSortedContentDictionary()
 # sys.exit()
 
