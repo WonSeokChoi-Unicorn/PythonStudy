@@ -10,8 +10,8 @@ from bs4 import BeautifulSoup
 from yt_iframe import yt
 # 파일 존재 여부 확인 위한 os를 import 한다.
 import os
-# 날짜 시간 처리 위해 datetime, timedelta를 import 한다.
-from datetime import datetime, timedelta
+# 날짜 시간 처리 위해 datetime를 import 한다.
+from datetime import datetime
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -33,6 +33,14 @@ else:
     # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
     fw = open(nowDate.strftime('%Y-%m-%d') + '_youtubeonce.txt', mode='wt', encoding='utf-8')
 
+options = webdriver.ChromeOptions()
+# 로그를 없애는 설정
+options.add_experimental_option("excludeSwitches", ["enable-logging"])
+# 크롬 브라우저 안 보이게
+options.add_argument('headless')
+# driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
+driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
+
 for line in lines:
     utubeKey = ""       # 유튜브 키값 초기화
     url = ""            # url 초기화
@@ -47,13 +55,6 @@ for line in lines:
     # 빈 줄일 경우 통과
     if line.strip() == "":
         continue
-    options = webdriver.ChromeOptions()
-    # 로그를 없애는 설정
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-    # 크롬 브라우저 안 보이게
-    options.add_argument('headless')
-    # driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
-    driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
 
     # line의 공백 제거
     line = line.strip()
@@ -107,7 +108,6 @@ for line in lines:
         print("fileContent write OK ")
     else:
         fw.close
-    # webdriver를 종료한다.
-    # driver.close()
-    driver.quit()
+# webdriver를 종료한다.
+driver.quit()
 fr.close()
