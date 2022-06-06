@@ -18,21 +18,22 @@ f = open("자석 주소 파일명.txt", 'r')
 lines = f.readlines()
 for line in lines:
     # 빈 줄일 경우 통과
-    if line.strip() == "":
+    if "magnet" in line.strip():
+        clipboard.copy(line)
+        # 1초 대기
+        time.sleep(1.0)
+        # 경로에 기본 확장 문자(escape sequence)를 피하기 위해서 역슬래시를 2개 사용
+        # 2021.09.24 Application is not loaded correctly (WaitForInputIdle failed) 경고 없애기 위해서 wait_for_idle=False 옵션 추가
+        app.start("C:\\Program Files (x86)\\Transmission Remote GUI\\transgui.exe", wait_for_idle=False)
+        # 3분 대기
+        time.sleep(180.0)
+        # 확인 버튼은 Button2
+        app.window(title_re="새 토렌트 추가.*").Button2.click()
+        # 1초 대기
+        time.sleep(1.0)
+        # 프로그램 종료
+        app.kill()
+    else:
         continue
-    clipboard.copy(line)
-    # 1초 대기
-    time.sleep(1.0)
-    # 경로에 기본 확장 문자(escape sequence)를 피하기 위해서 역슬래시를 2개 사용
-    # 2021.09.24 Application is not loaded correctly (WaitForInputIdle failed) 경고 없애기 위해서 wait_for_idle=False 옵션 추가
-    app.start("C:\\Program Files (x86)\\Transmission Remote GUI\\transgui.exe", wait_for_idle=False)
-    # 3분 대기
-    time.sleep(180.0)
-    # 확인 버튼은 Button2
-    app.window(title_re="새 토렌트 추가.*").Button2.click()
-    # 1초 대기
-    time.sleep(1.0)
-    # 프로그램 종료
-    app.kill()
 f.close()
 
