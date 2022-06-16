@@ -146,4 +146,8 @@ Bithumb
 
 2. Telegram에 알림 보내기 (Telegram_alarm.py)
 
+엑셀
+
+1. 컬럼명이나 컬럼 데이터 길이에 따라서 자동 조절 (ColumWidthAutoAdjustment.py)
+
 가 있습니다.
