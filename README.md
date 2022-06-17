@@ -140,6 +140,12 @@ Bithumb
 
 3. 암호 화폐 시가/종가/고가/저가/거래량 정보를 DataFrame으로 출력 (Bithumb_get_candlestick.py)
 
+Coingecko
+
+1. 암호 화폐 리스트 확인 (Coingecko_get_coins_list.py)
+
+2. 암호 화폐별 정보 확인 (Coingecko_get_coin_by_id.py)
+
 메신저
 
 1. Slack에 알림 보내기 (Slack_alarm.py)
