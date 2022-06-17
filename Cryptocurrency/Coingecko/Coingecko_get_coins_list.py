@@ -1,0 +1,10 @@
+# pip install pycoingecko
+from pycoingecko import CoinGeckoAPI
+cg = CoinGeckoAPI()
+
+# 암호 화폐 종류 확인
+tickers = cg.get_coins_list()
+# 모든 암호 화폐 리스트 확인
+for ticker in tickers:
+    # 암호 화폐 이름 출력
+    print(str(tickers.index(ticker) + 1) + " / " + str(len(tickers)) + " - " + ticker['id'] + " - " + ticker['symbol'] + " - " + ticker['name'])
