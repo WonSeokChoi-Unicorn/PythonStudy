@@ -11,5 +11,5 @@ for ticker in tickers:
     print(str(tickers.index(ticker) + 1) + " / " + str(len(tickers)) + " - " + ticker['id'] + " - " + ticker['symbol'] + " - " + ticker['name'])
     tickerinfo = cg.get_coin_by_id(ticker['id'])
     print(tickerinfo)
-    # 시간 지연
-    time.sleep(0.25)
+    # 시간 지연 Free API has a rate limit of 50 calls/minute
+    time.sleep(1.25)
