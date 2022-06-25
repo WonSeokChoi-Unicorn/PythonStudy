@@ -9,6 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 # BeautifulSoup4를 import 한다.
 # pip install beautifulsoup4 --upgrade
+# lxml 설치 필요합니다 (pip install lxml)
 from bs4 import BeautifulSoup
 # 날짜 시간 처리 위해 datetime, timedelta를 import 한다.
 from datetime import datetime, timedelta
@@ -20,8 +21,8 @@ from dateutil.relativedelta import relativedelta
 import re
 # 파일 존재 여부 확인 위한 os를 import 한다.
 import os
-# lxml 설치 필요합니다 (pip install lxml)
 import requests
+import time
 # 카카오 번역
 # pip install kakaotrans
 from kakaotrans import Translator
@@ -117,6 +118,8 @@ for u in range(0, len(urllist)):
 
     # 원하는 사이트의 url을 입력하여 사이트를 연다.
     driver.get(urllist[u])
+    # 네트워크 속도가 느림을 방지하기 위해서 3초 대기
+    time.sleep(3)
 
     # body를 스크롤하기 위해 tagname이 body로 되어있는것을 추출합니다.
     body = driver.find_element(By.TAG_NAME, 'body')
@@ -128,21 +131,27 @@ for u in range(0, len(urllist)):
     # html을 'lxml' parser를 사용하여 분석합니다.
     soup = BeautifulSoup(html, 'lxml')
 
-    # channelname 조건에 맞는 모든 div 태그의 hidden style-scope paper-tooltip class들을 가져옵니다. 2021.02.23 웹사이트 변경
-    allchannelname = soup.find_all('div', 'hidden style-scope tp-yt-paper-tooltip')
+    # channelname 조건에 맞는 모든 div 태그의 hidden style-scope paper-tooltip class들을 가져옵니다.
+    # 2021.02.23 웹사이트 변경
+    # 2022.06.26 가져오는 태그 변경 tp-yt-paper-tooltip의 class = style-scope ytd-channel-name
+    # allchannelname = soup.find_all('div', 'hidden style-scope tp-yt-paper-tooltip')
+    allchannelname = soup.find_all('tp-yt-paper-tooltip', 'style-scope ytd-channel-name')
 
     # channelname 변수에 저장합니다.
     # 2021.03.25 [6] -> [7] 로 변경
     # 2021.08.03 [7] -> [6] 로 변경
-    # 루프 돌지 않고 바로 가져 옴
+    # 2022.02.06 루프 돌지 않고 바로 가져 옴
+    # 2022.06.26 가져오는 태그 변경, [1] -> [0] 로 변경
     # channelname = [soup.find_all('div','hidden style-scope tp-yt-paper-tooltip')[6].string for n in range(0,len(allchannelname))]
-    channelname = allchannelname[1].string
+    channelname = allchannelname[0].get_text()
 
     # 루프 돌지 않고 바로 가져 옴
     # 채널명에 줄 바꿈이 있어서 제거합니다.
+    # 2022.06.26 좌우 공백 제거
     # for i in range(len(channelname)):
     #     channelname[i] = channelname[i].replace("\n", "")
-    channelname = channelname.replace("\n", "")
+    # channelname = channelname.replace("\n", "")
+    channelname = "#####*****" + channelname.strip()
 
     # title 조건에 맞는 모든 a 태그의 class들을 가져옵니다.
     all_title = soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')
@@ -186,7 +195,7 @@ for u in range(0, len(urllist)):
 
     # time이란 변수에 시간 정보(짝수)를 저장합니다.
     # 분 전, 시간 전, 일 전, 주 전, 개월 전, 년 전
-    time = [all_time[n].text for n in range(1,len(all_time),2)]
+    publishtime = [all_time[n].text for n in range(1,len(all_time),2)]
 
     # iframe 태그 생성을 위해 폭과 높이를 설정
     width = '560' # (Optional)
@@ -218,7 +227,7 @@ for u in range(0, len(urllist)):
         print("fileContent write OK ")
 
     # 화면에 로드된 동영상 갯수만큼
-    for x in range(0, len(time)-1):
+    for x in range(0, len(publishtime)-1):
 
         delta = ''          # 개월, 년 차이 초기화
         fileContent = ""    # fileContent 초기화
@@ -227,30 +236,30 @@ for u in range(0, len(urllist)):
         iframe = ""         # iframe 초기화
         tempstr = ""        # 임시 저장 초기화
 
-        if '분 전' in time[x]:
+        if '분 전' in publishtime[x]:
             # 분일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", time[x])
+            timenumber = re.findall("\d+", publishtime[x])
             writetime = datetime.today() - timedelta(minutes=int(timenumber[0]))
-        elif '시간 전' in time[x]:
+        elif '시간 전' in publishtime[x]:
             # 시간일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", time[x])
+            timenumber = re.findall("\d+", publishtime[x])
             writetime = datetime.today() - timedelta(hours=int(timenumber[0]))
-        elif '일 전' in time[x]:
+        elif '일 전' in publishtime[x]:
             # 일일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", time[x])
+            timenumber = re.findall("\d+", publishtime[x])
             writetime = datetime.today() - timedelta(days=int(timenumber[0]))
-        elif '주 전' in time[x]:
+        elif '주 전' in publishtime[x]:
             # 주일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", time[x])
+            timenumber = re.findall("\d+", publishtime[x])
             writetime = datetime.today() - timedelta(weeks=int(timenumber[0]))
-        elif '개월 전' in time[x]:
+        elif '개월 전' in publishtime[x]:
             # 개월일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", time[x])
+            timenumber = re.findall("\d+", publishtime[x])
             delta = relativedelta(months=int(timenumber[0]))
             writetime = datetime.today() - delta
-        elif '년 전' in time:
+        elif '년 전' in publishtime:
             # 년일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", time[x])
+            timenumber = re.findall("\d+", publishtime[x])
             delta = relativedelta(years=int(timenumber[0]))
             writetime = datetime.today() - delta
 
