@@ -151,7 +151,7 @@ for u in range(0, len(urllist)):
     # for i in range(len(channelname)):
     #     channelname[i] = channelname[i].replace("\n", "")
     # channelname = channelname.replace("\n", "")
-    channelname = "#####*****" + channelname.strip()
+    channelname = channelname.strip()
 
     # title 조건에 맞는 모든 a 태그의 class들을 가져옵니다.
     all_title = soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')
@@ -166,7 +166,7 @@ for u in range(0, len(urllist)):
     # 제목이 영어일 경우 한국어로 구글 번역
     englishchannel = ['Kurzgesagt – In a Nutshell', 'TED-Ed', 'Vox']
     # if channelname[0].strip() in englishchannel:
-    if channelname.strip() in englishchannel:
+    if channelname in englishchannel:
         engtitle = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
         for line in engtitle:
             # data = {
@@ -213,7 +213,7 @@ for u in range(0, len(urllist)):
 
     # 채널명은 반복문 전 파일에 1번만 저장하도록 
     # channelheader = "<p>" + channelname[0] + "</p>"
-    channelheader = "<p>" + channelname + "</p>"
+    channelheader = "<p>" + "#####*****" + channelname + "</p>"
     channelheader += "\n"
 
     print("##################################################################")
