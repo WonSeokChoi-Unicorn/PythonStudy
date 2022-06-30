@@ -63,6 +63,8 @@ Source
 
 11. https://instadownloader.co 활용하여 인스타그램 이미지 다운로드 (instagram_imagedownload.py)
 
+12. Daum 방금 그 곡 크롤러 (just that song_crawler.py)
+
 
 날짜시간 시리즈
 
