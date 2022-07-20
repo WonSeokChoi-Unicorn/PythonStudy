@@ -162,6 +162,8 @@ Coingecko
 
 1. 파일 업로드 후 검사 (VirusTotalAPIFiles.py)
 
+2. URL 검사 (VirusTotalAPIURLs.py)
+
 가 있습니다.
 
 
