@@ -158,4 +158,11 @@ Coingecko
 
 1. 컬럼명이나 컬럼 데이터 길이에 따라서 자동 조절 (ColumWidthAutoAdjustment.py)
 
+바이러스 토탈
+
+1. 파일 업로드 후 검사 (VirusTotalAPIFiles.py)
+
 가 있습니다.
+
+
+관련해서 의사 소통을 원하시면 <a target=_blank href="https://open.kakao.com/o/g6F0DYfe">카카오톡 오픈채팅방</a>으로 오시면 되겠습니다.
