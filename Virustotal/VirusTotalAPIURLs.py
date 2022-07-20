@@ -7,7 +7,7 @@ from datetime import datetime
 # 1. https://www.virustotal.com/gui/join-us 에서 회원 가입
 # 2. 가입시 입력한 이메일로 VirusTotal Community account activation 진행
 # 3. https://www.virustotal.com/gui/user/[유저 네임]/apikey 에서 API Key 확인
-vt_urls = VirusTotalAPIUrls('')
+vt_urls = VirusTotalAPIUrls('API Key')
 
 urllists = [
 "URL 1",
