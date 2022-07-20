@@ -1,4 +1,5 @@
 import json
+# pip install vtapi3
 from vtapi3 import VirusTotalAPIFiles, VirusTotalAPIError
 from datetime import datetime
 
