@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from datetime import datetime
 from wcwidth import wcswidth
+import progressbar
 
 # 검색할 Mac Address 리스트 파일
 filename = 'C:\\Temp\\macaddresslist.txt'
@@ -26,8 +27,10 @@ f1 = open(filename, 'r')
 filelines = f1.readlines()
 # 검색할 Mac Address 리스트 파일 닫기
 f1.close
+# 진행 상황 객체 생성
+bar = progressbar.ProgressBar()
 # 한 줄씩 읽기
-for fileline in filelines:
+for fileline in bar(filelines):
     # 기호 없애기
     macaddress = fileline.translate(deletestr).strip()
     # 왼쪽에서 6자리까지만 가져오기
