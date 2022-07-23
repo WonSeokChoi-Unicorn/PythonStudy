@@ -204,11 +204,16 @@ def searchList(page):
         html = res.text
 
         # 응답받은 html코드를 BeautifulSoup에 사용하기 위하여 인스턴스 지정
-        soup = BeautifulSoup(html, 'html.parser')
+        # 2022.07.24 가져오는 방식 변경
+        soup = BeautifulSoup(html, 'lxml')
 
         # tbody 에 필요한 게시글 목록이 있어 해당 영역 가져오기 처리
-        tbody = soup.select('.bd_tb_lst tbody')
-        contentsBody = tbody[0]
+        # 2022.07.24 가져오는 방식 변경
+        # tbody = soup.select('.bd_tb_lst tbody')
+        tbody = soup.find('table', 'bd_lst bd_tb_lst bd_tb')        
+        # 2022.07.24 가져오는 방식 변경
+        # contentsBody = tbody[0]
+        contentsBody = tbody.find('tbody')
 
         nCnt = 0 # 게시글 처리 순서 저장
         # tr - 개별 게시글 확인
