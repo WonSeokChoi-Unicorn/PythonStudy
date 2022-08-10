@@ -112,6 +112,11 @@ Source
 1. 네이버로 접속 테스트 성공한 무료 프록시 서버 리스트 확인 (FreeProxyServer.py)
 
 
+네트워크
+
+1. C-Class IP 대역에서 응답 있는 IP, MacAddress 표시 (NetworkScan.py)
+
+
 암호 화폐 거래소 관련
 
 FTX
