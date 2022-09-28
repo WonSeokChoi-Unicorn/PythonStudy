@@ -159,15 +159,18 @@ Coingecko
 
 2. 암호 화폐별 정보 확인 (Coingecko_get_coin_by_id.py)
 
+
 메신저
 
 1. Slack에 알림 보내기 (Slack_alarm.py)
 
 2. Telegram에 알림 보내기 (Telegram_alarm.py)
 
+
 엑셀
 
 1. 컬럼명이나 컬럼 데이터 길이에 따라서 자동 조절 (ColumWidthAutoAdjustment.py)
+
 
 바이러스 토탈
 
@@ -175,9 +178,15 @@ Coingecko
 
 2. URL 검사 (VirusTotalAPIURLs.py)
 
+
 암호화복호화
 
 1. Cloudflare-protected Email 복호화 (Decoding Cloudflare-protected Email.py)
+
+
+동영상
+
+1. 동영상을 GIF로 변환 (VideoToGif.py)
 
 가 있습니다.
 
