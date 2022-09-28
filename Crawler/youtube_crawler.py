@@ -266,9 +266,10 @@ for u in range(0, len(urllist)):
             writetime = datetime.today() - delta
 
         # 2021.10.28 shorts 영상에 대한 처리 추가
+        # 2022.09.29 shorts key 가져오는 방식 변경
         if "/shorts/" in firsturl[x]:
             # 유튜브 Video ID 추출
-            utubeKey = firsturl[x][8 : 8 + 11]
+            utubeKey = firsturl[x][firsturl[x].index("/shorts/") + 8 :]
             # 유튜브 URL 만들기
             url = 'https://www.youtube.com/shorts/' + str(utubeKey)
             # iframe 태그 생성 - 아직 라이브러리가 없어서 수동 처리

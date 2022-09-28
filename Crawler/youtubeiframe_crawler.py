@@ -82,17 +82,31 @@ for line in lines:
     print("####################################################################################################################################")
 
     # url 길이에 따라서 Video ID 추출하는 방법 구분
-    if len(line) == 43:
+    if "/shorts/" in line:
+        # 유튜브 Video ID 추출
+        utubeKey = line[line.index("/shorts/") + 8 :]
+        # 유튜브 URL 만들기
+        url = 'https://www.youtube.com/shorts/' + str(utubeKey)
+        # iframe 태그 생성 - 아직 라이브러리가 없어서 수동 처리
+        iframe = '<iframe width="315" height="560" src="https://www.youtube.com/embed/' + str(utubeKey) + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+    elif len(line) == 43:
         utubeKey = line[32 : 32 + 11]
+        # 유튜브 URL 만들기
+        url = 'https://www.youtube.com/watch?v=' + str(utubeKey)
+        # iframe 태그 생성
+        iframe = yt.video(url, width=width, height=height)
     elif len(line) == 39:
         utubeKey = line[28 : 28 + 11]
+        # 유튜브 URL 만들기
+        url = 'https://www.youtube.com/watch?v=' + str(utubeKey)
+        # iframe 태그 생성
+        iframe = yt.video(url, width=width, height=height)
     elif len(line) == 28:
         utubeKey = line[17 : 17 + 11]
-
-    # 유튜브 URL 만들기
-    url = 'https://www.youtube.com/watch?v=' + str(utubeKey)
-    # iframe 태그 생성
-    iframe = yt.video(url, width=width, height=height)
+        # 유튜브 URL 만들기
+        url = 'https://www.youtube.com/watch?v=' + str(utubeKey)
+        # iframe 태그 생성
+        iframe = yt.video(url, width=width, height=height)
 
     tempstr = "<p>" + title + "</p>"
     tempstr += "\n"
