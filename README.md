@@ -82,6 +82,8 @@ Source
 
 5. 내일 이후 가장 최근의 영업일 확인 (FutureBusinessDay.py)
 
+6. 지난 주 요일, 이번주 요일에 해당하는 날짜 구하기 (YearWeekDate.py)
+
 
 파일 처리 시리즈
 
