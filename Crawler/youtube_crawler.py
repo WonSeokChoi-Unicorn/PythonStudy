@@ -31,33 +31,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 # <p>채널명 [1번만 표시]</p><p>제목</p><p><a>URL</a></p><p><iframe></p> 로 작성
 
-# 14F 일사에프 https://www.youtube.com/c/14FMBC/videos
-# Kurzgesagt – In a Nutshell https://www.youtube.com/c/inanutshell/videos
-# TED-Ed https://www.youtube.com/teded/videos
-# Vox https://www.youtube.com/c/Vox/videos
-# LG전자 https://www.youtube.com/c/LGElectronicsKorea/videos
-# LG https://www.youtube.com/user/LGSTORY/videos
-# 디즈니 https://www.youtube.com/c/DisneyMovieKr/videos
-# MarvelKorea https://www.youtube.com/c/MarvelKorea/videos
-# 리뷰엉이: Owl's Review https://www.youtube.com/c/Owlsreview/videos
-# movie trip 무비트립 https://www.youtube.com/c/movietrip%EB%AC%B4%EB%B9%84%ED%8A%B8%EB%A6%BD/videos
-# 고몽 https://www.youtube.com/user/rladndgussla/videos
-# 천재이승국 GeniusSKLee https://www.youtube.com/c/GeniusSKLee/videos
-# 은빛유니콘 https://www.youtube.com/channel/UCPq0i_bZeqVoVYm_u8qimDA/videos
-# 엔스Ens https://www.youtube.com/channel/UC_Aly3X5CdojHdRDGmKi1ow/videos
-# 가전주부 GJJB https://www.youtube.com/channel/UC5aNQ65ADb02zEJxzb_zmYQ/videos
-# 멋진기영TV https://www.youtube.com/user/dlrldud1111/videos
-# B Man 삐맨 https://www.youtube.com/c/BMan%EC%82%90%EB%A7%A8/videos
-# 빨강도깨비 https://www.youtube.com/c/%EB%B9%A8%EA%B0%95%EB%8F%84%EA%B9%A8%EB%B9%84dokkebi/videos
-# 발없는새 https://www.youtube.com/user/nofeetbird/videos
-# sanggung상궁 https://www.youtube.com/c/sanggungtv/videos
-# 엉삼 https://www.youtube.com/c/%EB%A6%AC%EB%B7%B0%EC%97%89%EC%9D%B4%EB%B6%81%EC%8A%A4/videos
-# 오토뷰(Autoview) https://www.youtube.com/channel/UCfcgDLazgMa1L92Kl3r9ZAA/videos
-# 한상기 오토프레스 Han Sang Ki https://www.youtube.com/c/%ED%95%9C%EC%83%81%EA%B8%B0HanSangKi/videos
-# LikeRing https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos
-# 사람사는세상노무현재단 https://www.youtube.com/c/%EC%82%AC%EB%9E%8C%EC%82%AC%EB%8A%94%EC%84%B8%EC%83%81%EB%85%B8%EB%AC%B4%ED%98%84%EC%9E%AC%EB%8B%A8/videos
-# 슈카월드 https://www.youtube.com/c/%EC%8A%88%EC%B9%B4%EC%9B%94%EB%93%9C/videos
-
 # 추출할 유튜브 채널의 동영상 탭
 urllist = [
            'https://www.youtube.com/c/14FMBC/videos',
@@ -90,7 +63,8 @@ urllist = [
            'https://www.youtube.com/channel/UCwWKHg9oMuuVnTRtsB_lMYA/videos',
            'https://www.youtube.com/c/%EB%8F%88%EB%A6%BD%EB%A7%8C%EC%84%B8/videos',
            'https://www.youtube.com/c/%EC%84%B8%EC%83%81%EC%9D%98%EB%AA%A8%EB%93%A0%EC%A7%80%EC%8B%9DAllknowledgeoftheWorld/videos',
-           'https://www.youtube.com/channel/UCjHn_Os5NoCXZyoXzuKth9w/videos'
+           'https://www.youtube.com/channel/UCjHn_Os5NoCXZyoXzuKth9w/videos',
+           'https://www.youtube.com/channel/UCLcfz3EIgDw01VtRLZmrxDQ/videos'
           ]
 
 # 전일 오전 7시
