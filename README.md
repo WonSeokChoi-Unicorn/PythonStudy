@@ -84,6 +84,8 @@ Source
 
 6. 지난 주 요일, 이번주 요일에 해당하는 날짜 구하기 (YearWeekDate.py)
 
+7. 날짜와 숫자를 변환 (IntConvertDate.py)
+
 
 파일 처리 시리즈
 
