@@ -123,6 +123,8 @@ def getDetail(nCnt, title, detailUrl):
             utubeUrlIndex       = pLineText.find('https://youtube.com/watch?v=')
             # 유튜브 www 긴 주소 접두어
             utubewwwUrlIndex    = pLineText.find('https://www.youtube.com/watch?v=')
+            # 유튜브 shorts 주소 접두어
+            utubeshortsUrlIndex    = pLineText.find('https://youtube.com/shorts/')
 
             # 유튜브 키값 초기화 2021.01.03 추가
             utubeKey = ""
@@ -130,26 +132,33 @@ def getDetail(nCnt, title, detailUrl):
             utubeKeyIndex = 0
 
             # 유튜브 주소 길이 판단
-            if utubeShrotUrlIndex >= 0:
+            if utubeShrotUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://youtu.be/')
                 # 파싱 수정 2021.01.03 추가
                 utubeKey = pLineText[utubeKeyIndex + 17 : utubeKeyIndex + 17 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
                 # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
                 tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
-            elif utubeUrlIndex >= 0:
+            elif utubeUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://youtube.com/watch?v=')
                 utubeKey = pLineText[utubeKeyIndex + 28 : utubeKeyIndex + 28 + 11] # 파싱 수정 2021.01.03 추가
                 # 유튜브 키값을 iframe 태그로 변경
                 # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
                 tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
-            elif utubewwwUrlIndex >= 0:
+            elif utubewwwUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://www.youtube.com/watch?v=')
                 # 파싱 추가 2021.01.18 추가
                 utubeKey = pLineText[utubeKeyIndex + 32 : utubeKeyIndex + 32 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
                 # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
                 tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+            elif utubeshortsUrlIndex > 0:
+                utubeKeyIndex = pLineText.find('https://youtube.com/shorts/')
+                # 파싱 추가 2021.01.18 추가
+                utubeKey = pLineText[utubeKeyIndex + 27 : utubeKeyIndex + 27 + 11]
+                # 유튜브 키값을 iframe 태그로 변경
+                # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
+                tempStr = str(pLine) + '<p><iframe style="width:315; height:560px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             else:
                 # 유튜브 주소가 없을 경우 변경 없음
                 tempStr = pLineText
@@ -411,7 +420,7 @@ def SaveSortedContentDictionary():
 # sys.exit()
 
 # 임시 작업
-# getDetail(1, "중국 칼질 달인", "https://ggoorr.net/all/13464890")
+# getDetail(1, "팀킬", "https://ggoorr.net/all/14215100")
 # SaveSortedContentDictionary()
 # sys.exit()
 
