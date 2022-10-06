@@ -154,10 +154,9 @@ def getDetail(nCnt, title, detailUrl):
                 tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             elif utubeshortsUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://youtube.com/shorts/')
-                # 파싱 추가 2021.01.18 추가
+                # 파싱 추가 2022.10.07 추가
                 utubeKey = pLineText[utubeKeyIndex + 27 : utubeKeyIndex + 27 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
-                # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
                 tempStr = str(pLine) + '<p><iframe style="width:315; height:560px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             else:
                 # 유튜브 주소가 없을 경우 변경 없음
