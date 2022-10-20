@@ -1,19 +1,9 @@
-import requests, json
+import requests
 import time
 import sys
 from bs4 import BeautifulSoup
 from bs4 import NavigableString
 from datetime import datetime, timedelta
-# 이미지 해상도 확인 2021.01.23 병합
-import io
-import struct
-import urllib.request as urllib2
-# 에러 확인 위해 HTTPError을 import
-from urllib.request import HTTPError
-import re
-# 파일 존재 여부 확인 위한 os를 import 한다.
-import os
-
 
 # 전역 변수 설정
 # 꾸르 메인 주소
@@ -34,26 +24,19 @@ f = open(nowDate.strftime('%Y-%m-%d') + '_ggoorr.txt', mode='wt', encoding='utf-
 contentDictionary = {}
 # 전체 컨텐츠가 sort 되어 저장되는 dictionary
 sortedKeyList = {}
-
-# 2021.06.29 제외되는 게시글들을 URL로 저장
-# 2021.06.18 제외되는 게시글들을 따로 저장하기 위해서 추가
-# if os.path.isfile(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt'):
-#     # 파일이 존재할 경우 추가, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-#     fe = open(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt', mode='at', encoding='utf-8')
-# else:
-#     # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-#     fe = open(nowDate.strftime('%Y-%m-%d') + '_ggoorrexclude.txt', mode='wt', encoding='utf-8')
+# 대기 시간
+waittime = 1
 
 # 상세 게시글 HTML 수집 함수
 def getDetail(nCnt, title, detailUrl):
 
     try:
         # 상세 주소 요청 및 응답 수신
-        detailRes = requests.get(detailUrl, headers=headers)
+        detailRes = requests.get(detailUrl, headers = headers)
     except:
         print("오류가 발생했습니다." + detailUrl)
         # 오류가 발생하면 errorurl에 추가
-        errorurls.append(nCnt +"_" + title + "_" + detailUrl)
+        errorurls.append(str(nCnt) +"_" + title + "_" + detailUrl)
         return False
 
     # HTTP 응답 성공 200
@@ -199,13 +182,14 @@ def getDetail(nCnt, title, detailUrl):
 
     else :
         print(" >>>> GET ERROR.....")
+    time.sleep(waittime)
 
 # 게시판 목록 처리 함수 : 게시글 목록에서 해당 게시물이 작성 대상인 경우 게시글 상세 처리(getDetail)를 호출
 # 게시글 처리 대상 - 전일 오전 7시 ~ 당일 오전 6시 59분 59초
 def searchList(page):
 
     print("=========================================== " + str(page) + " page start =====================================")
-    res = requests.get(GGOORR_DETAIL_URL + str(page), headers=headers)
+    res = requests.get(GGOORR_DETAIL_URL + str(page), headers = headers)
 
     if res.status_code == 200:
         # 응답 html코드를 text로 변환
@@ -316,6 +300,7 @@ def searchList(page):
         return True        
     else:
         print(GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")
+    time.sleep(waittime)
 
 # 데이터 정렬하여 파일에 저장 처리 
 def SaveSortedContentDictionary():
@@ -435,7 +420,7 @@ def startCrawlering():
                 # 에러 url들이 사라질 때까지 반복
                 while True:
                     # 에러 url 가져오기
-                    for errorurl in errorurls:
+                    for errorurl in errorurls[:]:
                         # _ 위치 저장할 리스트 선언(초기화)
                         underbarlist = []
                         # . 위치 파악
