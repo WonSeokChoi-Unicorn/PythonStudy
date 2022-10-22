@@ -2,6 +2,7 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 # 파일 존재 여부 확인 위한 os를 import 한다.
 import os
@@ -41,7 +42,7 @@ options.add_argument('headless')
 
 # 이미지를 저장할 인스타그램 URL들
 urls = [
-        'https://www.instagram.com/p/Civ_4wWBTRl/'
+        'https://www.instagram.com/p/Cj7jobdhNVL/'
        ]
 # 웹드라이버 실행
 browser = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
@@ -52,10 +53,10 @@ browser.get(urlload)
 time.sleep(waittime)
 for url in urls:
     # 주소란에 입력
-    browser.find_element_by_css_selector("#main_page_text").send_keys(url)
+    browser.find_element(By.CSS_SELECTOR, "#main_page_text").send_keys(url)
     time.sleep(waittime)
     # 다운로드 클릭
-    browser.find_element_by_css_selector("#submit").click()
+    browser.find_element(By.CSS_SELECTOR, "#submit").click()
     time.sleep(waittime)
     # 로드 된 페이지 소스를 html이란 변수에 저장합니다.
     Html = browser.page_source
