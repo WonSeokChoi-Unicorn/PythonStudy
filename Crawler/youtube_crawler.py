@@ -66,6 +66,10 @@ urllist = [
            'https://www.youtube.com/channel/UCjHn_Os5NoCXZyoXzuKth9w/videos',
            'https://www.youtube.com/channel/UCLcfz3EIgDw01VtRLZmrxDQ/videos'
           ]
+# TEST
+# urllist = [
+# 'https://www.youtube.com/user/dlrldud1111/videos'
+# ]
 
 # 전일 오전 7시
 yesterday = datetime.today() - timedelta(days=1)
@@ -129,8 +133,12 @@ for u in range(0, len(urllist)):
     # channelname = channelname.replace("\n", "")
     channelname = channelname.strip()
 
+    # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # title 조건에 맞는 모든 a 태그의 class들을 가져옵니다.
-    all_title = soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')
+    all_title = soup.find_all('a','yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')
+    if len(all_title) == 0:
+        all_title = soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')
+        # yt-simple-endpoint style-scope ytd-grid-video-renderer
 
     # kakaotranslateurl = "https://translate.kakao.com/translator/translate.json"
 
@@ -143,7 +151,11 @@ for u in range(0, len(urllist)):
     englishchannel = ['Kurzgesagt – In a Nutshell', 'TED-Ed', 'Vox']
     # if channelname[0].strip() in englishchannel:
     if channelname in englishchannel:
-        engtitle = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
+        # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
+        try:
+            engtitle = [soup.find_all('a','yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')[n].string for n in range(0,len(all_title))]
+        except:
+            engtitle = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
         for line in engtitle:
             # data = {
             #     "queryLanguage": "en",
@@ -157,17 +169,31 @@ for u in range(0, len(urllist)):
 
             title.append(translateoutput)
     else:
+        # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
         # title이란 변수에 저장합니다.
-        title = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
+        try:
+            title = [soup.find_all('a','yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')[n].string for n in range(0,len(all_title))]
+        except:
+            title = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
 
+    # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # href 조건에 맞는 모든 a 태그의 id들을 가져옵니다.
-    all_url = soup.find_all('a', {'id':'video-title'})
+    all_url = soup.find_all('a', {'id' : 'video-title-link'})
+    if len(all_url) == 0:
+        all_url = soup.find_all('a', {'id' : 'video-title'})
 
+    # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # firsturl이란 변수에 저장합니다.
-    firsturl = [soup.find_all('a', {'id':'video-title'})[n].get('href') for n in range(0,len(all_url))]
+    try:        
+        firsturl = [soup.find_all('a', {'id' : 'video-title-link'})[n].get('href') for n in range(0,len(all_url))]
+    except:
+        firsturl = [soup.find_all('a', {'id' : 'video-title'})[n].get('href') for n in range(0,len(all_url))]
 
+    # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # time 조건에 맞는 모든 span 태그의 class들을 가져옵니다. title, url의 2배수.
-    all_time = soup.find_all('span','style-scope ytd-grid-video-renderer')
+    all_time = soup.find_all('span','inline-metadata-item style-scope ytd-video-meta-block')
+    if len(all_time) == 0:
+        all_time = soup.find_all('span','style-scope ytd-grid-video-renderer')
 
     # time이란 변수에 시간 정보(짝수)를 저장합니다.
     # 분 전, 시간 전, 일 전, 주 전, 개월 전, 년 전
