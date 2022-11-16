@@ -25,7 +25,7 @@ contentDictionary = {}
 # 전체 컨텐츠가 sort 되어 저장되는 dictionary
 sortedKeyList = {}
 # 대기 시간
-waittime = 1
+waittime = 0.5
 
 # 상세 게시글 HTML 수집 함수
 def getDetail(nCnt, title, detailUrl):
