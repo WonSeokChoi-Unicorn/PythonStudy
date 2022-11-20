@@ -94,6 +94,11 @@ Source
 2. Maria DB 백업 (MariaDBBackup.py, MariaDBBackup.bat)
 
 
+이미지 처리 시리즈
+
+1. 이미지의 배경을 삭제 (RemoveImagesBackground_Bytes.py, RemoveImagesBackground_Numpy.py, RemoveImagesBackground_Pillow.py)
+
+
 번호 생성기
 
 1. 로또 번호 랜덤 생성기 (RandomLottoNumber.py)
