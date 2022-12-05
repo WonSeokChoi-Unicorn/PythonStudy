@@ -28,15 +28,16 @@ sortedKeyList = {}
 waittime = 0.5
 
 # 상세 게시글 HTML 수집 함수
-def getDetail(nCnt, title, detailUrl):
-
+def getDetail(title, detailUrl):
+    # 2022.12.06 게시글 순번으로 sort
+    realwritetime = detailUrl[23:detailUrl.index("?")]
     try:
         # 상세 주소 요청 및 응답 수신
         detailRes = requests.get(detailUrl, headers = headers)
     except:
         print("오류가 발생했습니다." + detailUrl)
         # 오류가 발생하면 errorurl에 추가
-        errorurls.append(str(nCnt) +"_" + title + "_" + detailUrl)
+        errorurls.append(title + "_" + detailUrl)
         return False
 
     # HTTP 응답 성공 200
@@ -45,12 +46,6 @@ def getDetail(nCnt, title, detailUrl):
         # 게시글의 HTML을 받아 BeautifulSoup 로 파싱 저장 
         detailHtml = detailRes.text
         detailSoup = BeautifulSoup(detailHtml, 'html.parser')
-
-        # 작성 시간을 찾기 위해 time 태그의 데이터만 사용함
-        timeBody = detailSoup.find('time')
-
-        # 실제 게시글 작성 시간 + (20-게시판 숫자 카운트)로 key(realwritetime) 만듬
-        realwritetime = timeBody.get_text() + ' ' + str(20-int(nCnt))
 
         # 본문을 찾기 위해 article 태그의 데이터만 사용함
         articleBody = detailSoup.find('article')
@@ -288,9 +283,9 @@ def searchList(page):
                     return False
                 else :
                     print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
-                    getDetail(nCnt, title, detailUrl)
+                    getDetail(title, detailUrl)
                 # 비정상 처리 (내일 작성 못할까바 오늘 작성 위해서 크롤링)
-                # getDetail(nCnt, title, detailUrl)
+                # getDetail(title, detailUrl)
                 # if page == 10:
                 #     return False
 
@@ -423,16 +418,14 @@ def startCrawlering():
                     for errorurl in errorurls[:]:
                         # _ 위치 저장할 리스트 선언(초기화)
                         underbarlist = []
-                        # . 위치 파악
+                        # _ 위치 파악
                         underbarlist = [pos for pos, char in enumerate(errorurl) if char == searchpattern]
-                        # nCnt 추출
-                        errornCnt = int(errorurl[:underbarlist[0]])
                         # title 추출
-                        errortitle = errorurl[underbarlist[0] + 1:underbarlist[1]]
+                        errortitle = errorurl[:underbarlist[0]]
                         # url 추출
-                        errordetailUrl = errorurl[underbarlist[1 ] + 1:]
+                        errordetailUrl = errorurl[underbarlist[0] + 1:]
                         # 크롤링 시작
-                        if False != getDetail(errornCnt, errortitle, errordetailUrl):
+                        if False != getDetail(errortitle, errordetailUrl):
                             # 정상 처리 되면 errorurls에서 에러 url 삭제
                             errorurls.remove(errorurl)
                     # 에러 url들이 없는 것을 확인
