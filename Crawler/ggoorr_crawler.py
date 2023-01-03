@@ -5,6 +5,16 @@ from bs4 import BeautifulSoup
 from bs4 import NavigableString
 from datetime import datetime, timedelta
 
+# 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
+todaytime = datetime.today().strftime('%Y%m%d%H%M%S')
+
+# 실행 과정을 기록할 파일
+runlog = open('D:\\Python\LOG\\' + todaytime + '_ggoorr_output.txt','w', encoding='utf-8')
+# 정상 실행
+# sys.stdout = runlog
+# 실행 오류
+# sys.stderr = runlog
+
 # 전역 변수 설정
 # 꾸르 메인 주소
 GGOORR_MAIN_URL = "https://ggoorr.net"
@@ -276,11 +286,12 @@ def searchList(page):
 
                 # 정상 처리
                 if(writetime > todate):
-                    print("작성 안 하고, 다음 게시물 조회 (당일 7시 이후)")
+                    print("작성 안 하고, 다음 게시물 조회 (당일 6시 59분 59초 초과)")
                     pass
-                elif writetime <= fromdate:
-                    print("작성 대상 아님 - 더 이상 게시물 조회하지 않음 (전일 7시 이전)")
-                    return False
+                elif writetime < fromdate:
+                    print("작성 대상 아님 - (전일 7시 미만)")
+                    pass
+                    # return False
                 else :
                     print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
                     getDetail(title, detailUrl)
@@ -403,38 +414,36 @@ def SaveSortedContentDictionary():
 # SaveSortedContentDictionary()
 # sys.exit()
 
-# 메인 시작 : 1-20 페이지까지 for loop
+# 메인 시작 : 1-30 페이지까지 for loop
 def startCrawlering():
-    for page in range(1, 20):
-        if False == searchList(page):
-            # errorurls = ["1_어른들의 물놀이 장난감_https://ggoorr.net/thisthat/13341366", "2_표현의 자유가 보장된 중국 근황_https://ggoorr.net/thisthat/13341364","3_뭉클해지는 무빙 권은비_https://ggoorr.net/enter/13341369"]
-            # 에러 url들이 있을 경우 크롤링 시작
-            if len(errorurls) != 0:
-                # 에러 url들을 출력
-                print(errorurls)
-                # 에러 url들이 사라질 때까지 반복
-                while True:
-                    # 에러 url 가져오기
-                    for errorurl in errorurls[:]:
-                        # _ 위치 저장할 리스트 선언(초기화)
-                        underbarlist = []
-                        # _ 위치 파악
-                        underbarlist = [pos for pos, char in enumerate(errorurl) if char == searchpattern]
-                        # title 추출
-                        errortitle = errorurl[:underbarlist[0]]
-                        # url 추출
-                        errordetailUrl = errorurl[underbarlist[0] + 1:]
-                        # 크롤링 시작
-                        if False != getDetail(errortitle, errordetailUrl):
-                            # 정상 처리 되면 errorurls에서 에러 url 삭제
-                            errorurls.remove(errorurl)
-                    # 에러 url들이 없는 것을 확인
-                    if len(errorurls) == 0:
-                        # 에러 url들에 대한 크롤링 종료
-                        break
-            # 데이터 정렬하여 파일에 저장 처리 
-            SaveSortedContentDictionary()
-            # 종료
-            break
+    for page in range(1, 30 + 1):
+        searchList(page)
+    # errorurls = ["1_어른들의 물놀이 장난감_https://ggoorr.net/thisthat/13341366", "2_표현의 자유가 보장된 중국 근황_https://ggoorr.net/thisthat/13341364","3_뭉클해지는 무빙 권은비_https://ggoorr.net/enter/13341369"]
+    # 에러 url들이 있을 경우 크롤링 시작
+    if len(errorurls) != 0:
+        # 에러 url들을 출력
+        print(errorurls)
+        # 에러 url들이 사라질 때까지 반복
+        while True:
+            # 에러 url 가져오기
+            for errorurl in errorurls[:]:
+                # _ 위치 저장할 리스트 선언(초기화)
+                underbarlist = []
+                # _ 위치 파악
+                underbarlist = [pos for pos, char in enumerate(errorurl) if char == searchpattern]
+                # title 추출
+                errortitle = errorurl[:underbarlist[0]]
+                # url 추출
+                errordetailUrl = errorurl[underbarlist[0] + 1:]
+                # 크롤링 시작
+                if False != getDetail(errortitle, errordetailUrl):
+                    # 정상 처리 되면 errorurls에서 에러 url 삭제
+                    errorurls.remove(errorurl)
+            # 에러 url들이 없는 것을 확인
+            if len(errorurls) == 0:
+                # 에러 url들에 대한 크롤링 종료
+                break
+    # 데이터 정렬하여 파일에 저장 처리 
+    SaveSortedContentDictionary()
 # 크롤링 시작
 startCrawlering()
