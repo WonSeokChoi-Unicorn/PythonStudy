@@ -14,7 +14,6 @@ runlog = open('D:\\Python\LOG\\' + todaytime + '_ggoorr_output.txt','w', encodin
 # sys.stdout = runlog
 # 실행 오류
 # sys.stderr = runlog
-
 # 전역 변수 설정
 # 꾸르 메인 주소
 GGOORR_MAIN_URL = "https://ggoorr.net"
@@ -193,7 +192,7 @@ def getDetail(title, detailUrl):
 # 게시글 처리 대상 - 전일 오전 7시 ~ 당일 오전 6시 59분 59초
 def searchList(page):
 
-    print("=========================================== " + str(page) + " page start =====================================")
+    print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " =========================================== " + str(page) + " page start =====================================")
     res = requests.get(GGOORR_DETAIL_URL + str(page), headers = headers)
 
     if res.status_code == 200:
@@ -217,7 +216,7 @@ def searchList(page):
         for trOne in contentsBody.select('tr'):
 
             # time.sleep(2)
-            print("--------------------------------------- [ " + str(page) + " page / " + str(nCnt) + " line ] ---------------------------------------")
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "--------------------------------------- [ " + str(page) + " page / " + str(nCnt) + " line ] ---------------------------------------")
 
             # 공지글은 생략
             if None != trOne.get('class'):
@@ -302,7 +301,7 @@ def searchList(page):
 
             nCnt+=1
             # end of [for trOne in contentsBody.select('tr'):]
-        print("=========================================== end of List =====================================")
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "=========================================== end of List =====================================")
         return True        
     else:
         print(GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")
@@ -416,6 +415,9 @@ def SaveSortedContentDictionary():
 
 # 메인 시작 : 1-30 페이지까지 for loop
 def startCrawlering():
+    # 시간1
+    datetime1 = datetime.now()
+    print(datetime1.strftime('%Y-%m-%d %H:%M:%S') + " - Starting")
     for page in range(1, 30 + 1):
         searchList(page)
     # errorurls = ["1_어른들의 물놀이 장난감_https://ggoorr.net/thisthat/13341366", "2_표현의 자유가 보장된 중국 근황_https://ggoorr.net/thisthat/13341364","3_뭉클해지는 무빙 권은비_https://ggoorr.net/enter/13341369"]
@@ -445,5 +447,10 @@ def startCrawlering():
                 break
     # 데이터 정렬하여 파일에 저장 처리 
     SaveSortedContentDictionary()
+    # 시간1과 시간2의 차이를 구한다
+    datetime2 = datetime.now()
+    print(datetime1.strftime('%Y-%m-%d %H:%M:%S') + " ~ " + datetime2.strftime('%Y-%m-%d %H:%M:%S') + " - Ending")
+    print(datetime2 - datetime1)
+
 # 크롤링 시작
 startCrawlering()
