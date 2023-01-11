@@ -112,6 +112,8 @@ def getDetail(title, detailUrl):
             utubewwwUrlIndex    = pLineText.find('https://www.youtube.com/watch?v=')
             # 유튜브 shorts 주소 접두어
             utubeshortsUrlIndex    = pLineText.find('https://youtube.com/shorts/')
+            # 유튜브 shorts 긴 주소 접두어
+            utubewwwshortsUrlIndex    = pLineText.find('https://www.youtube.com/shorts/')
 
             # 유튜브 키값 초기화 2021.01.03 추가
             utubeKey = ""
@@ -143,6 +145,12 @@ def getDetail(title, detailUrl):
                 utubeKeyIndex = pLineText.find('https://youtube.com/shorts/')
                 # 파싱 추가 2022.10.07 추가
                 utubeKey = pLineText[utubeKeyIndex + 27 : utubeKeyIndex + 27 + 11]
+                # 유튜브 키값을 iframe 태그로 변경
+                tempStr = str(pLine) + '<p><iframe style="width:315; height:560px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+            elif utubewwwshortsUrlIndex > 0:
+                utubeKeyIndex = pLineText.find('https://www.youtube.com/shorts/')
+                # 파싱 추가 2022.10.07 추가
+                utubeKey = pLineText[utubeKeyIndex + 31 : utubeKeyIndex + 31 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
                 tempStr = str(pLine) + '<p><iframe style="width:315; height:560px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             else:
