@@ -41,7 +41,7 @@ options.add_argument('headless')
 # driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
 driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
 
-for line in lines:
+for line in reversed(lines):
     utubeKey = ""       # 유튜브 키값 초기화
     url = ""            # url 초기화
     iframe = ""         # iframe 초기화
