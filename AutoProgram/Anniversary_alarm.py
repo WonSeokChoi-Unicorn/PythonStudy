@@ -33,6 +33,8 @@ cnt = 0
 for key, value in Birthdaylist.items():
     # 양력 날짜 초기화
     solardate = ''
+    # 기념일 연도 초기화
+    anniversaryYYYY = ''
     # 음력인지 양력인지 확인
     if value[0] == 'L':
         # 날짜 - 일
@@ -49,11 +51,18 @@ for key, value in Birthdaylist.items():
         solardate = calendar.SolarIsoFormat()
         # '-' 제거
         solardate = solardate.replace('-','')
+        # 연도 가져옴
+        anniversaryYYYY = solardate[:3 + 1]
         # 월일만 가져옴
         anniversaryMMDD = solardate[-4:]
     else:
         # 월일만 가져옴
         anniversaryMMDD = value[-4:]
+    # 오늘과 기념일의 연도를 확인
+    if anniversaryYYYY != todayYYYY:
+        # 다음으로 진행
+        print("기념일의 날짜는 오늘지만, 연도가 " + anniversaryYYYY + "라서 알리지 않습니다.")
+        continue
     # 오늘의 월일과 기념일의 월일을 확인
     if today == anniversaryMMDD:
         # 기념일 존재
