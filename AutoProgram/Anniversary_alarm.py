@@ -1,9 +1,14 @@
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from korean_lunar_calendar import KoreanLunarCalendar
 # 음력 달력 개체 생성
 calendar = KoreanLunarCalendar()
 # 오늘 날짜 가져오기
 nowDate = datetime.now()
+# 1년 전
+before1yearYYYY = (nowDate - relativedelta(years = 1)).strftime('%Y')
+# 1년 후
+after1yearYYYY = (nowDate + relativedelta(years = 1)).strftime('%Y')
 # TEST Intercalation 생일
 # nowDate = datetime(2023, 3, 22)
 # TEST Lunar 생일
@@ -33,8 +38,9 @@ cnt = 0
 for key, value in Birthdaylist.items():
     # 양력 날짜 초기화
     solardate = ''
-    # 기념일 연도 초기화
+    # 기념일 초기화
     anniversaryYYYY = ''
+    anniversaryMMDD = ''
     # 음력인지 양력인지 확인
     if value[0] == 'L':
         # 날짜 - 일
@@ -53,9 +59,21 @@ for key, value in Birthdaylist.items():
         solardate = solardate.replace('-','')
         # 연도 가져옴
         anniversaryYYYY = solardate[:3 + 1]
+        # 1년 후 연도가 나오면 1년 전 연도로 다시 확인
+        if anniversaryYYYY == after1yearYYYY:
+            # 음력을 양력으로 변환 (윤달은 없다고 가정)
+            calendar.setLunarDate(int(before1yearYYYY), month, day, False)
+            # 양력
+            solardate = calendar.SolarIsoFormat()
+            # '-' 제거
+            solardate = solardate.replace('-','')
+            # 연도 가져옴
+            anniversaryYYYY = solardate[:3 + 1]
         # 월일만 가져옴
         anniversaryMMDD = solardate[-4:]
     else:
+        # 양력이라 현재 연도 가져옴
+        anniversaryYYYY = todayYYYY
         # 월일만 가져옴
         anniversaryMMDD = value[-4:]
     # 오늘과 기념일의 연도를 확인
