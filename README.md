@@ -197,5 +197,9 @@ Coingecko
 
 가 있습니다.
 
+chatGPT
+
+1. chatGPT를 사용 (chatGPT.py)
+
 
 관련해서 의사 소통을 원하시면 <a target=_blank href="https://open.kakao.com/o/g6F0DYfe">카카오톡 오픈채팅방</a>으로 오시면 되겠습니다.
