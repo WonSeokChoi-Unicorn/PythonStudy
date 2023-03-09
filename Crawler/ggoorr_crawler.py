@@ -4,12 +4,14 @@ import sys
 from bs4 import BeautifulSoup
 from bs4 import NavigableString
 from datetime import datetime, timedelta
+# pip install user-agent
+from user_agent import generate_user_agent
 
 # 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
 todaytime = datetime.today().strftime('%Y%m%d%H%M%S')
 
 # 실행 과정을 기록할 파일
-runlog = open('D:\\Python\LOG\\' + todaytime + '_ggoorr_output.txt','w', encoding='utf-8')
+runlog = open('D:\\Python\LOG\\' + todaytime + '_ggoorr_output.txt', 'w', encoding = 'utf-8')
 # 정상 실행
 # sys.stdout = runlog
 # 실행 오류
@@ -19,8 +21,6 @@ runlog = open('D:\\Python\LOG\\' + todaytime + '_ggoorr_output.txt','w', encodin
 GGOORR_MAIN_URL = "https://ggoorr.net"
 # 꾸르 상세 주소
 GGOORR_DETAIL_URL = 'https://ggoorr.net/index.php?mid=all&page='
-# 봇 방지 웹사이트 회피
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36'}
 # 에러 발생 URL 모음
 errorurls = []
 # 검색할 패턴을 _ 으로 선언
@@ -28,37 +28,66 @@ searchpattern = "_"
 # 파일 변수 글로벌로 이동
 nowDate = datetime.now()
 # 파일 작성 시간이 길어져서 년월일로 파일명 생성
-f = open(nowDate.strftime('%Y-%m-%d') + '_ggoorr.txt', mode='wt', encoding='utf-8')
+f = open(nowDate.strftime('%Y-%m-%d') + '_ggoorr.txt', mode = 'wt', encoding = 'utf-8')
 # 전체 컨텐츠가 저장되는 dictionary
 contentDictionary = {}
 # 전체 컨텐츠가 sort 되어 저장되는 dictionary
 sortedKeyList = {}
 # 대기 시간
 waittime = 0.5
+# 게시글 url 리스트
+detailUrllist = []
 
 # 상세 게시글 HTML 수집 함수
-def getDetail(title, detailUrl):
+def getDetail(detailUrl):
     # 2022.12.06 게시글 순번으로 sort
     realwritetime = detailUrl[23:detailUrl.index("?")]
     try:
+        # 봇 방지 웹사이트 회피
+        headers = {'User-Agent': generate_user_agent(device_type = 'desktop') }
         # 상세 주소 요청 및 응답 수신
         detailRes = requests.get(detailUrl, headers = headers)
     except:
         print("오류가 발생했습니다." + detailUrl)
         # 오류가 발생하면 errorurl에 추가
-        errorurls.append(title + "_" + detailUrl)
+        errorurls.append(detailUrl)
         return False
 
     # HTTP 응답 성공 200
-    if detailRes.status_code == 200:
-        
+    if detailRes.status_code == 200:        
         # 게시글의 HTML을 받아 BeautifulSoup 로 파싱 저장 
         detailHtml = detailRes.text
-        detailSoup = BeautifulSoup(detailHtml, 'html.parser')
+        # HTML을 'lxml(XML, HTML 처리)'를 사용하여 분석
+        detailSoup = BeautifulSoup(detailHtml, 'lxml')
+        # 제목
+        title = detailSoup.find('h1', attrs = {"class" : "np_18px"}).get_text().strip()
+        # 작성 날짜/시간
+        writetimetemp = detailSoup.find('time', attrs = {"class" : "date m_no"}).get_text().strip()
+        writetime = datetime(int(writetimetemp[:3 + 1]), int(writetimetemp[5:6 + 1]), int(writetimetemp[8:9 + 1]), int(writetimetemp[11:12 + 1]), int(writetimetemp[14:15 + 1]), 0)
+
+        # 전일 오전 7시
+        yesterday = datetime.today() - timedelta(days = 1)
+        fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
+
+        # 당일 오전 6시 59분 59초
+        todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
+        # 진행
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " - " + title + " - " + detailUrl)
+
+        # 정상 처리 - 전날 미리 처리 위해서는 시간 판단을 주석 처리
+        if(writetime > todate):
+            print("작성 안 하고, 다음 게시물 조회 (당일 6시 59분 59초 초과)")
+            return
+        elif writetime < fromdate:
+            print("작성 대상 아님 - (전일 7시 미만)")
+            return
+        else :
+            print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
 
         # 본문을 찾기 위해 article 태그의 데이터만 사용함
         articleBody = detailSoup.find('article')
 
+        # 문자열로 변환
         articleBodyText = str(articleBody)
 
         # 2021.06.29 제외되는 게시글들을 URL로 저장
@@ -67,6 +96,7 @@ def getDetail(title, detailUrl):
         # 2022.05.23 video 태그 중 src가 /files로 시작하는 경우
         articleBodyvideoText3 = articleBodyText.find('src="/files/')
 
+        # 링크로 보여줘야 되는 것들에 대한 처리
         if articleBodyGIFText2 > 0 or articleBodyvideoText3 > 0:
             print("replace with link")
             # 파일에 저장
@@ -177,6 +207,7 @@ def getDetail(title, detailUrl):
         # 05.제목이 포함된 내용 삭제하기 2021.02.27
         # 변수 초기화, 지정
         titleIndex = 0
+        # 제목을 임시 변수로
         tmpTitle = title
         # 05-01 제목 끝에 "(스압)" 을 제거 2021.03.07
         tmpTitle = tmpTitle.replace("(스압)", "").strip()
@@ -188,6 +219,7 @@ def getDetail(title, detailUrl):
         # "[ ~ ]"가 있을 경우 처리 2021.02.27
         if tmpTitle.startswith("[") and titleIndex >= 0:
             tmpTitle = (title[titleIndex+1:]).strip()
+        # 제목 임시 변수를 공란으로 변경
         articleString = articleString.replace(tmpTitle, "")
 
         # 파일에 저장
@@ -202,13 +234,16 @@ def getDetail(title, detailUrl):
 
     else :
         print(" >>>> GET ERROR.....")
+    # 대기
     time.sleep(waittime)
 
 # 게시판 목록 처리 함수 : 게시글 목록에서 해당 게시물이 작성 대상인 경우 게시글 상세 처리(getDetail)를 호출
 # 게시글 처리 대상 - 전일 오전 7시 ~ 당일 오전 6시 59분 59초
 def searchList(page):
 
-    print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " =========================================== " + str(page) + " page start =====================================")
+    print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " ========== " + str(page) + " page start ==========")
+    # 봇 방지 웹사이트 회피
+    headers = {'User-Agent': generate_user_agent(device_type = 'desktop') }
     res = requests.get(GGOORR_DETAIL_URL + str(page), headers = headers)
 
     if res.status_code == 200:
@@ -217,6 +252,7 @@ def searchList(page):
 
         # 응답받은 html코드를 BeautifulSoup에 사용하기 위하여 인스턴스 지정
         # 2022.07.24 가져오는 방식 변경
+        # HTML을 'lxml(XML, HTML 처리)'를 사용하여 분석
         soup = BeautifulSoup(html, 'lxml')
 
         # tbody 에 필요한 게시글 목록이 있어 해당 영역 가져오기 처리
@@ -227,20 +263,21 @@ def searchList(page):
         # contentsBody = tbody[0]
         contentsBody = tbody.find('tbody')
 
-        nCnt = 0 # 게시글 처리 순서 저장
+        # 게시글 처리 순서 저장
+        nCnt = 1
         # tr - 개별 게시글 확인
         for trOne in contentsBody.select('tr'):
 
-            # time.sleep(2)
-            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "--------------------------------------- [ " + str(page) + " page / " + str(nCnt) + " line ] ---------------------------------------")
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "---------- [ " + str(page) + " page / " + str(nCnt) + " line ] ----------")
 
             # 공지글은 생략
             if None != trOne.get('class'):
                 if ("notice" == trOne['class'][0]):
                     print("공지는 PASS!!")
-                    nCnt+=1
+                    nCnt += 1
                     continue
             else:
+                # 변수 초기화
                 cate = ""
                 title = ""
                 author = ""
@@ -252,15 +289,18 @@ def searchList(page):
 
                 # td 확인
                 for tdTag in trOne.select('td'):
+                    # td 태그의 class 가져오기
                     classNm = tdTag["class"][0]
                     if classNm == "cate":
                         # 카테고리
                         cate = tdTag.get_text()
                     elif classNm == "title":
                         # 제목 및 URL
-                        alist = tdTag.find_all('a', class_="hx")
+                        alist = tdTag.find_all('a', class_ = "hx")
                         title = alist[0].get_text().strip().replace("\n", "")
                         detailUrl = GGOORR_MAIN_URL + alist[0]['data-viewer']
+                        # 2023.03.09 정확한 시간 파악 위해서 url 먼저 수집
+                        detailUrllist.append(detailUrl)
                     elif classNm == "author":
                         # 작성자
                         author = tdTag.get_text()
@@ -292,35 +332,31 @@ def searchList(page):
                 print("writetime : " + writetime.strftime('%Y-%m-%d %H:%M:%S'))
                 print("detailUrl : " + detailUrl)
 
-                # 전일 오전 7시
-                yesterday = datetime.today() - timedelta(days=1)
-                fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
+                # # 전일 오전 7시
+                # yesterday = datetime.today() - timedelta(days=1)
+                # fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
 
-                # 당일 오전 6시 59분 59초
-                todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
+                # # 당일 오전 6시 59분 59초
+                # todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
 
-                # 정상 처리
-                if(writetime > todate):
-                    print("작성 안 하고, 다음 게시물 조회 (당일 6시 59분 59초 초과)")
-                    pass
-                elif writetime < fromdate:
-                    print("작성 대상 아님 - (전일 7시 미만)")
-                    pass
-                    # return False
-                else :
-                    print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
-                    getDetail(title, detailUrl)
-                # 비정상 처리 (내일 작성 못할까바 오늘 작성 위해서 크롤링)
-                # getDetail(title, detailUrl)
-                # if page == 10:
-                #     return False
+                # # 정상 처리
+                # if(writetime > todate):
+                #     print("작성 안 하고, 다음 게시물 조회 (당일 6시 59분 59초 초과)")
+                #     pass
+                # elif writetime < fromdate:
+                #     print("작성 대상 아님 - (전일 7시 미만)")
+                #     pass
+                #     # return False
+                # else :
+                #     print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
 
-            nCnt+=1
+            nCnt += 1
             # end of [for trOne in contentsBody.select('tr'):]
-        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "=========================================== end of List =====================================")
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "========== " +  str(page) + " page end ==========")
         return True        
     else:
         print(GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")
+    # 대기
     time.sleep(waittime)
 
 # 데이터 정렬하여 파일에 저장 처리 
@@ -335,116 +371,34 @@ def SaveSortedContentDictionary():
         f.close
         print("fileContent write OK ")
 
-# youtube test
-# getDetail("title", "https://ggoorr.net/enter/10765153")
-# sys.exit()
-
-# gif test
-# getDetail("title", "https://ggoorr.net/thisthat/10768975")
-# sys.exit()
-
-# 문제의 <p>태그없이 이미지만 있는 게시물 > 해결 안됨 > 처리 룰 필요..!!
-# getDetail("title", "https://ggoorr.net/enter/10770855")
-# sys.exit()
-
-# 문제의 <p>태그없이 href 만 있는 게시물 > 해결 안됨 > 처리 룰 필요..!!
-# getDetail("title", "https://ggoorr.net/all/10815964")
-# sys.exit()
-
-# 이미지 가로 사이즈 800 이상
-# getDetail("title", "https://ggoorr.net/all/10857189")
-# sys.exit()
-
-# 이미지를 daum cdn 을 통해 서비스 하는 경우 - img1.daumcdn.net
-# getDetail("title", "https://ggoorr.net/all/10898864")
-# sys.exit()
-
-# 이미지를 daum cdn 을 통해 서비스 하는 경우  - t1.daumcdn.net
-# getDetail("title", "https://ggoorr.net/all/10894836")
-# sys.exit()
-
-# img styles 속성이 있는 경우
-# getDetail("title", "https://ggoorr.net/all/10893852")
-# sys.exit()
-
-# 텍스트가 중복되는 경우
-# getDetail("title", "https://ggoorr.net/all/10909429")
-# sys.exit()
-
-# 이미지 태그 p 로 감싸기 확인용 
-# getDetail("title", "https://ggoorr.net/all/10917601")
-# sys.exit()
-
-# gamechosun.co.kr 이미지 있는 경우
-# getDetail("title", "https://ggoorr.net/all/10918226")
-# sys.exit()
-
-# HTTP Error 400: Bad Request 이미지 있는 경우
-# getDetail("title", "https://ggoorr.net/all/11074939")
-# sys.exit()
-
-# 제목 중복 지우기 (동일)
-# getDetail("브이로그 유튜버 진훤", "https://ggoorr.net/thisthat/11095623")
-# sys.exit()
-
-# 제목 중복 지우기 (유사)
-# getDetail("[놀면뭐하니] 동거동락 유경험자 탁재훈 클래스", "https://ggoorr.net/all/11100509")
-# sys.exit()
-
-# http://zeany.net/46 참고해서 제목 지우기 시도해보기
-
-# 제목 중복 지우기 (괄호 있는 것까지 동일)
-# getDetail("[쓰리박] 박지성 인맥이 부러운 이청용", "https://ggoorr.net/enter/11157332")
-# sys.exit()
-
-# 제목 중복 지우기 (제목 뒤에 괄호 있는 동일)
-# getDetail("러블리즈 정예인 레깅스 (스압)", "https://ggoorr.net/enter/11157408")
-# sys.exit()
-
-# 제목 중복 지우기 (내용 끝에 동일한 제목)
-# getDetail("2021-05-15 12:08:02", "요즘 이미지 망친 회사들의 공통점", "https://ggoorr.net/all/11173591")
-# sys.exit()
-
-# 2021.03.15 <div>와 </div> 사이에 내용이 있을 경우 오류 발생 - <div>를 <p>로 변경할 지?
-# getDetail("2021-05-15 12:08:01", "악마도 울고 갈 CJ의 아이즈원 컴백및 발표 타이밍", "https://ggoorr.net/enter/11220982")
-# sys.exit()
-
-# 2021.05.19 본문 파악 예제
-# getDetail("2021-05-19 00:13:00", "내일 쉬는 이유", "https://ggoorr.net/all/11566883")
-# sys.exit()
-
-# 2021.05.19 저장 안 되는 문제 파악 예제
-# getDetail("러시아, 생활수준 7년간 11% 하락...루마니아보다 어려워", "https://ggoorr.net/all/11565778")
-# SaveSortedContentDictionary - 데이터 정렬하여 저장하는 함수 
-# SaveSortedContentDictionary()
-# sys.exit()
-
-# 2021.05.19 정상 저장
-# getDetail("[유머] 남자들 샤워할때 특징.jpg", "https://ggoorr.net/all/11565798")
-# SaveSortedContentDictionary()
-# sys.exit()
-
 # 임시 작업
-# getDetail(1, "팀킬", "https://ggoorr.net/all/14215100")
+# getDetail("https://ggoorr.net/all/14215100")
 # SaveSortedContentDictionary()
 # sys.exit()
 
-# 메인 시작 : 1-30 페이지까지 for loop
+# 메인 시작 : 1-15 페이지까지 for loop
 def startCrawlering():
     # 시간1
     datetime1 = datetime.now()
     print(datetime1.strftime('%Y-%m-%d %H:%M:%S') + " - Starting")
-    for page in range(1, 30 + 1):
+    # 15페이지까지 검색
+    for page in range(1, 15 + 1):
         searchList(page)
+    print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Starting Crawling")
+    # 크롤링 시작
+    for detailUrl in detailUrllist:
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " " + str(detailUrllist.index(detailUrl)) + "/" + str(len(detailUrllist)))
+        getDetail(detailUrl)
+    print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Ending Crawling")
     # errorurls = ["1_어른들의 물놀이 장난감_https://ggoorr.net/thisthat/13341366", "2_표현의 자유가 보장된 중국 근황_https://ggoorr.net/thisthat/13341364","3_뭉클해지는 무빙 권은비_https://ggoorr.net/enter/13341369"]
     # 에러 url들이 있을 경우 크롤링 시작
     if len(errorurls) != 0:
-        # 에러 url들을 출력
-        print(errorurls)
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Starting Error Crawling")
         # 에러 url들이 사라질 때까지 반복
         while True:
             # 에러 url 가져오기
             for errorurl in errorurls[:]:
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " " + str(errorurls.index(errorurl)) + "/" + str(len(errorurls)))
                 # _ 위치 저장할 리스트 선언(초기화)
                 underbarlist = []
                 # _ 위치 파악
@@ -454,13 +408,14 @@ def startCrawlering():
                 # url 추출
                 errordetailUrl = errorurl[underbarlist[0] + 1:]
                 # 크롤링 시작
-                if False != getDetail(errortitle, errordetailUrl):
+                if False != getDetail(errordetailUrl):
                     # 정상 처리 되면 errorurls에서 에러 url 삭제
                     errorurls.remove(errorurl)
             # 에러 url들이 없는 것을 확인
             if len(errorurls) == 0:
                 # 에러 url들에 대한 크롤링 종료
                 break
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Ending Error Crawling")
     # 데이터 정렬하여 파일에 저장 처리 
     SaveSortedContentDictionary()
     # 시간1과 시간2의 차이를 구한다
