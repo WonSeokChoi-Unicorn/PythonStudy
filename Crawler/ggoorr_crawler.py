@@ -23,8 +23,6 @@ GGOORR_MAIN_URL = "https://ggoorr.net"
 GGOORR_DETAIL_URL = 'https://ggoorr.net/index.php?mid=all&page='
 # 에러 발생 URL 모음
 errorurls = []
-# 검색할 패턴을 _ 으로 선언
-searchpattern = "_"
 # 파일 변수 글로벌로 이동
 nowDate = datetime.now()
 # 파일 작성 시간이 길어져서 년월일로 파일명 생성
@@ -390,7 +388,6 @@ def startCrawlering():
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " " + str(detailUrllist.index(detailUrl)) + "/" + str(len(detailUrllist)))
         getDetail(detailUrl)
     print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Ending Crawling")
-    # errorurls = ["1_어른들의 물놀이 장난감_https://ggoorr.net/thisthat/13341366", "2_표현의 자유가 보장된 중국 근황_https://ggoorr.net/thisthat/13341364","3_뭉클해지는 무빙 권은비_https://ggoorr.net/enter/13341369"]
     # 에러 url들이 있을 경우 크롤링 시작
     if len(errorurls) != 0:
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Starting Error Crawling")
@@ -399,16 +396,8 @@ def startCrawlering():
             # 에러 url 가져오기
             for errorurl in errorurls[:]:
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " " + str(errorurls.index(errorurl)) + "/" + str(len(errorurls)))
-                # _ 위치 저장할 리스트 선언(초기화)
-                underbarlist = []
-                # _ 위치 파악
-                underbarlist = [pos for pos, char in enumerate(errorurl) if char == searchpattern]
-                # title 추출
-                errortitle = errorurl[:underbarlist[0]]
-                # url 추출
-                errordetailUrl = errorurl[underbarlist[0] + 1:]
                 # 크롤링 시작
-                if False != getDetail(errordetailUrl):
+                if False != getDetail(errorurl):
                     # 정상 처리 되면 errorurls에서 에러 url 삭제
                     errorurls.remove(errorurl)
             # 에러 url들이 없는 것을 확인
