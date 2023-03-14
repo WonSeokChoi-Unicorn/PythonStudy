@@ -129,21 +129,21 @@ def getDetail(detailUrl):
                 print("예외가 발생했습니다.", e)
                 # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
                 pass
-
+            
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
             # 유튜브 짧은 주소 접두어
-            utubeShrotUrlIndex  = pLineText.find('https://youtu.be/')
+            utubeShrotUrlIndex = pLineText.find('https://youtu.be/')
             # 유튜브 긴 주소 접두어
-            utubeUrlIndex       = pLineText.find('https://youtube.com/watch?v=')
+            utubeUrlIndex = pLineText.find('https://youtube.com/watch?v=')
             # 유튜브 www 긴 주소 접두어
-            utubewwwUrlIndex    = pLineText.find('https://www.youtube.com/watch?v=')
+            utubewwwUrlIndex = pLineText.find('https://www.youtube.com/watch?v=')
             # 유튜브 모바일 긴 주소 접두어
-            utubemobileUrlIndex    = pLineText.find('https://m.youtube.com/watch?v=')
+            utubemobileUrlIndex = pLineText.find('https://m.youtube.com/watch?v=')
             # 유튜브 shorts 주소 접두어
-            utubeshortsUrlIndex    = pLineText.find('https://youtube.com/shorts/')
+            utubeshortsUrlIndex = pLineText.find('https://youtube.com/shorts/')
             # 유튜브 shorts 긴 주소 접두어
-            utubewwwshortsUrlIndex    = pLineText.find('https://www.youtube.com/shorts/')
+            utubewwwshortsUrlIndex = pLineText.find('https://www.youtube.com/shorts/')
 
             # 유튜브 키값 초기화 2021.01.03 추가
             utubeKey = ""
@@ -192,6 +192,13 @@ def getDetail(detailUrl):
             else:
                 # 유튜브 주소가 없을 경우 변경 없음
                 tempStr = pLineText
+
+            try:
+                # 트위터 주소 찾기 2023.03.14 추가
+                if 'https://twitter.com/' in pLine.find('a')['href']:
+                    tempStr = str(pLine) + '<p><blockquote class="twitter-tweet" lang="en"><a href="' + pLine.find('a')['href'] + '"></a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
+            except:
+                pass
 
             # 줄 끝에 줄 바꿈 처리
             articleString += tempStr + "\n"
