@@ -210,8 +210,6 @@ def getDetail(detailUrl):
         # 04 cdn.ggoorr.net은 프록시 서버 경유
         articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R1024x0/?fname=https://cdn.ggoorr.net")
 
-        if detailUrl == "https://ggoorr.net/all/15054513?listStyle=viewer":
-            print("확인")
         # 05.제목이 포함된 내용 삭제하기 2021.02.27
         # 변수 초기화, 지정
         titleIndex = 0
