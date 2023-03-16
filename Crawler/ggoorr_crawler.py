@@ -92,11 +92,9 @@ def getDetail(detailUrl):
         # 2021.06.29 제외되는 게시글들을 URL로 저장
         # gifmp4_video class가 있을 경우
         articleBodyGIFText2 = articleBodyText.find("gifmp4_video")
-        # 2022.05.23 video 태그 중 src가 /files로 시작하는 경우
-        articleBodyvideoText3 = articleBodyText.find('src="/files/')
 
         # 링크로 보여줘야 되는 것들에 대한 처리
-        if articleBodyGIFText2 > 0 or articleBodyvideoText3 > 0:
+        if articleBodyGIFText2 > 0:
             print("replace with link")
             # 파일에 저장
             fileContent = "<br><br></br></br><p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
@@ -227,6 +225,9 @@ def getDetail(detailUrl):
         # "[ ~ ]"가 있을 경우 처리 2021.02.27
         if tmpTitle.startswith("[") and titleIndex >= 0:
             tmpTitle = (title[titleIndex+1:]).strip()
+
+        # 06 ggoorr video 태그는 전체 URL로
+        articleString = articleString.replace('src="/files/', 'src="https://ggoorr.net/files/')
 
         # 파일에 저장
         # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
