@@ -394,7 +394,7 @@ def startCrawlering():
     print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Starting Crawling")
     # 크롤링 시작
     for detailUrl in detailUrllist:
-        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " " + str(detailUrllist.index(detailUrl)) + "/" + str(len(detailUrllist)))
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " " + str(detailUrllist.index(detailUrl) + 1) + "/" + str(len(detailUrllist)))
         getDetail(detailUrl)
     print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Ending Crawling")
     # 에러 url들이 있을 경우 크롤링 시작
