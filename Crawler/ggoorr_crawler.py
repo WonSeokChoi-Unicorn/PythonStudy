@@ -218,6 +218,7 @@ def getDetail(detailUrl):
         # 05-01 제목 끝에 "(스압)" 을 제거 2021.03.07
         tmpTitle = tmpTitle.replace("(스압)", "").strip()
         # 05-02 제목과 100% 동일한 본문 내용 삭제하기 2021.03.07
+        articleString = articleString.replace(tmpTitle, "")
         # 2023.03.15 escape 문자 처리 위해 html.escape 추가
         articleString = articleString.replace(html.escape(tmpTitle), "")
         # 05-03 제목에 "[xxx]" 가 있으나 본문에는 "[xxx]"가 없는 경우 처리 > 제목의 [xxx]를 제거
