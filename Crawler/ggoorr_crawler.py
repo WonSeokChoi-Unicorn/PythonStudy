@@ -209,10 +209,12 @@ def getDetail(detailUrl):
                 pLineText = pLineText.replace('src="/files/', 'src="https://ggoorr.net/files/')
                 # src 확인
                 ggoorrvideourl = BeautifulSoup(pLineText, 'lxml').find('video')['src']
-                # cv2 객체
+                # cv2 객체 생성
                 ggoorrvideo = cv2.VideoCapture(ggoorrvideourl)
                 # cv3 객체 폭
                 ggoorrvideowidth = int(ggoorrvideo.get(cv2.CAP_PROP_FRAME_WIDTH))
+                # cv2 객체 해제
+                ggoorrvideo.release()
                 # 720을 넘길 경우 수정
                 if ggoorrvideowidth > 666:
                     tempStr = pLineText.replace("<video", '<video width="666"')
