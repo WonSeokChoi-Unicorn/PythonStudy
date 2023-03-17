@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 # pip install user-agent
 from user_agent import generate_user_agent
 import html
+import cv2
 
 # 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
 todaytime = datetime.today().strftime('%Y%m%d%H%M%S')
@@ -199,6 +200,25 @@ def getDetail(detailUrl):
             except:
                 pass
 
+            # ggoorr video 접두어
+            ggoorrvideoIndex = pLineText.find('src="/files/')
+
+            # ggoorr video 존재 확인
+            if ggoorrvideoIndex > 0:
+                # 전체 URL로 변경
+                pLineText = pLineText.replace('src="/files/', 'src="https://ggoorr.net/files/')
+                # src 확인
+                ggoorrvideourl = BeautifulSoup(pLineText, 'lxml').find('video')['src']
+                # cv2 객체
+                ggoorrvideo = cv2.VideoCapture(ggoorrvideourl)
+                # cv3 객체 폭
+                ggoorrvideowidth = int(ggoorrvideo.get(cv2.CAP_PROP_FRAME_WIDTH))
+                # 720을 넘길 경우 수정
+                if ggoorrvideowidth > 666:
+                    tempStr = pLineText.replace("<video", '<video width="666"')
+                else:
+                    tempStr = pLineText
+
             # 줄 끝에 줄 바꿈 처리
             articleString += tempStr + "\n"
 
@@ -225,9 +245,6 @@ def getDetail(detailUrl):
         # "[ ~ ]"가 있을 경우 처리 2021.02.27
         if tmpTitle.startswith("[") and titleIndex >= 0:
             tmpTitle = (title[titleIndex+1:]).strip()
-
-        # 06 ggoorr video 태그는 전체 URL로
-        articleString = articleString.replace('src="/files/', 'src="https://ggoorr.net/files/')
 
         # 파일에 저장
         # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
