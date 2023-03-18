@@ -215,9 +215,9 @@ def getDetail(detailUrl):
                 ggoorrvideowidth = int(ggoorrvideo.get(cv2.CAP_PROP_FRAME_WIDTH))
                 # cv2 객체 해제
                 ggoorrvideo.release()
-                # 720을 넘길 경우 수정
-                if ggoorrvideowidth > 666:
-                    tempStr = pLineText.replace("<video", '<video width="666"')
+                # 모바일 환경 고려하여 380을 넘길 경우 수정
+                if ggoorrvideowidth > 380:
+                    tempStr = pLineText.replace("<video", '<video width="380"')
                 else:
                     tempStr = pLineText
 
