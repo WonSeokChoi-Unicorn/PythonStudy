@@ -207,19 +207,21 @@ def getDetail(detailUrl):
             if ggoorrvideoIndex > 0:
                 # 전체 URL로 변경
                 pLineText = pLineText.replace('src="/files/', 'src="https://ggoorr.net/files/')
-                # src 확인
-                ggoorrvideourl = BeautifulSoup(pLineText, 'lxml').find('video')['src']
-                # cv2 객체 생성
-                ggoorrvideo = cv2.VideoCapture(ggoorrvideourl)
-                # cv3 객체 폭
-                ggoorrvideowidth = int(ggoorrvideo.get(cv2.CAP_PROP_FRAME_WIDTH))
-                # cv2 객체 해제
-                ggoorrvideo.release()
-                # 모바일 환경 고려하여 333을 넘길 경우 수정
-                if ggoorrvideowidth > 333:
-                    tempStr = pLineText.replace("<video", '<video width="333"')
-                else:
-                    tempStr = pLineText
+                # 폭을 100%로 변환
+                tempStr = pLineText.replace("<video", '<video width=100%')
+                # # src 확인
+                # ggoorrvideourl = BeautifulSoup(pLineText, 'lxml').find('video')['src']
+                # # cv2 객체 생성
+                # ggoorrvideo = cv2.VideoCapture(ggoorrvideourl)
+                # # cv3 객체 폭
+                # ggoorrvideowidth = int(ggoorrvideo.get(cv2.CAP_PROP_FRAME_WIDTH))
+                # # cv2 객체 해제
+                # ggoorrvideo.release()
+                # # 모바일 환경 고려하여 333을 넘길 경우 수정
+                # if ggoorrvideowidth > 333:
+                #     tempStr = pLineText.replace("<video", '<video width="333"')
+                # else:
+                #     tempStr = pLineText
 
             # 줄 끝에 줄 바꿈 처리
             articleString += tempStr + "\n"
