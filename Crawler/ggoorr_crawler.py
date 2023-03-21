@@ -117,6 +117,20 @@ def getDetail(detailUrl):
         # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
         for pLine in articleBody.div.div.children:
 
+            # 2023.03.21 video width, height 속성 삭제
+            try:
+                if pLine.name == "video":
+                    del pLine['height']
+            except:
+                pass    
+            try:
+                if pLine.name == "video":
+                    del pLine['width']
+                    # width를 100%로 설정
+                    pLine['width'] = '100%'
+            except:
+                pass
+
             try:
                 # tag 없는 일반 문자열만 있을 경우 .select() 실행시 오류 발생하여 분기 처리
                 if isinstance(pLine, NavigableString):
@@ -129,6 +143,7 @@ def getDetail(detailUrl):
                 print("예외가 발생했습니다.", e)
                 # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
                 pass
+            
             
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
@@ -207,8 +222,11 @@ def getDetail(detailUrl):
             if ggoorrvideoIndex > 0:
                 # 전체 URL로 변경
                 pLineText = pLineText.replace('src="/files/', 'src="https://ggoorr.net/files/')
-                # 폭을 100%로 변환
-                tempStr = pLineText.replace("<video", '<video width=100%')
+                if pLineText.find('width="100%"') == 0:
+                    # width="100%"가 없으면 추가
+                    tempStr = pLineText.replace("<video", '<video width="100%"')
+                else:
+                    tempStr = pLineText
                 # # src 확인
                 # ggoorrvideourl = BeautifulSoup(pLineText, 'lxml').find('video')['src']
                 # # cv2 객체 생성
