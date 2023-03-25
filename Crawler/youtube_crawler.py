@@ -127,9 +127,9 @@ for u in range(0, len(urllist)):
 
     # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # title 조건에 맞는 모든 a 태그의 class들을 가져옵니다.
-    all_title = soup.find_all('a','yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')
+    all_title = soup.find_all('a', 'yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')
     if len(all_title) == 0:
-        all_title = soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')
+        all_title = soup.find_all('a', 'yt-simple-endpoint style-scope ytd-grid-video-renderer')
         # yt-simple-endpoint style-scope ytd-grid-video-renderer
 
     # 제목이 영어일 경우 한국어로 구글 번역
@@ -138,20 +138,20 @@ for u in range(0, len(urllist)):
     if channelname in englishchannel:
         # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
         try:
-            engtitle = [soup.find_all('a','yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')[n].string for n in range(0,len(all_title))]
+            engtitle = [soup.find_all('a', 'yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')[n].string for n in range(0, len(all_title))]
         except:
-            engtitle = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
+            engtitle = [soup.find_all('a', 'yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0, len(all_title))]
         for line in engtitle:
-            translateoutput = translator.translate(line, src='en', tgt='kr')
+            translateoutput = translator.translate(line, src = 'en', tgt = 'kr')
 
             title.append(translateoutput)
     else:
         # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
         # title이란 변수에 저장합니다.
         try:
-            title = [soup.find_all('a','yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')[n].string for n in range(0,len(all_title))]
+            title = [soup.find_all('a', 'yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')[n].string for n in range(0, len(all_title))]
         except:
-            title = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
+            title = [soup.find_all('a', 'yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0, len(all_title))]
 
     # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # href 조건에 맞는 모든 a 태그의 id들을 가져옵니다.
@@ -162,19 +162,19 @@ for u in range(0, len(urllist)):
     # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # firsturl이란 변수에 저장합니다.
     try:        
-        firsturl = [soup.find_all('a', {'id' : 'video-title-link'})[n].get('href') for n in range(0,len(all_url))]
+        firsturl = [soup.find_all('a', {'id' : 'video-title-link'})[n].get('href') for n in range(0, len(all_url))]
     except:
-        firsturl = [soup.find_all('a', {'id' : 'video-title'})[n].get('href') for n in range(0,len(all_url))]
+        firsturl = [soup.find_all('a', {'id' : 'video-title'})[n].get('href') for n in range(0, len(all_url))]
 
     # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # time 조건에 맞는 모든 span 태그의 class들을 가져옵니다. title, url의 2배수.
-    all_time = soup.find_all('span','inline-metadata-item style-scope ytd-video-meta-block')
+    all_time = soup.find_all('span', 'inline-metadata-item style-scope ytd-video-meta-block')
     if len(all_time) == 0:
-        all_time = soup.find_all('span','style-scope ytd-grid-video-renderer')
+        all_time = soup.find_all('span', 'style-scope ytd-grid-video-renderer')
 
     # time이란 변수에 시간 정보(짝수)를 저장합니다.
     # 분 전, 시간 전, 일 전, 주 전, 개월 전, 년 전
-    publishtime = [all_time[n].text for n in range(1,len(all_time),2)]
+    publishtime = [all_time[n].text for n in range(1, len(all_time), 2)]
 
     # iframe 태그 생성을 위해 폭과 높이를 설정
     width = '560'
@@ -185,10 +185,10 @@ for u in range(0, len(urllist)):
 
     if os.path.isfile(nowDate.strftime('%Y-%m-%d') + '_youtube.txt'):
         # 파일이 존재할 경우 추가, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-        f = open(nowDate.strftime('%Y-%m-%d') + '_youtube.txt', mode='at', encoding='utf-8')
+        f = open(nowDate.strftime('%Y-%m-%d') + '_youtube.txt', mode = 'at', encoding = 'utf-8')
     else:
         # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-        f = open(nowDate.strftime('%Y-%m-%d') + '_youtube.txt', mode='wt', encoding='utf-8')
+        f = open(nowDate.strftime('%Y-%m-%d') + '_youtube.txt', mode = 'wt', encoding = 'utf-8')
 
     # 채널명은 반복문 전 파일에 1번만 저장하도록 
     # channelheader = "<p>" + channelname[0] + "</p>"
@@ -206,7 +206,7 @@ for u in range(0, len(urllist)):
         print("fileContent write OK ")
 
     # 화면에 로드된 동영상 갯수만큼
-    for x in range(0, len(publishtime)-1):
+    for x in range(0, len(publishtime)):
 
         delta = ''          # 개월, 년 차이 초기화
         fileContent = ""    # fileContent 초기화
