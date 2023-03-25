@@ -1,19 +1,14 @@
-# 시스템 함수 sys를 import 한다.
-import sys
 # selenium에서 webdriver를 사용할 수 있게 webdriver를 import 한다.
-# https://sites.google.com/chromium.org/driver/
-# 에서 크롬 버전에 맞는 크롬드라이버를 다운로드 후 Scripts 폴더로 복사하기
 # pip install selenium --upgrade
 from selenium import webdriver
-# find_element 사용 위해서 import
-from selenium.webdriver.common.by import By
 # BeautifulSoup4를 import 한다.
 # pip install beautifulsoup4 --upgrade
 # lxml 설치 필요합니다 (pip install lxml)
 from bs4 import BeautifulSoup
 # 날짜 시간 처리 위해 datetime, timedelta를 import 한다.
 from datetime import datetime, timedelta
-# iframe TAG 작성을 위해 yt를 import 한다. (pip install yt-iframe)
+# iframe TAG 작성을 위해 yt를 import 한다.
+# pip install yt-iframe
 from yt_iframe import yt 
 # 월, 년 단위 계산 위해서 relativedelta를 import 한다.
 from dateutil.relativedelta import relativedelta
@@ -21,7 +16,6 @@ from dateutil.relativedelta import relativedelta
 import re
 # 파일 존재 여부 확인 위한 os를 import 한다.
 import os
-import requests
 import time
 # 카카오 번역
 # pip install kakaotrans
@@ -74,7 +68,7 @@ urllist = [
 # ]
 
 # 전일 오전 7시
-yesterday = datetime.today() - timedelta(days=1)
+yesterday = datetime.today() - timedelta(days = 1)
 fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
 
 # 당일 오전 6시 59분 59초
@@ -102,10 +96,6 @@ for u in range(0, len(urllist)):
     driver.get(urllist[u])
     # 네트워크 속도가 느림을 방지하기 위해서 3초 대기
     time.sleep(3)
-
-    # body를 스크롤하기 위해 tagname이 body로 되어있는것을 추출합니다.
-    body = driver.find_element(By.TAG_NAME, 'body')
-    # body = driver.find_element_by_tag_name('body')
 
     # 로드 된 페이지 소스를 html이란 변수에 저장합니다.
     html = driver.page_source
@@ -142,13 +132,6 @@ for u in range(0, len(urllist)):
         all_title = soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')
         # yt-simple-endpoint style-scope ytd-grid-video-renderer
 
-    # kakaotranslateurl = "https://translate.kakao.com/translator/translate.json"
-
-    # kakaotranslateheaders = {
-    # "Referer": "https://translate.kakao.com/",
-    # "User-Agent": "Mozilla/5.0"
-    # }
-
     # 제목이 영어일 경우 한국어로 구글 번역
     englishchannel = ['Kurzgesagt – In a Nutshell', 'TED-Ed', 'Vox']
     # if channelname[0].strip() in englishchannel:
@@ -159,14 +142,6 @@ for u in range(0, len(urllist)):
         except:
             engtitle = [soup.find_all('a','yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0,len(all_title))]
         for line in engtitle:
-            # data = {
-            #     "queryLanguage": "en",
-            #     "resultLanguage": "kr",
-            #     "q": line
-            #     }
-            # translateresp = requests.post(kakaotranslateurl, headers=kakaotranslateheaders, data=data)
-            # translatedata = translateresp.json()
-            # translateoutput = translatedata['result']['output'][0][0]
             translateoutput = translator.translate(line, src='en', tgt='kr')
 
             title.append(translateoutput)
@@ -202,8 +177,8 @@ for u in range(0, len(urllist)):
     publishtime = [all_time[n].text for n in range(1,len(all_time),2)]
 
     # iframe 태그 생성을 위해 폭과 높이를 설정
-    width = '560' # (Optional)
-    height = '315' # (Optional)
+    width = '560'
+    height = '315'
 
     # 파일명을 날짜로 이용하기 위해 글로벌로 이동
     nowDate = datetime.now()
@@ -243,28 +218,28 @@ for u in range(0, len(urllist)):
         if '분 전' in publishtime[x]:
             # 분일 경우 작성 시간 확인
             timenumber = re.findall("\d+", publishtime[x])
-            writetime = datetime.today() - timedelta(minutes=int(timenumber[0]))
+            writetime = datetime.today() - timedelta(minutes = int(timenumber[0]))
         elif '시간 전' in publishtime[x]:
             # 시간일 경우 작성 시간 확인
             timenumber = re.findall("\d+", publishtime[x])
-            writetime = datetime.today() - timedelta(hours=int(timenumber[0]))
+            writetime = datetime.today() - timedelta(hours = int(timenumber[0]))
         elif '일 전' in publishtime[x]:
             # 일일 경우 작성 시간 확인
             timenumber = re.findall("\d+", publishtime[x])
-            writetime = datetime.today() - timedelta(days=int(timenumber[0]))
+            writetime = datetime.today() - timedelta(days = int(timenumber[0]))
         elif '주 전' in publishtime[x]:
             # 주일 경우 작성 시간 확인
             timenumber = re.findall("\d+", publishtime[x])
-            writetime = datetime.today() - timedelta(weeks=int(timenumber[0]))
+            writetime = datetime.today() - timedelta(weeks = int(timenumber[0]))
         elif '개월 전' in publishtime[x]:
             # 개월일 경우 작성 시간 확인
             timenumber = re.findall("\d+", publishtime[x])
-            delta = relativedelta(months=int(timenumber[0]))
+            delta = relativedelta(months = int(timenumber[0]))
             writetime = datetime.today() - delta
         elif '년 전' in publishtime:
             # 년일 경우 작성 시간 확인
             timenumber = re.findall("\d+", publishtime[x])
-            delta = relativedelta(years=int(timenumber[0]))
+            delta = relativedelta(years = int(timenumber[0]))
             writetime = datetime.today() - delta
 
         # 2021.10.28 shorts 영상에 대한 처리 추가
@@ -282,19 +257,18 @@ for u in range(0, len(urllist)):
             # 유튜브 URL 만들기
             url = 'https://www.youtube.com/watch?v=' + str(utubeKey)
             # iframe 태그 생성
-            iframe = yt.video(url, width=width, height=height)
+            iframe = yt.video(url, width = width, height = height)
 
         if(writetime > todate):
             print("작성 대상 아님 (당일 7시 이후)")
             print(title[x])
             print(url)
             print(writetime)
-            pass
         elif writetime <= fromdate:
             print("작성 대상 아님 (전일 7시 이전)")
             print(title[x])
             print(url)
-            print(writetime)            
+            print(writetime)
         else:
             print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
             print(title[x])
