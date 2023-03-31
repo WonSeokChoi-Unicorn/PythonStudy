@@ -93,6 +93,8 @@ Source
 
 2. Maria DB 백업 (MariaDBBackup.py, MariaDBBackup.bat)
 
+3. 숫자와 알파벳만 추출 (ExtractAlphabeticNumbers.py)
+
 
 이미지 처리 시리즈
 
