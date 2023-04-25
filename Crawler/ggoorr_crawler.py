@@ -130,6 +130,12 @@ def getDetail(detailUrl):
                     pLine['width'] = '100%'
             except:
                 pass
+            # 2023.04.25 video style 속성 삭제
+            try:
+                if pLine.name == "video":
+                    del pLine['style']
+            except:
+                pass
 
             try:
                 # tag 없는 일반 문자열만 있을 경우 .select() 실행시 오류 발생하여 분기 처리
