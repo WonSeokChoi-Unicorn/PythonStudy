@@ -22,7 +22,7 @@ runlog = open('D:\\Python\LOG\\' + todaytime + '_ggoorr_output.txt', 'w', encodi
 # 꾸르 메인 주소
 GGOORR_MAIN_URL = "https://ggoorr.net"
 # 꾸르 상세 주소
-GGOORR_DETAIL_URL = 'https://ggoorr.net/index.php?mid=all&page='
+GGOORR_DETAIL_URL = 'https://ggoorr.net/index?page='
 # 에러 발생 URL 모음
 errorurls = []
 # 파일 변수 글로벌로 이동
