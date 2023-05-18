@@ -1,6 +1,7 @@
 # selenium에서 webdriver를 사용할 수 있게 webdriver를 import 한다.
 # https://sites.google.com/chromium.org/driver/
 # 에서 크롬 버전에 맞는 크롬드라이버를 다운로드 후 Scripts 폴더로 복사하기
+import time
 from selenium import webdriver
 # find_element 사용 위해서 import
 from selenium.webdriver.common.by import By
@@ -62,9 +63,11 @@ for line in reversed(lines):
     # 원하는 사이트의 url을 입력하여 사이트를 연다.
     driver.get(line)
 
+    # 대기
+    time.sleep(3)
+
     # body를 스크롤하기 위해 tagname이 body로 되어있는것을 추출합니다.
     body = driver.find_element(By.TAG_NAME, 'body')
-    # body = driver.find_element_by_tag_name('body')
 
     # 로드 된 페이지 소스를 html이란 변수에 저장합니다.
     html = driver.page_source
