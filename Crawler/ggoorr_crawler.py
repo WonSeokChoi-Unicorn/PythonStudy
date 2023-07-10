@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from user_agent import generate_user_agent
 import html
 import cv2
+import re
 
 # 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
 todaytime = datetime.today().strftime('%Y%m%d%H%M%S')
@@ -38,17 +39,26 @@ waittime = 0.5
 # 게시글 url 리스트
 detailUrllist = []
 
+# 숫자를 추출하기 위한 정규 표현식
+regex1  = r"\d+"
+# "embed/" 다음에 있는 유튜브 키값 추출을 위한 정규 표현식
+regex2 = r"embed/([a-zA-Z0-9_-]+)"
+
 # 상세 게시글 HTML 수집 함수
 def getDetail(detailUrl):
     # 2022.12.06 게시글 순번으로 sort
-    realwritetime = detailUrl[23:detailUrl.index("?")]
+    # 2023.07.10 수정
+    # realwritetime = detailUrl[23:detailUrl.index("?")]
+    match1 = re.search(regex1, detailUrl)
+    if match1:
+        realwritetime = match1.group()
     try:
         # 봇 방지 웹사이트 회피
         headers = {'User-Agent': generate_user_agent(device_type = 'desktop') }
         # 상세 주소 요청 및 응답 수신
         detailRes = requests.get(detailUrl, headers = headers)
     except:
-        print("오류가 발생했습니다." + detailUrl)
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 오류가 발생했습니다." + detailUrl)
         # 오류가 발생하면 errorurl에 추가
         errorurls.append(detailUrl)
         return False
@@ -76,13 +86,13 @@ def getDetail(detailUrl):
 
         # 정상 처리 - 전날 미리 처리 위해서는 시간 판단을 주석 처리
         if(writetime > todate):
-            print("작성 안 하고, 다음 게시물 조회 (당일 6시 59분 59초 초과)")
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 안 하고, 다음 게시물 조회 (당일 6시 59분 59초 초과)")
             return
         elif writetime < fromdate:
-            print("작성 대상 아님 - (전일 7시 미만)")
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 아님 - (전일 7시 미만)")
             return
         else :
-            print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
 
         # 본문을 찾기 위해 article 태그의 데이터만 사용함
         articleBody = detailSoup.find('article')
@@ -96,7 +106,7 @@ def getDetail(detailUrl):
 
         # 링크로 보여줘야 되는 것들에 대한 처리
         if articleBodyGIFText2 > 0:
-            print("replace with link")
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", replace with link")
             # 파일에 저장
             fileContent = "<br><br></br></br><p>" + title + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
             fileContent += "\n"
@@ -112,6 +122,9 @@ def getDetail(detailUrl):
  
         # 01 게시글 앞에 머릿말 추가
         articleString = articleHeader
+
+        # 20233.07.10 유튜브 키 리스트 초기화
+        youtubekeylist = []
 
         # 02 article 태그 안에서 <p>태그들을 찾아서 저장함
         # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
@@ -142,11 +155,12 @@ def getDetail(detailUrl):
                 if isinstance(pLine, NavigableString):
                     pLine = "<div><span>" + pLine + "</span></div>"
                 else:
-                    # 이미지 태그를 P태그로 감싸기 2021.03.13 기능 살림
+                    # 이미지 태그를 P태그로 감싸기
+                    # 2021.03.13 기능 살림
                     for img in pLine.select("img"):
                         img.wrap(detailSoup.new_tag("p"))
             except AttributeError as e:
-                print("예외가 발생했습니다.", e)
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 예외가 발생했습니다." + str(e) + ", 오류가 발생한 곳은 : " + str(e.__traceback__.tb_lineno))
                 # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
                 pass
             
@@ -166,58 +180,71 @@ def getDetail(detailUrl):
             # 유튜브 shorts 긴 주소 접두어
             utubewwwshortsUrlIndex = pLineText.find('https://www.youtube.com/shorts/')
 
-            # 유튜브 키값 초기화 2021.01.03 추가
+            # 2021.01.03 유튜브 키값 초기화 추가
             utubeKey = ""
-            # 유튜브 키값 초기화 2021.01.03 추가
+            # 2021.01.03 유튜브 키값 초기화 추가
             utubeKeyIndex = 0
 
             # 유튜브 주소 길이 판단
             if utubeShrotUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://youtu.be/')
-                # 파싱 수정 2021.01.03 추가
+                # 2021.01.03 파싱 수정 추가
                 utubeKey = pLineText[utubeKeyIndex + 17 : utubeKeyIndex + 17 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
                 # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
-                tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+                tempStr = pLineText + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             elif utubeUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://youtube.com/watch?v=')
-                utubeKey = pLineText[utubeKeyIndex + 28 : utubeKeyIndex + 28 + 11] # 파싱 수정 2021.01.03 추가
+                # 2021.01.03 파싱 수정 추가
+                utubeKey = pLineText[utubeKeyIndex + 28 : utubeKeyIndex + 28 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
                 # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
-                tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+                tempStr = pLineText + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             elif utubewwwUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://www.youtube.com/watch?v=')
-                # 파싱 추가 2021.01.18 추가
+                # 2021.01.18 파싱 추가
                 utubeKey = pLineText[utubeKeyIndex + 32 : utubeKeyIndex + 32 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
                 # 2022.02.27 p 태그 안에 img와 youtube 같이 있는 경우 감안하여 pLine에 iframe tag 추가
-                tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+                tempStr = pLineText + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             elif utubemobileUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://m.youtube.com/watch?v=')
-                # 파싱 추가 2023.02.16 추가
+                # 2023.02.16 파싱 추가
                 utubeKey = pLineText[utubeKeyIndex + 30 : utubeKeyIndex + 30 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
-                tempStr = str(pLine) + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+                tempStr = pLineText + '<p><iframe style="width:560; height:315px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             elif utubeshortsUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://youtube.com/shorts/')
-                # 파싱 추가 2022.10.07 추가
+                # 2022.10.07 파싱 추가
                 utubeKey = pLineText[utubeKeyIndex + 27 : utubeKeyIndex + 27 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
-                tempStr = str(pLine) + '<p><iframe style="width:315; height:560px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+                tempStr = pLineText + '<p><iframe style="width:315; height:560px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             elif utubewwwshortsUrlIndex > 0:
                 utubeKeyIndex = pLineText.find('https://www.youtube.com/shorts/')
-                # 파싱 추가 2022.10.07 추가
+                # 2022.10.07 파싱 추가
                 utubeKey = pLineText[utubeKeyIndex + 31 : utubeKeyIndex + 31 + 11]
                 # 유튜브 키값을 iframe 태그로 변경
-                tempStr = str(pLine) + '<p><iframe style="width:315; height:560px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
+                tempStr = pLineText + '<p><iframe style="width:315; height:560px" src="https://www.youtube.com/embed/' + utubeKey + '?rel=0&vq=hd1080" frameborder="0" allowfullscreen></iframe>'
             else:
                 # 유튜브 주소가 없을 경우 변경 없음
                 tempStr = pLineText
 
+            # 유튜브 키 리스트에 유튜브 키값 추가
+            youtubekeylist.append(utubeKey)
+
+            # src="https://www.youtube.com/embed/ 가 존재하는 지 확인
+            match2 = re.search(regex2, pLineText)
+            if match2:
+                embedutubeKey = match2.group(1)
+                if embedutubeKey in youtubekeylist:
+                    # 2023.07.10 이전에 저장된 유튜브 키값이 있으면 중복으로 iframe 처리 되니 다음으로 진행
+                    continue
+
             try:
-                # 트위터 주소 찾기 2023.03.14 추가
+                # 트위터 주소 찾기
+                # 2023.03.14 추가
                 if 'https://twitter.com/' in pLine.find('a')['href']:
-                    tempStr = str(pLine) + '<p><blockquote class="twitter-tweet" lang="en"><a href="' + pLine.find('a')['href'] + '"></a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
+                    tempStr = pLineText + '<p><blockquote class="twitter-tweet" lang="en"><a href="' + pLine.find('a')['href'] + '"></a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
             except:
                 pass
 
@@ -256,26 +283,27 @@ def getDetail(detailUrl):
         # 04 cdn.ggoorr.net은 프록시 서버 경유
         articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R1024x0/?fname=https://cdn.ggoorr.net")
 
-        # 05.제목이 포함된 내용 삭제하기 2021.02.27
+        # 2021.02.27 05.제목이 포함된 내용 삭제하기
         # 변수 초기화, 지정
         titleIndex = 0
-        # 제목을 임시 변수로
-        tmpTitle = title
-        # 05-01 제목 끝에 "(스압)" 을 제거 2021.03.07
-        tmpTitle = tmpTitle.replace("(스압)", "").strip()
-        # 05-02 제목과 100% 동일한 본문 내용 삭제하기 2021.03.07
-        articleString = articleString.replace(tmpTitle, "")
+        # 2021.03.07 05-02 제목과 100% 동일한 본문 내용 삭제하기
+        articleString = articleString.replace(title, "")
         # 2023.03.15 escape 문자 처리 위해 html.escape 추가
-        articleString = articleString.replace(html.escape(tmpTitle), "")
-        # 05-03 제목에 "[xxx]" 가 있으나 본문에는 "[xxx]"가 없는 경우 처리 > 제목의 [xxx]를 제거
-        if title.find("]") >= 0:
-            titleIndex = title.index("]")
-        # "[ ~ ]"가 있을 경우 처리 2021.02.27
-        if tmpTitle.startswith("[") and titleIndex >= 0:
-            tmpTitle = (title[titleIndex+1:]).strip()
+        articleString = articleString.replace(html.escape(title), "")
+        # 2023.07.10 아래 기능들이 불필요할 것 같아서 주석 처리 -모니터링 예정
+        # # 제목을 임시 변수로
+        # tmpTitle = title
+        # # 05-01 제목 끝에 "(스압)" 을 제거 2021.03.07
+        # tmpTitle = tmpTitle.replace("(스압)", "").strip()
+        # # 05-03 제목에 "[xxx]" 가 있으나 본문에는 "[xxx]"가 없는 경우 처리 > 제목의 [xxx]를 제거
+        # if title.find("]") >= 0:
+        #     titleIndex = title.index("]")
+        # # "[ ~ ]"가 있을 경우 처리 2021.02.27
+        # if tmpTitle.startswith("[") and titleIndex >= 0:
+        #     tmpTitle = (title[titleIndex+1:]).strip()
 
         # 파일에 저장
-        # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
+        # 2021.01.03 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가.
         fileContent = "<p>" + title + "</p>"
         fileContent += "\n"
         fileContent += articleString
@@ -285,7 +313,7 @@ def getDetail(detailUrl):
         contentDictionary[realwritetime] = fileContent
 
     else :
-        print(" >>>> GET ERROR.....")
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", >>>> GET ERROR.....")
     # 대기
     time.sleep(waittime)
 
@@ -325,7 +353,7 @@ def searchList(page):
             # 공지글은 생략
             if None != trOne.get('class'):
                 if ("notice" == trOne['class'][0]):
-                    print("공지는 PASS!!")
+                    print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 공지는 PASS!!")
                     nCnt += 1
                     continue
             else:
@@ -378,11 +406,11 @@ def searchList(page):
                 # end of [for tdTag in trOne.select('td'):]
 
                 # 게시물 1개에 대한 처리여부 확인 로직 시작......
-                print("category : " + cate)
-                print("title : " + title)
-                print("author : " + author)
-                print("writetime : " + writetime.strftime('%Y-%m-%d %H:%M:%S'))
-                print("detailUrl : " + detailUrl)
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", category : " + cate)
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", title : " + title)
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", author : " + author)
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", writetime : " + writetime.strftime('%Y-%m-%d %H:%M:%S'))
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", detailUrl : " + detailUrl)
 
                 # # 전일 오전 7시
                 # yesterday = datetime.today() - timedelta(days=1)
@@ -407,7 +435,7 @@ def searchList(page):
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "========== " +  str(page) + " page end ==========")
         return True        
     else:
-        print(GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", " + GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")
     # 대기
     time.sleep(waittime)
 
@@ -421,7 +449,7 @@ def SaveSortedContentDictionary():
 
     if f is not None:
         f.close
-        print("fileContent write OK ")
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", fileContent write OK ")
 
 # 임시 작업
 # getDetail("https://ggoorr.net/all/14215100")
