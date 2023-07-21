@@ -12,6 +12,8 @@ import re
 
 # 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
 todaytime = datetime.today().strftime('%Y%m%d%H%M%S')
+# 시간을 HH 형태로 변경
+todaytimeHH = datetime.today().strftime('%H')
 
 # 실행 과정을 기록할 파일
 runlog = open('D:\\Python\LOG\\' + todaytime + '_ggoorr_output.txt', 'w', encoding = 'utf-8')
@@ -75,24 +77,34 @@ def getDetail(detailUrl):
         writetimetemp = detailSoup.find('time', attrs = {"class" : "date m_no"}).get_text().strip()
         writetime = datetime(int(writetimetemp[:3 + 1]), int(writetimetemp[5:6 + 1]), int(writetimetemp[8:9 + 1]), int(writetimetemp[11:12 + 1]), int(writetimetemp[14:15 + 1]), 0)
 
-        # 전일 오전 7시
-        yesterday = datetime.today() - timedelta(days = 1)
-        fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
+        # 2023.07.21 실행 시간에 따라서 기준(시작~종료) 시간을 변경
+        if todaytimeHH >= '15':
+            # 당일 오전 7시
+            fromdate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 7, 0, 0)
 
-        # 당일 오전 6시 59분 59초
-        todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
+            # 내일 오전 6시 59분 59초
+            tomorrow = datetime.today() + timedelta(days = 1)
+            todate = datetime(tomorrow.year, tomorrow.month, tomorrow.day, 6, 59, 59)
+        else:
+            # 전일 오전 7시
+            yesterday = datetime.today() - timedelta(days = 1)
+            fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
+
+            # 당일 오전 6시 59분 59초
+            todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
+
         # 진행
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " - " + title + " - " + detailUrl)
 
-        # 정상 처리 - 전날 미리 처리 위해서는 시간 판단을 주석 처리
-        if(writetime > todate):
-            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 안 하고, 다음 게시물 조회 (당일 6시 59분 59초 초과)")
+        # 처리
+        if (writetime > todate):
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 아님 (" + todate.strftime('%Y-%m-%d %H:%M:%S') + " 이후)")
             return
-        elif writetime < fromdate:
-            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 아님 - (전일 7시 미만)")
+        elif (writetime < fromdate):
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 아님 - (" + fromdate.strftime('%Y-%m-%d %H:%M:%S') + " 이전)")
             return
-        else :
-            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
+        else:
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 맞음 (" + fromdate.strftime('%Y-%m-%d %H:%M:%S') + " ~ " + todate.strftime('%Y-%m-%d %H:%M:%S') + ")")
 
         # 본문을 찾기 위해 article 태그의 데이터만 사용함
         articleBody = detailSoup.find('article')
