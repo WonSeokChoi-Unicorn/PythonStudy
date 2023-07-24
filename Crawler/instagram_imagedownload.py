@@ -9,8 +9,8 @@ import os
 from datetime import datetime
 import urllib.request
 import time
-# pip install fake-useragent
-from fake_useragent import UserAgent
+from user_agent import generate_user_agent
+import re
 
 # 오늘 날짜를 YYYYMMDD 형태로 변경
 todaytime = datetime.today().strftime('%Y%m%d%H%M')
@@ -22,16 +22,10 @@ def createDirectory(directory):
             os.makedirs(directory)
     except OSError:
         print("Error: Failed to create the directory.")
-# image 저장할 경로
-savepath = "C:\\temp\\" + todaytime + "_instagram\\"
-# image 저장할 경로 체크 및 생성
-createDirectory(savepath)
 
-# UserAgent 객체
-# 에러 발생해도 사용에는 문제 없음
-ua = UserAgent()
-# 403 forbidden 회피 객체
-opener = urllib.request.URLopener()
+# 정규 표현식 패턴을 사용하여 "B-ouuLwDjy8"을 추출합니다.
+pattern = r"/p/([A-Za-z0-9_-]+)/"
+
 # 차단 당하지 않기 위한 대기 시간
 waittime = 10
 options = webdriver.ChromeOptions()
@@ -42,7 +36,7 @@ options.add_argument('headless')
 
 # 이미지를 저장할 인스타그램 URL들
 urls = [
-        'https://www.instagram.com/p/Cj7jobdhNVL/'
+        'https://www.instagram.com/p/B-ouuLwDjy8/?utm_source=ig_web_button_share_sheet'
        ]
 # 웹드라이버 실행
 browser = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
@@ -52,6 +46,13 @@ urlload = "https://sssinstagram.com/ko"
 browser.get(urlload)
 time.sleep(waittime)
 for url in urls:
+    # 정규 표현식 패턴을 사용하여 고유ID를 추출합니다.
+    match = re.search(pattern, url)
+    post_id = match.group(1)
+    # image 저장할 경로
+    savepath = "C:\\temp\\" + todaytime + "_" + post_id + "\\"
+    # image 저장할 경로 체크 및 생성
+    createDirectory(savepath)
     # 주소란에 입력
     browser.find_element(By.CSS_SELECTOR, "#main_page_text").send_keys(url)
     time.sleep(waittime)
@@ -66,18 +67,18 @@ for url in urls:
     downloads = Soup.find_all('div', 'download-wrapper')
     # 카운트 설정
     cnt = 1
-    # / 위치 파악
-    poslist = [pos for pos, char in enumerate(url) if char == "/"]
-    # 파일명 접두어 만들기
-    fileprefix = url[poslist[-2] + 1 : -1] + "_"
     # 다운로드들 확인하여 이미지로 저장
     for download in downloads:
         # IMG 태그 찾기
         imgsrc = download.find('a')
         # 이미지 파일명
-        imagesave = savepath + fileprefix + str(cnt) + ".jpg"
+        imagesave = savepath + post_id + "_" + str(cnt) + ".jpg"
+        # 403 forbidden 회피 객체
+        opener = urllib.request.URLopener()
         # 403 forbidden 회피 객체 헤더 추가
-        opener.addheader('User-Agent', ua.random)
+        opener.addheader('User-Agent', generate_user_agent(device_type = 'desktop'))
+        # 진행
+        print(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ", " + str(downloads.index(download) + 1) + "/" + str(len(downloads)) + ", " + imgsrc['href'])
         # 이미지 저장
         opener.retrieve(imgsrc['href'], imagesave)
         # 카운트 증가
