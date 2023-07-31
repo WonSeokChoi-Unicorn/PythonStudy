@@ -69,6 +69,8 @@ Source
 
 14. 정해준 유튜브 URL을 Iframes 태그로 만들기 GUI (youtubeiframe_crawlerGUI.py)
 
+15. 크롬 웹드라이버 최신 버전 확인 (ChromeDriver_crawler.py)
+
 
 날짜시간 시리즈
 
