@@ -47,7 +47,7 @@ regex1  = r"\d+"
 regex2 = r"embed/([a-zA-Z0-9_-]+)"
 
 # 상세 게시글 HTML 수집 함수
-def getDetail(detailUrl):
+def getDetail(detailUrl, option):
     # 2022.12.06 게시글 순번으로 sort
     # 2023.07.10 수정
     # realwritetime = detailUrl[23:detailUrl.index("?")]
@@ -96,15 +96,17 @@ def getDetail(detailUrl):
         # 진행
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " - " + title + " - " + detailUrl)
 
-        # 처리
-        if (writetime > todate):
-            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 아님 (" + todate.strftime('%Y-%m-%d %H:%M:%S') + " 이후)")
-            return
-        elif (writetime < fromdate):
-            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 아님 - (" + fromdate.strftime('%Y-%m-%d %H:%M:%S') + " 이전)")
-            return
-        else:
-            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 맞음 (" + fromdate.strftime('%Y-%m-%d %H:%M:%S') + " ~ " + todate.strftime('%Y-%m-%d %H:%M:%S') + ")")
+        # 옵션이 Y인경우 기준대로 작성 대상 확인
+        if option == 'Y':
+            # 처리
+            if (writetime > todate):
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 아님 (" + todate.strftime('%Y-%m-%d %H:%M:%S') + " 이후)")
+                return
+            elif (writetime < fromdate):
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 아님 - (" + fromdate.strftime('%Y-%m-%d %H:%M:%S') + " 이전)")
+                return
+            else:
+                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 작성 대상 맞음 (" + fromdate.strftime('%Y-%m-%d %H:%M:%S') + " ~ " + todate.strftime('%Y-%m-%d %H:%M:%S') + ")")
 
         # 본문을 찾기 위해 article 태그의 데이터만 사용함
         articleBody = detailSoup.find('article')
@@ -463,11 +465,6 @@ def SaveSortedContentDictionary():
         f.close
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", fileContent write OK ")
 
-# 임시 작업
-# getDetail("https://ggoorr.net/all/14215100")
-# SaveSortedContentDictionary()
-# sys.exit()
-
 # 메인 시작 : 1-15 페이지까지 for loop
 def startCrawlering():
     # 시간1
@@ -480,7 +477,7 @@ def startCrawlering():
     # 크롤링 시작
     for detailUrl in detailUrllist:
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " " + str(detailUrllist.index(detailUrl) + 1) + "/" + str(len(detailUrllist)))
-        getDetail(detailUrl)
+        getDetail(detailUrl, 'Y')
     print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Ending Crawling")
     # 에러 url들이 있을 경우 크롤링 시작
     if len(errorurls) != 0:
@@ -491,7 +488,7 @@ def startCrawlering():
             for errorurl in errorurls[:]:
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " " + str(errorurls.index(errorurl)) + "/" + str(len(errorurls)))
                 # 크롤링 시작
-                if False != getDetail(errorurl):
+                if False != getDetail(errorurl, 'Y'):
                     # 정상 처리 되면 errorurls에서 에러 url 삭제
                     errorurls.remove(errorurl)
             # 에러 url들이 없는 것을 확인
@@ -505,6 +502,16 @@ def startCrawlering():
     datetime2 = datetime.now()
     print(datetime1.strftime('%Y-%m-%d %H:%M:%S') + " ~ " + datetime2.strftime('%Y-%m-%d %H:%M:%S') + " - Ending")
     print(datetime2 - datetime1)
+
+tempurllist = [
+"https://ggoorr.net/all/14215100",
+"https://ggoorr.net/all/14214973",
+]
+# 임시 작업일 경우 아래 4개줄 주석 해제
+# for tempurl in tempurllist:
+#     getDetail(tempurl, 'N')
+# SaveSortedContentDictionary()
+# sys.exit()
 
 # 크롤링 시작
 startCrawlering()
