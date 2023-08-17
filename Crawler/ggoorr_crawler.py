@@ -262,6 +262,15 @@ def getDetail(detailUrl, option):
             except:
                 pass
 
+            try:
+                # 트위터 iframe 찾기
+                # 2023.08.17 추가
+                if 'ed-twitter-div' in pLineText:
+                    # 제외 처리
+                    continue
+            except:
+                pass
+
             # ggoorr video 접두어
             ggoorrvideoIndex = pLineText.find('src="/files/')
 
@@ -504,8 +513,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/14215100",
-"https://ggoorr.net/all/14214973",
+"https://ggoorr.net/all/15792826",
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
