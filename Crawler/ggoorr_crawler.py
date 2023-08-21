@@ -144,17 +144,27 @@ def getDetail(detailUrl, option):
         # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
         for pLine in articleBody.div.div.children:
 
-            # 2023.03.21 video width, height 속성 삭제
+            # 2023.03.21 video height 속성 삭제
             try:
                 if pLine.name == "video":
                     del pLine['height']
             except:
-                pass    
+                pass
+            # 2023.03.21 video width 속성 삭제 후 100%로 설정
             try:
                 if pLine.name == "video":
                     del pLine['width']
                     # width를 100%로 설정
                     pLine['width'] = '100%'
+            except:
+                pass
+            # 2023.08.21 video width 속성 삭제 후 100%로 설정
+            try:
+                pLinevideo = pLine.find('video')
+                if not pLinevideo.has_attr('width'):
+                    pLinevideo['width'] = '100%'
+                else:
+                    pLinevideo['width'] = '100%'
             except:
                 pass
             # 2023.04.25 video style 속성 삭제
@@ -278,11 +288,7 @@ def getDetail(detailUrl, option):
             if ggoorrvideoIndex > 0:
                 # 전체 URL로 변경
                 pLineText = pLineText.replace('src="/files/', 'src="https://ggoorr.net/files/')
-                if pLineText.find('width="100%"') == 0:
-                    # width="100%"가 없으면 추가
-                    tempStr = pLineText.replace("<video", '<video width="100%"')
-                else:
-                    tempStr = pLineText
+                tempStr = pLineText
                 # # src 확인
                 # ggoorrvideourl = BeautifulSoup(pLineText, 'lxml').find('video')['src']
                 # # cv2 객체 생성
@@ -307,23 +313,10 @@ def getDetail(detailUrl, option):
         articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R1024x0/?fname=https://cdn.ggoorr.net")
 
         # 2021.02.27 05.제목이 포함된 내용 삭제하기
-        # 변수 초기화, 지정
-        titleIndex = 0
         # 2021.03.07 05-02 제목과 100% 동일한 본문 내용 삭제하기
         articleString = articleString.replace(title, "")
         # 2023.03.15 escape 문자 처리 위해 html.escape 추가
         articleString = articleString.replace(html.escape(title), "")
-        # 2023.07.10 아래 기능들이 불필요할 것 같아서 주석 처리 -모니터링 예정
-        # # 제목을 임시 변수로
-        # tmpTitle = title
-        # # 05-01 제목 끝에 "(스압)" 을 제거 2021.03.07
-        # tmpTitle = tmpTitle.replace("(스압)", "").strip()
-        # # 05-03 제목에 "[xxx]" 가 있으나 본문에는 "[xxx]"가 없는 경우 처리 > 제목의 [xxx]를 제거
-        # if title.find("]") >= 0:
-        #     titleIndex = title.index("]")
-        # # "[ ~ ]"가 있을 경우 처리 2021.02.27
-        # if tmpTitle.startswith("[") and titleIndex >= 0:
-        #     tmpTitle = (title[titleIndex+1:]).strip()
 
         # 파일에 저장
         # 2021.01.03 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가.
@@ -513,7 +506,8 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/15792826",
+"https://ggoorr.net/all/15814039",
+"https://ggoorr.net/all/15811184",
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
