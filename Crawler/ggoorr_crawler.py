@@ -64,7 +64,7 @@ def getDetail(detailUrl, option):
         # 오류가 발생하면 errorurl에 추가
         errorurls.append(detailUrl)
         return False
-
+    
     # HTTP 응답 성공 200
     if detailRes.status_code == 200:        
         # 게시글의 HTML을 받아 BeautifulSoup 로 파싱 저장 
@@ -110,14 +110,11 @@ def getDetail(detailUrl, option):
 
         # 본문을 찾기 위해 article 태그의 데이터만 사용함
         articleBody = detailSoup.find('article')
-
         # 문자열로 변환
         articleBodyText = str(articleBody)
-
         # 2021.06.29 제외되는 게시글들을 URL로 저장
         # gifmp4_video class가 있을 경우
         articleBodyGIFText2 = articleBodyText.find("gifmp4_video")
-
         # 링크로 보여줘야 되는 것들에 대한 처리
         if articleBodyGIFText2 > 0:
             print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", replace with link")
@@ -129,18 +126,15 @@ def getDetail(detailUrl, option):
             # realwritetime을 key로해서 html코드를 value로 저장
             contentDictionary[realwritetime] = fileContent
             return
-
         # 게시글 머릿말/꼬리말 설정
         articleHeader = '<article><div id="article_1"><div>'
-        articleTail = '</div></div></article>'
- 
+        articleTail = '</div></div></article>' 
         # 01 게시글 앞에 머릿말 추가
         articleString = articleHeader
-
         # 20233.07.10 유튜브 키 리스트 초기화
         youtubekeylist = []
-
         # 02 article 태그 안에서 <p>태그들을 찾아서 저장함
+        
         # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
         for pLine in articleBody.div.div.children:
 
@@ -173,9 +167,8 @@ def getDetail(detailUrl, option):
                     del pLine['style']
             except:
                 pass
-
-            try:
-                # tag 없는 일반 문자열만 있을 경우 .select() 실행시 오류 발생하여 분기 처리
+            # tag 없는 일반 문자열만 있을 경우 .select() 실행시 오류 발생하여 분기 처리
+            try:                
                 if isinstance(pLine, NavigableString):
                     pLine = "<div><span>" + pLine + "</span></div>"
                 else:
@@ -186,9 +179,7 @@ def getDetail(detailUrl, option):
             except AttributeError as e:
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 예외가 발생했습니다." + str(e) + ", 오류가 발생한 곳은 : " + str(e.__traceback__.tb_lineno))
                 # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
-                pass
-            
-            
+                pass            
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
             # 유튜브 짧은 주소 접두어
@@ -203,7 +194,6 @@ def getDetail(detailUrl, option):
             utubeshortsUrlIndex = pLineText.find('https://youtube.com/shorts/')
             # 유튜브 shorts 긴 주소 접두어
             utubewwwshortsUrlIndex = pLineText.find('https://www.youtube.com/shorts/')
-
             # 2021.01.03 유튜브 키값 초기화 추가
             utubeKey = ""
             # 2021.01.03 유튜브 키값 초기화 추가
@@ -252,10 +242,9 @@ def getDetail(detailUrl, option):
             else:
                 # 유튜브 주소가 없을 경우 변경 없음
                 tempStr = pLineText
-
             # 유튜브 키 리스트에 유튜브 키값 추가
             youtubekeylist.append(utubeKey)
-
+            
             # src="https://www.youtube.com/embed/ 가 존재하는 지 확인
             match2 = re.search(regex2, pLineText)
             if match2:
@@ -263,24 +252,21 @@ def getDetail(detailUrl, option):
                 if embedutubeKey in youtubekeylist:
                     # 2023.07.10 이전에 저장된 유튜브 키값이 있으면 중복으로 iframe 처리 되니 다음으로 진행
                     continue
-
+            # 트위터 주소 찾기
             try:
-                # 트위터 주소 찾기
                 # 2023.03.14 추가
                 if 'https://twitter.com/' in pLine.find('a')['href']:
                     tempStr = pLineText + '<p><blockquote class="twitter-tweet" lang="en"><a href="' + pLine.find('a')['href'] + '"></a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
             except:
                 pass
-
+            # 트위터 iframe 찾기
             try:
-                # 트위터 iframe 찾기
                 # 2023.08.17 추가
                 if 'ed-twitter-div' in pLineText:
                     # 제외 처리
                     continue
             except:
                 pass
-
             # ggoorr video 접두어
             ggoorrvideoIndex = pLineText.find('src="/files/')
 
@@ -302,32 +288,25 @@ def getDetail(detailUrl, option):
                 #     tempStr = pLineText.replace("<video", '<video width="333"')
                 # else:
                 #     tempStr = pLineText
-
             # 줄 끝에 줄 바꿈 처리
             articleString += tempStr + "\n"
-
         # 03 게시글 끝에 꼬릿말 추가
         articleString += articleTail   
-
         # 04 cdn.ggoorr.net은 프록시 서버 경유
         articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R1024x0/?fname=https://cdn.ggoorr.net")
-
         # 2021.02.27 05.제목이 포함된 내용 삭제하기
         # 2021.03.07 05-02 제목과 100% 동일한 본문 내용 삭제하기
         articleString = articleString.replace(title, "")
         # 2023.03.15 escape 문자 처리 위해 html.escape 추가
         articleString = articleString.replace(html.escape(title), "")
-
         # 파일에 저장
         # 2021.01.03 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가.
         fileContent = "<p>" + title + "</p>"
         fileContent += "\n"
         fileContent += articleString
         fileContent += "\n"
-
         # realwritetime을 key로해서 html코드를 value로 저장
         contentDictionary[realwritetime] = fileContent
-
     else :
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", >>>> GET ERROR.....")
     # 대기
@@ -345,12 +324,10 @@ def searchList(page):
     if res.status_code == 200:
         # 응답 html코드를 text로 변환
         html = res.text
-
         # 응답받은 html코드를 BeautifulSoup에 사용하기 위하여 인스턴스 지정
         # 2022.07.24 가져오는 방식 변경
         # HTML을 'lxml(XML, HTML 처리)'를 사용하여 분석
         soup = BeautifulSoup(html, 'lxml')
-
         # tbody 에 필요한 게시글 목록이 있어 해당 영역 가져오기 처리
         # 2022.07.24 가져오는 방식 변경
         # tbody = soup.select('.bd_tb_lst tbody')
@@ -358,12 +335,10 @@ def searchList(page):
         # 2022.07.24 가져오는 방식 변경
         # contentsBody = tbody[0]
         contentsBody = tbody.find('tbody')
-
         # 게시글 처리 순서 저장
         nCnt = 1
         # tr - 개별 게시글 확인
         for trOne in contentsBody.select('tr'):
-
             print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "---------- [ " + str(page) + " page / " + str(nCnt) + " line ] ----------")
 
             # 공지글은 생략
@@ -431,10 +406,8 @@ def searchList(page):
                 # # 전일 오전 7시
                 # yesterday = datetime.today() - timedelta(days=1)
                 # fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
-
                 # # 당일 오전 6시 59분 59초
                 # todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
-
                 # # 정상 처리
                 # if(writetime > todate):
                 #     print("작성 안 하고, 다음 게시물 조회 (당일 6시 59분 59초 초과)")
@@ -445,7 +418,6 @@ def searchList(page):
                 #     # return False
                 # else :
                 #     print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
-
             nCnt += 1
             # end of [for trOne in contentsBody.select('tr'):]
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "========== " +  str(page) + " page end ==========")
@@ -472,15 +444,18 @@ def startCrawlering():
     # 시간1
     datetime1 = datetime.now()
     print(datetime1.strftime('%Y-%m-%d %H:%M:%S') + " - Starting")
+
     # 15페이지까지 검색
     for page in range(1, 15 + 1):
         searchList(page)
     print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Starting Crawling")
+
     # 크롤링 시작
     for detailUrl in detailUrllist:
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " " + str(detailUrllist.index(detailUrl) + 1) + "/" + str(len(detailUrllist)))
         getDetail(detailUrl, 'Y')
     print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Ending Crawling")
+
     # 에러 url들이 있을 경우 크롤링 시작
     if len(errorurls) != 0:
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Starting Error Crawling")
