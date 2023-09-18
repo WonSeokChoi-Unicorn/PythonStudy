@@ -367,9 +367,11 @@ def searchList(page):
                         cate = tdTag.get_text()
                     elif classNm == "title":
                         # 제목 및 URL
-                        alist = tdTag.find_all('a', class_ = "hx")
+                        # 2023.09.19 가져오는 코드 수정
+                        alist = tdTag.find_all('a', attrs = {"class" : "hx"})
                         title = alist[0].get_text().strip().replace("\n", "")
-                        detailUrl = GGOORR_MAIN_URL + alist[0]['data-viewer']
+                        # 2023.09.19 사이트 개편으로 수정
+                        detailUrl = GGOORR_MAIN_URL + alist[0]['href']
                         # 2023.03.09 정확한 시간 파악 위해서 url 먼저 수집
                         detailUrllist.append(detailUrl)
                     elif classNm == "author":
