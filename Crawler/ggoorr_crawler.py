@@ -64,9 +64,9 @@ def getDetail(detailUrl, option):
         # 오류가 발생하면 errorurl에 추가
         errorurls.append(detailUrl)
         return False
-    
+
     # HTTP 응답 성공 200
-    if detailRes.status_code == 200:        
+    if detailRes.status_code == 200:
         # 게시글의 HTML을 받아 BeautifulSoup 로 파싱 저장 
         detailHtml = detailRes.text
         # HTML을 'lxml(XML, HTML 처리)'를 사용하여 분석
@@ -138,6 +138,12 @@ def getDetail(detailUrl, option):
         # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
         for pLine in articleBody.div.div.children:
 
+            # 2023.09.27 불필요 태그 삭제
+            try:
+                if pLine['style'] is not None:
+                    continue
+            except:
+                pass            
             # 2023.03.21 video height 속성 삭제
             try:
                 if pLine.name == "video":
@@ -179,7 +185,7 @@ def getDetail(detailUrl, option):
             except AttributeError as e:
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 예외가 발생했습니다." + str(e) + ", 오류가 발생한 곳은 : " + str(e.__traceback__.tb_lineno))
                 # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
-                pass            
+                pass
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
             # 유튜브 짧은 주소 접두어
@@ -244,7 +250,7 @@ def getDetail(detailUrl, option):
                 tempStr = pLineText
             # 유튜브 키 리스트에 유튜브 키값 추가
             youtubekeylist.append(utubeKey)
-            
+
             # src="https://www.youtube.com/embed/ 가 존재하는 지 확인
             match2 = re.search(regex2, pLineText)
             if match2:
@@ -434,7 +440,7 @@ def SaveSortedContentDictionary():
     # 딕셔너리는 key로 정렬하면 튜플 형태의 리스트가 됨
     sortedKeyList = sorted(contentDictionary.items())
     # 정렬 후 value를 파일에 저장
-    for (tuplekey, tuplevalue) in sortedKeyList:             
+    for (tuplekey, tuplevalue) in sortedKeyList:
         f.write(str(tuplevalue))
 
     if f is not None:
