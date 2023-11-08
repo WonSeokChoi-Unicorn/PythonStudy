@@ -67,7 +67,7 @@ def getDetail(detailUrl, option):
 
     # HTTP 응답 성공 200
     if detailRes.status_code == 200:
-        # 게시글의 HTML을 받아 BeautifulSoup 로 파싱 저장 
+        # 게시글의 HTML을 받아 BeautifulSoup 로 파싱 저장
         detailHtml = detailRes.text
         # HTML을 'lxml(XML, HTML 처리)'를 사용하여 분석
         detailSoup = BeautifulSoup(detailHtml, 'lxml')
@@ -128,13 +128,13 @@ def getDetail(detailUrl, option):
             return
         # 게시글 머릿말/꼬리말 설정
         articleHeader = '<article><div id="article_1"><div>'
-        articleTail = '</div></div></article>' 
+        articleTail = '</div></div></article>'
         # 01 게시글 앞에 머릿말 추가
         articleString = articleHeader
         # 20233.07.10 유튜브 키 리스트 초기화
         youtubekeylist = []
         # 02 article 태그 안에서 <p>태그들을 찾아서 저장함
-        
+
         # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
         for pLine in articleBody.div.div.children:
 
@@ -143,7 +143,7 @@ def getDetail(detailUrl, option):
                 if pLine['style'] is not None:
                     continue
             except:
-                pass            
+                pass
             # 2023.03.21 video height 속성 삭제
             try:
                 if pLine.name == "video":
@@ -174,7 +174,7 @@ def getDetail(detailUrl, option):
             except:
                 pass
             # tag 없는 일반 문자열만 있을 경우 .select() 실행시 오류 발생하여 분기 처리
-            try:                
+            try:
                 if isinstance(pLine, NavigableString):
                     pLine = "<div><span>" + pLine + "</span></div>"
                 else:
@@ -182,6 +182,9 @@ def getDetail(detailUrl, option):
                     # 2021.03.13 기능 살림
                     for img in pLine.select("img"):
                         img.wrap(detailSoup.new_tag("p"))
+                    # 2023.11.09 video 태그를 P태그로 감싸기
+                    for video in pLine.select("video"):
+                        video.wrap(detailSoup.new_tag("p"))
             except AttributeError as e:
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 예외가 발생했습니다." + str(e) + ", 오류가 발생한 곳은 : " + str(e.__traceback__.tb_lineno))
                 # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
@@ -297,7 +300,7 @@ def getDetail(detailUrl, option):
             # 줄 끝에 줄 바꿈 처리
             articleString += tempStr + "\n"
         # 03 게시글 끝에 꼬릿말 추가
-        articleString += articleTail   
+        articleString += articleTail
         # 04 cdn.ggoorr.net은 프록시 서버 경유
         articleString = articleString.replace("https://cdn.ggoorr.net", "https://t1.daumcdn.net/thumb/R1024x0/?fname=https://cdn.ggoorr.net")
         # 2021.02.27 05.제목이 포함된 내용 삭제하기
@@ -337,7 +340,7 @@ def searchList(page):
         # tbody 에 필요한 게시글 목록이 있어 해당 영역 가져오기 처리
         # 2022.07.24 가져오는 방식 변경
         # tbody = soup.select('.bd_tb_lst tbody')
-        tbody = soup.find('table', 'bd_lst bd_tb_lst bd_tb')        
+        tbody = soup.find('table', 'bd_lst bd_tb_lst bd_tb')
         # 2022.07.24 가져오는 방식 변경
         # contentsBody = tbody[0]
         contentsBody = tbody.find('tbody')
@@ -429,13 +432,13 @@ def searchList(page):
             nCnt += 1
             # end of [for trOne in contentsBody.select('tr'):]
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "========== " +  str(page) + " page end ==========")
-        return True        
+        return True
     else:
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", " + GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")
     # 대기
     time.sleep(waittime)
 
-# 데이터 정렬하여 파일에 저장 처리 
+# 데이터 정렬하여 파일에 저장 처리
 def SaveSortedContentDictionary():
     # 딕셔너리는 key로 정렬하면 튜플 형태의 리스트가 됨
     sortedKeyList = sorted(contentDictionary.items())
@@ -481,7 +484,7 @@ def startCrawlering():
                 # 에러 url들에 대한 크롤링 종료
                 break
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Ending Error Crawling")
-    # 데이터 정렬하여 파일에 저장 처리 
+    # 데이터 정렬하여 파일에 저장 처리
     SaveSortedContentDictionary()
     # 시간1과 시간2의 차이를 구한다
     datetime2 = datetime.now()
@@ -489,8 +492,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/15814039",
-"https://ggoorr.net/all/15811184",
+"https://ggoorr.net/all/16207863"
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
