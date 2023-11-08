@@ -137,6 +137,9 @@ def getDetail(detailUrl, option):
 
         # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
         for pLine in articleBody.div.div.children:
+            # 2023.11.09 "<p> </p>"인 경우 다음으로 진행
+            if pLine.get_text() == '\xa0':
+                continue
 
             # 2023.09.27 불필요 태그 삭제
             try:
@@ -176,15 +179,21 @@ def getDetail(detailUrl, option):
             # tag 없는 일반 문자열만 있을 경우 .select() 실행시 오류 발생하여 분기 처리
             try:
                 if isinstance(pLine, NavigableString):
-                    pLine = "<div><span>" + pLine + "</span></div>"
+                    # 2023.11.09 '\n'이 아닐 경우에만 처리
+                    if pLine == '\n':
+                        continue
+                    else:
+                        pLine = "<div><span>" + pLine + "</span></div>"
                 else:
-                    # 이미지 태그를 P태그로 감싸기
-                    # 2021.03.13 기능 살림
-                    for img in pLine.select("img"):
-                        img.wrap(detailSoup.new_tag("p"))
-                    # 2023.11.09 video 태그를 P태그로 감싸기
-                    for video in pLine.select("video"):
-                        video.wrap(detailSoup.new_tag("p"))
+                    # 2023.11.09 P태그가 없을 경우에만 처리
+                    if pLine.name != "p":
+                        # 이미지 태그를 P태그로 감싸기
+                        # 2021.03.13 기능 살림
+                        for img in pLine.select("img"):
+                            img.wrap(detailSoup.new_tag("p"))
+                        # 2023.11.09 video 태그를 P태그로 감싸기
+                        for video in pLine.select("video"):
+                            video.wrap(detailSoup.new_tag("p"))
             except AttributeError as e:
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 예외가 발생했습니다." + str(e) + ", 오류가 발생한 곳은 : " + str(e.__traceback__.tb_lineno))
                 # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
@@ -492,7 +501,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/16207863"
+"https://ggoorr.net/all/16207773"
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
