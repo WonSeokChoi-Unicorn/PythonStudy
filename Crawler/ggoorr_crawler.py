@@ -140,6 +140,9 @@ def getDetail(detailUrl, option):
             # 2023.11.09 "<p> </p>"인 경우 다음으로 진행
             if pLine.get_text() == '\xa0':
                 continue
+            # 2023.11.11 "<p></p>"인 경우 다음으로 진행
+            if str(pLine) == '<p></p>':
+                continue
 
             # 2023.09.27 불필요 태그 삭제
             try:
@@ -176,6 +179,18 @@ def getDetail(detailUrl, option):
                     del pLine['style']
             except:
                 pass
+            # 2023.11.11 video를 p로 감싸기
+            try:
+                if pLine.name == "video":
+                    pLine = pLine.wrap(detailSoup.new_tag("p"))
+            except:
+                pass
+            # 2023.11.11 img를 p로 감싸기
+            try:
+                if pLine.name == "img":
+                    pLine = pLine.wrap(detailSoup.new_tag("p"))
+            except:
+                pass
             # tag 없는 일반 문자열만 있을 경우 .select() 실행시 오류 발생하여 분기 처리
             try:
                 if isinstance(pLine, NavigableString):
@@ -184,19 +199,7 @@ def getDetail(detailUrl, option):
                         continue
                     else:
                         pLine = "<div><span>" + pLine + "</span></div>"
-                else:
-                    # 2023.11.09 P태그가 없을 경우에만 처리
-                    if pLine.name != "p":
-                        # 이미지 태그를 P태그로 감싸기
-                        # 2021.03.13 기능 살림
-                        for img in pLine.select("img"):
-                            img.wrap(detailSoup.new_tag("p"))
-                        # 2023.11.09 video 태그를 P태그로 감싸기
-                        for video in pLine.select("video"):
-                            video.wrap(detailSoup.new_tag("p"))
-            except AttributeError as e:
-                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", 예외가 발생했습니다." + str(e) + ", 오류가 발생한 곳은 : " + str(e.__traceback__.tb_lineno))
-                # 에러 발생해도 무시 - 아래 코드들이 문자열 처리하는 기능이라서 실행되도 상관 없음
+            except:
                 pass
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
@@ -501,7 +504,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/16207773"
+"https://ggoorr.net/all/16218433"
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
