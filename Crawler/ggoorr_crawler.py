@@ -144,12 +144,6 @@ def getDetail(detailUrl, option):
             if str(pLine) == '<p></p>':
                 continue
 
-            # 2023.09.27 불필요 태그 삭제
-            try:
-                if pLine['style'] is not None:
-                    continue
-            except:
-                pass
             # 2023.03.21 video height 속성 삭제
             try:
                 if pLine.name == "video":
@@ -504,7 +498,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/16218433"
+"https://ggoorr.net/all/16231608"
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
