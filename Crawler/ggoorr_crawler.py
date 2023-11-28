@@ -144,11 +144,18 @@ def getDetail(detailUrl, option):
             if str(pLine) == '<p></p>':
                 continue
             # 2023.11.24 <ins 존재할 경우 다음으로 진행
-            if pLine.find('ins') is not None:
+            # 2023.11.29 -1 조건 추가
+            if pLine.find('ins') is not None and pLine.find('ins') != -1:
                 continue
             try:
                 # 2023.11.24 title이 Advertisement 있으면 다음으로 진행
                 if pLine['title'] == 'Advertisement':
+                    continue
+            except:
+                pass
+            # 2023.11.29 불필요 <p style="text-align:center;"></p> 제외
+            try:
+                if pLine['style'] == 'text-align:center;' and pLine.get_text() == '':
                     continue
             except:
                 pass
@@ -507,7 +514,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/16273213"
+"https://ggoorr.net/all/16297847"
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
