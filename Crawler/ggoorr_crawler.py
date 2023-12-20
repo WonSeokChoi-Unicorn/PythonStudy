@@ -50,7 +50,6 @@ regex2 = r"embed/([a-zA-Z0-9_-]+)"
 def getDetail(detailUrl, option):
     # 2022.12.06 게시글 순번으로 sort
     # 2023.07.10 수정
-    # realwritetime = detailUrl[23:detailUrl.index("?")]
     match1 = re.search(regex1, detailUrl)
     if match1:
         realwritetime = match1.group()
@@ -306,21 +305,10 @@ def getDetail(detailUrl, option):
                 # 전체 URL로 변경
                 pLineText = pLineText.replace('src="/files/', 'src="https://ggoorr.net/files/')
                 tempStr = pLineText
-                # # src 확인
-                # ggoorrvideourl = BeautifulSoup(pLineText, 'lxml').find('video')['src']
-                # # cv2 객체 생성
-                # ggoorrvideo = cv2.VideoCapture(ggoorrvideourl)
-                # # cv3 객체 폭
-                # ggoorrvideowidth = int(ggoorrvideo.get(cv2.CAP_PROP_FRAME_WIDTH))
-                # # cv2 객체 해제
-                # ggoorrvideo.release()
-                # # 모바일 환경 고려하여 333을 넘길 경우 수정
-                # if ggoorrvideowidth > 333:
-                #     tempStr = pLineText.replace("<video", '<video width="333"')
-                # else:
-                #     tempStr = pLineText
             # 줄 끝에 줄 바꿈 처리
-            articleString += tempStr + "\n"
+            # 2023.12.20 pLine 내에 처리 부분 포함 되어 있어서 다시 처리 추가
+            articleString += re.sub(r'<p>\xa0*</p>|\xa0|\n', '', tempStr) + '\n'
+            # articleString += tempStr.replace('<p>\xa0</p>', '').replace('\n', '').replace('\xa0', '') + "\n"
         # 03 게시글 끝에 꼬릿말 추가
         articleString += articleTail
         # 04 cdn.ggoorr.net은 프록시 서버 경유
@@ -361,10 +349,8 @@ def searchList(page):
         soup = BeautifulSoup(html, 'lxml')
         # tbody 에 필요한 게시글 목록이 있어 해당 영역 가져오기 처리
         # 2022.07.24 가져오는 방식 변경
-        # tbody = soup.select('.bd_tb_lst tbody')
         tbody = soup.find('table', 'bd_lst bd_tb_lst bd_tb')
         # 2022.07.24 가져오는 방식 변경
-        # contentsBody = tbody[0]
         contentsBody = tbody.find('tbody')
         # 게시글 처리 순서 저장
         nCnt = 1
@@ -427,7 +413,6 @@ def searchList(page):
                             writetime = datetime.strptime((time1 + " " + time2), '%Y.%m.%d %H:%M')
                     else:
                         pass
-                # end of [for tdTag in trOne.select('td'):]
 
                 # 게시물 1개에 대한 처리여부 확인 로직 시작......
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", category : " + cate)
@@ -436,23 +421,7 @@ def searchList(page):
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", writetime : " + writetime.strftime('%Y-%m-%d %H:%M:%S'))
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", detailUrl : " + detailUrl)
 
-                # # 전일 오전 7시
-                # yesterday = datetime.today() - timedelta(days=1)
-                # fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
-                # # 당일 오전 6시 59분 59초
-                # todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
-                # # 정상 처리
-                # if(writetime > todate):
-                #     print("작성 안 하고, 다음 게시물 조회 (당일 6시 59분 59초 초과)")
-                #     pass
-                # elif writetime < fromdate:
-                #     print("작성 대상 아님 - (전일 7시 미만)")
-                #     pass
-                #     # return False
-                # else :
-                #     print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
             nCnt += 1
-            # end of [for trOne in contentsBody.select('tr'):]
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "========== " +  str(page) + " page end ==========")
         return True
     else:
@@ -514,7 +483,8 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/16297847"
+"https://ggoorr.net/all/16402540",
+"https://ggoorr.net/all/16400245",
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
