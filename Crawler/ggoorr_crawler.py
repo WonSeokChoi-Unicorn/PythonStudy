@@ -324,8 +324,8 @@ def getDetail(detailUrl, option):
         fileContent += "\n"
         fileContent += articleString
         fileContent += "\n"
-        # realwritetime을 key로해서 html코드를 value로 저장
-        contentDictionary[realwritetime] = fileContent
+        # writetimetemp + realwritetime을 key로해서 html코드를 value로 저장
+        contentDictionary[writetimetemp + ":" + realwritetime] = fileContent
     else :
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", >>>> GET ERROR.....")
     # 대기
