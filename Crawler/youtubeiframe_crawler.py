@@ -13,8 +13,8 @@ from yt_iframe import yt
 import os
 # 날짜 시간 처리 위해 datetime를 import 한다.
 from datetime import datetime
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+# from selenium.webdriver.chrome.service import Service
+# from webdriver_manager.chrome import ChromeDriverManager
 
 
 # 유튜브 URL 정리한 텍스트 파일을 한 줄씩 읽어 옵니다
@@ -40,7 +40,8 @@ options.add_experimental_option("excludeSwitches", ["enable-logging"])
 # 크롬 브라우저 안 보이게
 options.add_argument('headless')
 # driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
-driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
+driver = webdriver.Chrome(options = options)
+# driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
 
 for line in reversed(lines):
     utubeKey = ""       # 유튜브 키값 초기화
@@ -120,7 +121,7 @@ for line in reversed(lines):
 
     # 파일에 저장 (계속)
     fileContent = tempstr
-    
+
     if (fw is not None) and fw.write(fileContent):
         print("fileContent write OK ")
     else:

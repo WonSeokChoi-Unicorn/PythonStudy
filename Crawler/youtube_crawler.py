@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 # iframe TAG 작성을 위해 yt를 import 한다.
 # pip install yt-iframe
-from yt_iframe import yt 
+from yt_iframe import yt
 # 월, 년 단위 계산 위해서 relativedelta를 import 한다.
 from dateutil.relativedelta import relativedelta
 # 숫자만 추출하기 위한 re를 import 한다.
@@ -20,8 +20,8 @@ import time
 # 카카오 번역
 # pip install kakaotrans
 from kakaotrans import Translator
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+# from selenium.webdriver.chrome.service import Service
+# from webdriver_manager.chrome import ChromeDriverManager
 
 # <p>채널명 [1번만 표시]</p><p>제목</p><p><a>URL</a></p><p><iframe></p> 로 작성
 
@@ -87,7 +87,8 @@ options.add_experimental_option("excludeSwitches", ["enable-logging"])
 # 크롬 브라우저 안 보이게
 options.add_argument('headless')
 # driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
-driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
+driver = webdriver.Chrome(options = options)
+# driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
 
 # 채널 리스트를 차례대로 불러옵니다.
 for u in range(0, len(urllist)):
@@ -165,7 +166,7 @@ for u in range(0, len(urllist)):
 
     # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # firsturl이란 변수에 저장합니다.
-    try:        
+    try:
         firsturl = [soup.find_all('a', {'id' : 'video-title-link'})[n].get('href') for n in range(0, len(all_url))]
     except:
         firsturl = [soup.find_all('a', {'id' : 'video-title'})[n].get('href') for n in range(0, len(all_url))]
@@ -194,7 +195,7 @@ for u in range(0, len(urllist)):
         # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
         f = open(nowDate.strftime('%Y-%m-%d') + '_youtube.txt', mode = 'wt', encoding = 'utf-8')
 
-    # 채널명은 반복문 전 파일에 1번만 저장하도록 
+    # 채널명은 반복문 전 파일에 1번만 저장하도록
     # channelheader = "<p>" + channelname[0] + "</p>"
     channelheader = "<p>" + "#####*****" + channelname + "</p>"
     channelheader += "\n"
@@ -289,7 +290,7 @@ for u in range(0, len(urllist)):
 
             # 파일에 저장 (계속)
             fileContent += tempstr
-            
+
             if (f is not None) and f.write(fileContent):
                 print("fileContent write OK ")
             else:
