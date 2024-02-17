@@ -71,7 +71,8 @@ def getDetail(detailUrl, option):
         # HTML을 'lxml(XML, HTML 처리)'를 사용하여 분석
         detailSoup = BeautifulSoup(detailHtml, 'lxml')
         # 제목
-        title = detailSoup.find('h1', attrs = {"class" : "np_18px"}).get_text().strip()
+        title = detailSoup.find('h1').get_text().strip()
+        # title = detailSoup.find('h1', attrs = {"class" : "np_18px"}).get_text().strip()
         # 작성 날짜/시간
         writetimetemp = detailSoup.find('time', attrs = {"class" : "date m_no"}).get_text().strip()
         writetime = datetime(int(writetimetemp[:3 + 1]), int(writetimetemp[5:6 + 1]), int(writetimetemp[8:9 + 1]), int(writetimetemp[11:12 + 1]), int(writetimetemp[14:15 + 1]), 0)
@@ -282,11 +283,18 @@ def getDetail(detailUrl, option):
                 if embedutubeKey in youtubekeylist:
                     # 2023.07.10 이전에 저장된 유튜브 키값이 있으면 중복으로 iframe 처리 되니 다음으로 진행
                     continue
-            # 트위터 주소 찾기
+            # 구. 트위터 주소 찾기
             try:
                 # 2023.03.14 추가
                 if 'https://twitter.com/' in pLine.find('a')['href']:
                     tempStr = pLineText + '<p><blockquote class="twitter-tweet" lang="en"><a href="' + pLine.find('a')['href'] + '"></a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
+            except:
+                pass
+            # X 주소 찾기
+            try:
+                # 2024.02.17 추가
+                if 'https://x.com/' in pLine.find('a')['href']:
+                    tempStr = pLineText + '<p><blockquote class="twitter-tweet" lang="en"><a href="' + pLine.find('a')['href'].replace('https://x.com/', 'https://twitter.com/') + '"></a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
             except:
                 pass
             # 트위터 iframe 찾기
@@ -483,8 +491,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/16402540",
-"https://ggoorr.net/all/16400245",
+"https://ggoorr.net/all/16673879",
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
