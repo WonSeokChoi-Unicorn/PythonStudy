@@ -153,9 +153,15 @@ def getDetail(detailUrl, option):
                     continue
             except:
                 pass
+            # 2024.02.29 불필요 style='width:1px;height:1px;overflow:hidden;' 제외
+            try:
+                if pLine['style'] == 'width:1px;height:1px;overflow:hidden;' and pLine.get_text().strip() == '':
+                    continue
+            except:
+                pass
             # 2023.11.29 불필요 <p style="text-align:center;"></p> 제외
             try:
-                if pLine['style'] == 'text-align:center;' and pLine.get_text() == '':
+                if pLine['style'] == 'text-align:center;' and pLine.get_text().strip() == '':
                     continue
             except:
                 pass
@@ -491,7 +497,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/16673879",
+"https://ggoorr.net/all/16730933",
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
