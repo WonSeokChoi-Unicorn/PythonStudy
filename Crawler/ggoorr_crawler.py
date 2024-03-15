@@ -74,7 +74,7 @@ def getDetail(detailUrl, option):
         title = detailSoup.find('h1').get_text().strip()
         # title = detailSoup.find('h1', attrs = {"class" : "np_18px"}).get_text().strip()
         # 작성 날짜/시간
-        writetimetemp = detailSoup.find('time', attrs = {"class" : "date m_no"}).get_text().strip()
+        writetimetemp = detailSoup.find('time')['datetime']
         writetime = datetime(int(writetimetemp[:3 + 1]), int(writetimetemp[5:6 + 1]), int(writetimetemp[8:9 + 1]), int(writetimetemp[11:12 + 1]), int(writetimetemp[14:15 + 1]), 0)
 
         # 2023.07.21 실행 시간에 따라서 기준(시작~종료) 시간을 변경
@@ -370,7 +370,7 @@ def searchList(page):
         nCnt = 1
         # tr - 개별 게시글 확인
         for trOne in contentsBody.select('tr'):
-            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "---------- [ " + str(page) + " page / " + str(nCnt) + " line ] ----------")
+            print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", ---------- [ " + str(page) + " page / " + str(nCnt) + " line ] ----------")
 
             # 공지글은 생략
             if None != trOne.get('class'):
@@ -436,7 +436,7 @@ def searchList(page):
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", detailUrl : " + detailUrl)
 
             nCnt += 1
-        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "========== " +  str(page) + " page end ==========")
+        print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", ========== " +  str(page) + " page end ==========")
         return True
     else:
         print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", " + GGOORR_DETAIL_URL + str(page) + " >>>> GET ERROR.....")
