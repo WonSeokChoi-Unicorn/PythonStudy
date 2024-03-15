@@ -349,7 +349,7 @@ def getDetail(detailUrl, option):
 # 게시글 처리 대상 - 전일 오전 7시 ~ 당일 오전 6시 59분 59초
 def searchList(page):
 
-    print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " ========== " + str(page) + " page start ==========")
+    print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", ========== " + str(page) + " page start ==========")
     # 봇 방지 웹사이트 회피
     headers = {'User-Agent': generate_user_agent(device_type = 'desktop') }
     res = requests.get(GGOORR_DETAIL_URL + str(page), headers = headers)
