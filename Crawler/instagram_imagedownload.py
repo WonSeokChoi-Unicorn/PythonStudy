@@ -6,7 +6,6 @@ from selenium.webdriver.common.by import By
 import os
 from datetime import datetime
 import time
-from user_agent import generate_user_agent
 import re
 import requests
 
