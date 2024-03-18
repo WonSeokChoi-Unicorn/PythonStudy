@@ -1,16 +1,14 @@
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
 # 파일 존재 여부 확인 위한 os를 import 한다.
 import os
 from datetime import datetime
-import urllib.request
 import time
 from user_agent import generate_user_agent
 import re
+import requests
 
 # 오늘 날짜를 YYYYMMDD 형태로 변경
 todaytime = datetime.today().strftime('%Y%m%d%H%M')
@@ -32,14 +30,14 @@ options = webdriver.ChromeOptions()
 # 로그를 없애는 설정
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
 # 크롬 브라우저 안 보이게
-options.add_argument('headless')
+options.add_argument('--headless')
 
 # 이미지를 저장할 인스타그램 URL들
 urls = [
-        'https://www.instagram.com/p/B-ouuLwDjy8/?utm_source=ig_web_button_share_sheet'
+        'https://www.instagram.com/p/C4nVGt9P4g5/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=='
        ]
 # 웹드라이버 실행
-browser = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
+browser = webdriver.Chrome(options = options)
 # url 만들기
 urlload = "https://sssinstagram.com/ko"
 # url 로드
@@ -50,7 +48,7 @@ for url in urls:
     match = re.search(pattern, url)
     post_id = match.group(1)
     # image 저장할 경로
-    savepath = "C:\\temp\\" + todaytime + "_" + post_id + "\\"
+    savepath = "C:\\temp\\instagramimages\\" + todaytime + "_" + post_id + "\\"
     # image 저장할 경로 체크 및 생성
     createDirectory(savepath)
     # 주소란에 입력
@@ -73,14 +71,14 @@ for url in urls:
         imgsrc = download.find('a')
         # 이미지 파일명
         imagesave = savepath + post_id + "_" + str(cnt) + ".jpg"
-        # 403 forbidden 회피 객체
-        opener = urllib.request.URLopener()
-        # 403 forbidden 회피 객체 헤더 추가
-        opener.addheader('User-Agent', generate_user_agent(device_type = 'desktop'))
         # 진행
         print(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ", " + str(downloads.index(download) + 1) + "/" + str(len(downloads)) + ", " + imgsrc['href'])
-        # 이미지 저장
-        opener.retrieve(imgsrc['href'], imagesave)
+        # 이미지 호출
+        response = requests.get(imgsrc['href'])
+        if response.status_code == 200:
+            # 이미지 저장
+            with open(imagesave, "wb") as file:
+                file.write(response.content)
         # 카운트 증가
         cnt += 1
 # 웹드라이버 종료
