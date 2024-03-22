@@ -162,7 +162,9 @@ def getDetail(detailUrl, option):
             # 2023.11.29 불필요 <p style="text-align:center;"></p> 제외
             try:
                 if pLine['style'] == 'text-align:center;' and pLine.get_text().strip() == '':
-                    continue
+                    # img 태그 있으면 다음 pLine으로 진행하지 않음
+                    if not pLine.find('img'):
+                        continue
             except:
                 pass
 
@@ -497,7 +499,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/16730933",
+"https://ggoorr.net/all/16828395",
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
