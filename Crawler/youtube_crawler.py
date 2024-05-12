@@ -111,40 +111,20 @@ for u in range(0, len(urllist)):
     # html을 'lxml' parser를 사용하여 분석합니다.
     soup = BeautifulSoup(html, 'lxml')
 
-    # channelname 조건에 맞는 모든 div 태그의 hidden style-scope paper-tooltip class들을 가져옵니다.
-    # 2021.02.23 웹사이트 변경
-    # 2022.06.26 가져오는 태그 변경 tp-yt-paper-tooltip의 class = style-scope ytd-channel-name
-    # allchannelname = soup.find_all('div', 'hidden style-scope tp-yt-paper-tooltip')
-    # 2024.05.12 attrs로 가져오기 변경
-    allchannelname = soup.find_all('tp-yt-paper-tooltip', attrs = {"class" : "style-scope ytd-channel-name"})
+    # 2024.05.12 meta 가져오기
+    allchannelname = soup.find('meta', attrs = {"name" : "twitter:title"})
 
-    # channelname 변수에 저장합니다.
-    # 2021.03.25 [6] -> [7] 로 변경
-    # 2021.08.03 [7] -> [6] 로 변경
-    # 2022.02.06 루프 돌지 않고 바로 가져 옴
-    # 2022.06.26 가져오는 태그 변경, [1] -> [0] 로 변경
-    # channelname = [soup.find_all('div','hidden style-scope tp-yt-paper-tooltip')[6].string for n in range(0,len(allchannelname))]
-    channelname = allchannelname[0].get_text()
+    # content 항목 가져오기
+    channelname = allchannelname['content']
 
-    # 루프 돌지 않고 바로 가져 옴
-    # 채널명에 줄 바꿈이 있어서 제거합니다.
-    # 2022.06.26 좌우 공백 제거
-    # for i in range(len(channelname)):
-    #     channelname[i] = channelname[i].replace("\n", "")
-    # channelname = channelname.replace("\n", "")
+    # 공백 제거
     channelname = channelname.strip()
-
-    # 2024.05.12 혹시 채널명 안 나올 경우 대비하여 추가
-    if len(channelname) == 0:
-        print("Channelname Retry")
-        channelname = driver.find_elements(By.XPATH, '//yt-formatted-string[@id="text"]')[0].text
 
     # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # title 조건에 맞는 모든 a 태그의 class들을 가져옵니다.
     all_title = soup.find_all('a', 'yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')
     if len(all_title) == 0:
         all_title = soup.find_all('a', 'yt-simple-endpoint style-scope ytd-grid-video-renderer')
-        # yt-simple-endpoint style-scope ytd-grid-video-renderer
 
     # 제목이 영어일 경우 한국어로 구글 번역
     englishchannel = ['Kurzgesagt – In a Nutshell', 'TED-Ed', 'Vox']
