@@ -114,7 +114,8 @@ for u in range(0, len(urllist)):
     # 2021.02.23 웹사이트 변경
     # 2022.06.26 가져오는 태그 변경 tp-yt-paper-tooltip의 class = style-scope ytd-channel-name
     # allchannelname = soup.find_all('div', 'hidden style-scope tp-yt-paper-tooltip')
-    allchannelname = soup.find_all('tp-yt-paper-tooltip', 'style-scope ytd-channel-name')
+    # 2024.05.12 attrs로 가져오기 변경
+    allchannelname = soup.find_all('tp-yt-paper-tooltip', attrs = {"class" : "style-scope ytd-channel-name"})
 
     # channelname 변수에 저장합니다.
     # 2021.03.25 [6] -> [7] 로 변경
