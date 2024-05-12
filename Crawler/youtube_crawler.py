@@ -1,6 +1,7 @@
 # selenium에서 webdriver를 사용할 수 있게 webdriver를 import 한다.
 # pip install selenium --upgrade
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 # BeautifulSoup4를 import 한다.
 # pip install beautifulsoup4 --upgrade
 # lxml 설치 필요합니다 (pip install lxml)
@@ -132,6 +133,11 @@ for u in range(0, len(urllist)):
     #     channelname[i] = channelname[i].replace("\n", "")
     # channelname = channelname.replace("\n", "")
     channelname = channelname.strip()
+
+    # 2024.05.12 혹시 채널명 안 나올 경우 대비하여 추가
+    if len(channelname) == 0:
+        print("Channelname Retry")
+        channelname = driver.find_elements(By.XPATH, '//yt-formatted-string[@id="text"]')[0].text
 
     # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
     # title 조건에 맞는 모든 a 태그의 class들을 가져옵니다.
