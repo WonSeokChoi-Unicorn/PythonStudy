@@ -68,6 +68,7 @@ urllist = [
            'https://www.youtube.com/@ddeunddeun/videos',
            'https://www.youtube.com/@yuna_ogura/videos',
            'https://www.youtube.com/@haeinleezy/videos',
+           'https://www.youtube.com/@SMGI/videos',
           ]
 # TEST
 # urllist = [
