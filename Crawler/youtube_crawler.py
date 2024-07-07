@@ -61,7 +61,7 @@ urllist = [
            'https://www.youtube.com/channel/UCjHn_Os5NoCXZyoXzuKth9w/videos',
            'https://www.youtube.com/channel/UCLcfz3EIgDw01VtRLZmrxDQ/videos',
            'https://www.youtube.com/@Sherlock_HJ/videos',
-           'https://www.youtube.com/@btv_piarchia/videos',
+           'https://www.youtube.com/@Btv%EC%9D%B4%EB%8F%99%EC%A7%84%EC%9D%98%ED%8C%8C%EC%9D%B4%EC%95%84%ED%82%A4%EC%95%84/videos',
            'https://www.youtube.com/@hansangki9105/videos',
            'https://www.youtube.com/@bamgongwon/videos',
            'https://www.youtube.com/@TTimesTV/videos',
