@@ -25,7 +25,7 @@ runlog = open('D:\\Python\LOG\\' + todaytime + '_ggoorr_output.txt', 'w', encodi
 # 꾸르 메인 주소
 GGOORR_MAIN_URL = "https://ggoorr.net"
 # 꾸르 상세 주소
-GGOORR_DETAIL_URL = 'https://ggoorr.net/index?page='
+GGOORR_DETAIL_URL = 'https://ggoorr.net/tei?page='
 # 에러 발생 URL 모음
 errorurls = []
 # 파일 변수 글로벌로 이동
@@ -382,7 +382,6 @@ def searchList(page):
                     continue
             else:
                 # 변수 초기화
-                cate = ""
                 title = ""
                 author = ""
                 time1 = ""
@@ -395,10 +394,7 @@ def searchList(page):
                 for tdTag in trOne.select('td'):
                     # td 태그의 class 가져오기
                     classNm = tdTag["class"][0]
-                    if classNm == "cate":
-                        # 카테고리
-                        cate = tdTag.get_text()
-                    elif classNm == "title":
+                    if classNm == "title":
                         # 제목 및 URL
                         # 2023.09.19 가져오는 코드 수정
                         alist = tdTag.find_all('a', attrs = {"class" : "hx"})
@@ -431,7 +427,6 @@ def searchList(page):
                         pass
 
                 # 게시물 1개에 대한 처리여부 확인 로직 시작......
-                print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", category : " + cate)
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", title : " + title)
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", author : " + author)
                 print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ", writetime : " + writetime.strftime('%Y-%m-%d %H:%M:%S'))
