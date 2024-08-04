@@ -34,6 +34,7 @@ urllist = [
            'https://www.youtube.com/c/movietrip%EB%AC%B4%EB%B9%84%ED%8A%B8%EB%A6%BD/videos',
            'https://www.youtube.com/channel/UC5aNQ65ADb02zEJxzb_zmYQ/videos',
            'https://www.youtube.com/user/rladndgussla/videos',
+           'https://www.youtube.com/@%EA%B9%80%EB%B0%94%EB%B9%84/videos',
            'https://www.youtube.com/c/%EB%8F%88%EB%A6%BD%EB%A7%8C%EC%84%B8/videos',
            'https://www.youtube.com/@ddeunddeun/videos',
            'https://www.youtube.com/c/Owlsreview/videos',
