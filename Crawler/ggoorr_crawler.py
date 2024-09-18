@@ -219,6 +219,12 @@ def getDetail(detailUrl, option):
                         pLine = "<div><span>" + pLine + "</span></div>"
             except:
                 pass
+            try:
+                # https://aagag.com/issue 시작하는 a 링크인 경우 다음으로 진행
+                if pLine.find('a')['href'].startswith("https://aagag.com/issue"):
+                    continue
+            except:
+                pass
             # 유튜브 주소를 찾아서 링크 url 변경 처리, 유튜브 주소 없을경우는 변경없이 저장
             pLineText = str(pLine)
             # 유튜브 짧은 주소 접두어
