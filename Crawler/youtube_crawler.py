@@ -1,7 +1,5 @@
-# selenium에서 webdriver를 사용할 수 있게 webdriver를 import 한다.
-# pip install selenium --upgrade
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+# <p>채널명</p><p>제목</p><p><a>URL</a></p><p><iframe></p> 로 작성
+
 # BeautifulSoup4를 import 한다.
 # pip install beautifulsoup4 --upgrade
 # lxml 설치 필요합니다 (pip install lxml)
@@ -11,282 +9,215 @@ from datetime import datetime, timedelta
 # iframe TAG 작성을 위해 yt를 import 한다.
 # pip install yt-iframe
 from yt_iframe import yt
-# 월, 년 단위 계산 위해서 relativedelta를 import 한다.
-from dateutil.relativedelta import relativedelta
 # 숫자만 추출하기 위한 re를 import 한다.
 import re
-# 파일 존재 여부 확인 위한 os를 import 한다.
-import os
-import time
 # 카카오 번역
 # pip install kakaotrans
 from kakaotrans import Translator
-# from selenium.webdriver.chrome.service import Service
-# from webdriver_manager.chrome import ChromeDriverManager
+import pytz
+import json
+import asyncio
+import aiohttp
 
-# <p>채널명 [1번만 표시]</p><p>제목</p><p><a>URL</a></p><p><iframe></p> 로 작성
+# 시간1
+datetime1 = datetime.now()
+print(datetime1.strftime('%Y-%m-%d %H:%M:%S') + " - Starting")
 
-# 추출할 유튜브 채널의 동영상 탭
-urllist = [
-           'https://www.youtube.com/c/14FMBC/videos',
-           'https://www.youtube.com/c/BMan%EC%82%90%EB%A7%A8/videos',
-           'https://www.youtube.com/@Btv%EC%9D%B4%EB%8F%99%EC%A7%84%EC%9D%98%ED%8C%8C%EC%9D%B4%EC%95%84%ED%82%A4%EC%95%84/videos',
-           'https://www.youtube.com/c/movietrip%EB%AC%B4%EB%B9%84%ED%8A%B8%EB%A6%BD/videos',
-           'https://www.youtube.com/channel/UC5aNQ65ADb02zEJxzb_zmYQ/videos',
-           'https://www.youtube.com/user/rladndgussla/videos',
-           'https://www.youtube.com/@%EA%B9%80%EB%B0%94%EB%B9%84/videos',
-           'https://www.youtube.com/c/%EB%8F%88%EB%A6%BD%EB%A7%8C%EC%84%B8/videos',
-           'https://www.youtube.com/@ddeunddeun/videos',
-           'https://www.youtube.com/c/Owlsreview/videos',
-           'https://www.youtube.com/@nicekiyoung/videos',
-           'https://www.youtube.com/@nofeetbird/videos',
-           'https://www.youtube.com/@red12734/videos',
-           'https://www.youtube.com/@443RohmoohyunFoundation/videos',
-           'https://www.youtube.com/@%EC%82%AC%EB%AC%BC%EA%B6%81%EC%9D%B4/videos',
-           'https://www.youtube.com/@%EC%84%B8%EB%AA%A8%EC%A7%80/videos',
-           'https://www.youtube.com/@Sherlock_HJ/videos',
-           'https://www.youtube.com/@%EC%86%8C%EB%B9%84%EB%8D%94%EB%A8%B8%EB%8B%88/videos',
-           'https://www.youtube.com/@syukaworld/videos',
-           'https://www.youtube.com/@syukaworld-comics/videos',
-           'https://www.youtube.com/@ens8388/videos',
-           'https://www.youtube.com/@yuna_ogura/videos',
-           'https://www.youtube.com/@OMG_electronics/videos',
-           'https://www.youtube.com/@autoview2009/videos',
-           'https://www.youtube.com/@jiaxi_lee/videos',
-           'https://www.youtube.com/@geniussklee/videos',
-           'https://www.youtube.com/@geniussklee_act2838/videos',
-           'https://www.youtube.com/@choemazon/videos',
-           'https://www.youtube.com/@TTimesTV/videos',
-           'https://www.youtube.com/@%ED%94%BD%EC%B8%84/videos',
-           'https://www.youtube.com/@HanSangKi/videos',
-           'https://www.youtube.com/@hansangki9105/videos',
-           'https://www.youtube.com/@TEDEd/videos',
-           'https://www.youtube.com/@kurzgesagt/videos',
-           'https://www.youtube.com/@Vox/videos',
-           'https://www.youtube.com/c/LGElectronicsKorea/videos',
-           'https://www.youtube.com/user/LGSTORY/videos',
-           'https://www.youtube.com/c/DisneyMovieKr/videos',
-           'https://www.youtube.com/c/MarvelKorea/videos',
-           'https://www.youtube.com/@ArgentUnicorn/videos'
-           'https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos',
-           'https://www.youtube.com/@bamgongwon/videos',
-           'https://www.youtube.com/@haeinleezy/videos',
-          ]
-# TEST
-# urllist = [
-# 'https://www.youtube.com/user/dlrldud1111/videos'
-# ]
+# 미국 태평양 시간(PST, -07:00)
+pst = pytz.timezone('America/Los_Angeles')
+# 한국 시간(KST, +09:00)
+kst = pytz.timezone('Asia/Seoul')
+
+# 대기 시간
+waittimedot5 = 0.5
+
+# iframe 태그 생성을 위해 폭과 높이를 설정
+width = '560'
+height = '315'
+
+# 한국어로 구글 번역할 영어 채널 리스트
+englishchannel = ['Kurzgesagt – In a Nutshell', 'TED-Ed', 'Vox']
 
 # 전일 오전 7시
 yesterday = datetime.today() - timedelta(days = 1)
-fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
+fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0, tzinfo = kst)
 
 # 당일 오전 6시 59분 59초
-todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59)
+todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59, tzinfo = kst)
+
+# 파일명을 날짜로 이용
+nowDate = datetime.now()
 
 # 카카오 번역 선언
 translator = Translator()
 
-options = webdriver.ChromeOptions()
-# 로그를 없애는 설정
-options.add_experimental_option("excludeSwitches", ["enable-logging"])
-# 크롬 브라우저 안 보이게
-options.add_argument('headless')
-# driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
-driver = webdriver.Chrome(options = options)
-# driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
+# 비동기 fetch 함수 정의
+async def fetch(session, yt_videoid, ):
+    # HTML 요청
+    async with session.get(yt_videoid) as response2:
+        if response2.status == 200:
+            Html2 = await response2.text()
+            Soup2 = BeautifulSoup(Html2, 'lxml')
 
-# 채널 리스트를 차례대로 불러옵니다.
-for u in range(0, len(urllist)):
-    # 초기화
-    allchannelname = []
-    channelname = []
-    title = []
+            # meta uploadDate 찾기
+            yt_datePublished = Soup2.find('meta', attrs = {"itemprop" : "datePublished"})['content']
+            yt_datePublisheddt = datetime.strptime(yt_datePublished, '%Y-%m-%dT%H:%M:%S%z')
 
-    # 원하는 사이트의 url을 입력하여 사이트를 연다.
-    driver.get(urllist[u])
-    # 네트워크 속도가 느림을 방지하기 위해서 3초 대기
-    time.sleep(3)
+            # PST 기준으로 datetime 객체 설정
+            yt_datePublisheddtpst = yt_datePublisheddt.astimezone(pst)
+            yt_datePublisheddtkst = yt_datePublisheddtpst.astimezone(kst)
 
-    # 로드 된 페이지 소스를 html이란 변수에 저장합니다.
-    html = driver.page_source
+            # 제목 추출
+            yt_title = Soup2.find('title').get_text().strip().replace(" - YouTube", "")
 
-    # html을 'lxml' parser를 사용하여 분석합니다.
-    soup = BeautifulSoup(html, 'lxml')
+            # 채널 찾기
+            channelname = Soup2.find('link', attrs = {"itemprop" : "name"})['content']
 
-    # 2024.05.12 meta 가져오기
-    allchannelname = soup.find('meta', attrs = {"name" : "twitter:title"})
+            # 영어 채널일 경우 제목 번역
+            if channelname in englishchannel:
+                yt_title = translator.translate(yt_title, src = 'en', tgt = 'kr')
 
-    # content 항목 가져오기
-    channelname = allchannelname['content']
-
-    # 공백 제거
-    channelname = channelname.strip()
-
-    # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
-    # title 조건에 맞는 모든 a 태그의 class들을 가져옵니다.
-    all_title = soup.find_all('a', 'yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')
-    if len(all_title) == 0:
-        all_title = soup.find_all('a', 'yt-simple-endpoint style-scope ytd-grid-video-renderer')
-
-    # 제목이 영어일 경우 한국어로 구글 번역
-    englishchannel = ['Kurzgesagt – In a Nutshell', 'TED-Ed', 'Vox']
-    # if channelname[0].strip() in englishchannel:
-    if channelname in englishchannel:
-        # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
-        try:
-            engtitle = [soup.find_all('a', 'yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')[n].string for n in range(0, len(all_title))]
-        except:
-            engtitle = [soup.find_all('a', 'yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0, len(all_title))]
-        for line in engtitle:
-            translateoutput = translator.translate(line, src = 'en', tgt = 'kr')
-
-            title.append(translateoutput)
-    else:
-        # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
-        # title이란 변수에 저장합니다.
-        try:
-            title = [soup.find_all('a', 'yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media')[n].string for n in range(0, len(all_title))]
-        except:
-            title = [soup.find_all('a', 'yt-simple-endpoint style-scope ytd-grid-video-renderer')[n].string for n in range(0, len(all_title))]
-
-    # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
-    # href 조건에 맞는 모든 a 태그의 id들을 가져옵니다.
-    all_url = soup.find_all('a', {'id' : 'video-title-link'})
-    if len(all_url) == 0:
-        all_url = soup.find_all('a', {'id' : 'video-title'})
-
-    # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
-    # firsturl이란 변수에 저장합니다.
-    try:
-        firsturl = [soup.find_all('a', {'id' : 'video-title-link'})[n].get('href') for n in range(0, len(all_url))]
-    except:
-        firsturl = [soup.find_all('a', {'id' : 'video-title'})[n].get('href') for n in range(0, len(all_url))]
-
-    # 2022.10.31 유튜브 웹사이트가 다른 모습으로 보여주는 경우 있어서 판단 처리
-    # time 조건에 맞는 모든 span 태그의 class들을 가져옵니다. title, url의 2배수.
-    all_time = soup.find_all('span', 'inline-metadata-item style-scope ytd-video-meta-block')
-    if len(all_time) == 0:
-        all_time = soup.find_all('span', 'style-scope ytd-grid-video-renderer')
-
-    # time이란 변수에 시간 정보(짝수)를 저장합니다.
-    # 분 전, 시간 전, 일 전, 주 전, 개월 전, 년 전
-    publishtime = [all_time[n].text for n in range(1, len(all_time), 2)]
-
-    # iframe 태그 생성을 위해 폭과 높이를 설정
-    width = '560'
-    height = '315'
-
-    # 파일명을 날짜로 이용하기 위해 글로벌로 이동
-    nowDate = datetime.now()
-
-    if os.path.isfile(nowDate.strftime('%Y-%m-%d') + '_youtube.txt'):
-        # 파일이 존재할 경우 추가, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-        f = open(nowDate.strftime('%Y-%m-%d') + '_youtube.txt', mode = 'at', encoding = 'utf-8')
-    else:
-        # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-        f = open(nowDate.strftime('%Y-%m-%d') + '_youtube.txt', mode = 'wt', encoding = 'utf-8')
-
-    # 채널명은 반복문 전 파일에 1번만 저장하도록
-    # channelheader = "<p>" + channelname[0] + "</p>"
-    channelheader = "<p>" + "#####*****" + channelname + "</p>"
-    channelheader += "\n"
-
-    print("##################################################################")
-    # print(channelname[0])
-    print(channelname)
-    print("##################################################################")
-
-    fileContent = channelheader
-
-    if (f is not None) and f.write(fileContent):
-        print("fileContent write OK ")
-
-    # 화면에 로드된 동영상 갯수만큼
-    for x in range(0, len(publishtime)):
-
-        delta = ''          # 개월, 년 차이 초기화
-        fileContent = ""    # fileContent 초기화
-        utubeKey = ""       # 유튜브 키값 초기화
-        url = ""            # url 초기화
-        iframe = ""         # iframe 초기화
-        tempstr = ""        # 임시 저장 초기화
-
-        if '분 전' in publishtime[x]:
-            # 분일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", publishtime[x])
-            writetime = datetime.today() - timedelta(minutes = int(timenumber[0]))
-        elif '시간 전' in publishtime[x]:
-            # 시간일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", publishtime[x])
-            writetime = datetime.today() - timedelta(hours = int(timenumber[0]))
-        elif '일 전' in publishtime[x]:
-            # 일일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", publishtime[x])
-            writetime = datetime.today() - timedelta(days = int(timenumber[0]))
-        elif '주 전' in publishtime[x]:
-            # 주일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", publishtime[x])
-            writetime = datetime.today() - timedelta(weeks = int(timenumber[0]))
-        elif '개월 전' in publishtime[x]:
-            # 개월일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", publishtime[x])
-            delta = relativedelta(months = int(timenumber[0]))
-            writetime = datetime.today() - delta
-        elif '년 전' in publishtime:
-            # 년일 경우 작성 시간 확인
-            timenumber = re.findall("\d+", publishtime[x])
-            delta = relativedelta(years = int(timenumber[0]))
-            writetime = datetime.today() - delta
-
-        # 2021.10.28 shorts 영상에 대한 처리 추가
-        # 2022.09.29 shorts key 가져오는 방식 변경
-        if "/shorts/" in firsturl[x]:
-            # 유튜브 Video ID 추출
-            utubeKey = firsturl[x][firsturl[x].index("/shorts/") + 8 :]
-            # 유튜브 URL 만들기
-            url = 'https://www.youtube.com/shorts/' + str(utubeKey)
-            # iframe 태그 생성 - 아직 라이브러리가 없어서 수동 처리
-            iframe = '<iframe width="315" height="560" src="https://www.youtube.com/embed/' + str(utubeKey) + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
-        else:
-            # 유튜브 Video ID 추출
-            utubeKey = firsturl[x][9 : 9 + 11]
-            # 유튜브 URL 만들기
-            url = 'https://www.youtube.com/watch?v=' + str(utubeKey)
-            # iframe 태그 생성
-            iframe = yt.video(url, width = width, height = height)
-
-        if(writetime > todate):
-            print("작성 대상 아님 (당일 7시 이후)")
-            print(title[x])
-            print(url)
-            print(writetime)
-        elif writetime <= fromdate:
-            print("작성 대상 아님 (전일 7시 이전)")
-            print(title[x])
-            print(url)
-            print(writetime)
-        else:
-            print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
-            print(title[x])
-            print(url)
-            print(writetime)
-
-            # 태그들은 임시 변수에 저장
-            tempstr = "<p>" + title[x] + "</p>" # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
-            tempstr += "\n"
-            tempstr += '<p><a target=_blank href="' + url + '">' + url + '</a></p>'
-            tempstr += "\n"
-            tempstr += "<p>" + iframe + "</p>"
-            tempstr += "\n"
-
-            # 파일에 저장 (계속)
-            fileContent += tempstr
-
-            if (f is not None) and f.write(fileContent):
-                print("fileContent write OK ")
+            # 날짜 기준 체크
+            if yt_datePublisheddtkst > todate:
+                print("작성 대상 아님 (당일 7시 이후)")
+                print(yt_title)
+                print(yt_videoid)
+                print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
+            elif yt_datePublisheddtkst <= fromdate:
+                print("작성 대상 아님 (전일 7시 이전)")
+                print(yt_title)
+                print(yt_videoid)
+                print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
             else:
-                f.close
+                print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
+                print(yt_title)
+                print(yt_videoid)
+                print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
 
-# webdriver를 종료한다.
-driver.quit()
+                # iframe 생성
+                iframe = yt.video(yt_videoid, width = width, height = height)
+
+                # 파일에 저장할 내용
+                tempstr = f"<p>{yt_title}</p>\n"
+                tempstr += f'<p><a target=_blank href="{yt_videoid}">{yt_videoid}</a></p>\n'
+                tempstr += f"<p>{iframe}</p>\n"
+
+                return tempstr
+        return None
+
+async def main(urllist):
+    async with aiohttp.ClientSession() as session1:
+        for url in urllist:
+            response1 = await session1.get(url)
+            if response1.status == 200:
+                Html1 = await response1.text()
+                Soup1 = BeautifulSoup(Html1, 'lxml')
+                channelname = Soup1.find('title').get_text().strip().replace(" - YouTube", "")
+
+                # 채널명은 반복문 전 파일에 1번만 저장하도록
+                channelheader = "<p>" + "#####*****" + channelname + "</p>"
+                channelheader += "\n"
+
+                print("##################################################################")
+                print(channelname)
+                print("##################################################################")
+
+                fileContent = channelheader
+
+                if fileContent:
+                    filename = f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
+                    with open(filename, 'a', encoding='utf-8') as f:
+                        f.write(fileContent)
+                        print(f"File {filename} updated.")
+
+                del fileContent
+
+                yt_scripttags = Soup1.find_all('script', string = re.compile(r'ytInitialData'))
+                if yt_scripttags:
+                    yt_datascript = yt_scripttags[0].string
+                    yt_initialdata = re.search(r'ytInitialData\s*=\s*({.*?});', yt_datascript, re.DOTALL)
+
+                    if yt_initialdata:
+                        yt_initialdatajsonstr = yt_initialdata.group(1)
+                        yt_initialdata = json.loads(yt_initialdatajsonstr)
+                        yt_videoids = []
+
+                        yt_richgridrenderer = yt_initialdata.get("contents", {}).get("twoColumnBrowseResultsRenderer", {}).get("tabs", [])[1].get("tabRenderer", {}).get("content", {}).get("richGridRenderer", {})
+                        yt_gridcontents = yt_richgridrenderer.get("contents", [])
+
+                        for item in yt_gridcontents:
+                            yt_richitemrenderer = item.get("richItemRenderer", {})
+                            yt_videorenderer = yt_richitemrenderer.get("content", {}).get("videoRenderer", {})
+                            yt_videoid = yt_videorenderer.get("videoId", None)
+                            if yt_videoid:
+                                yt_videoids.append("https://www.youtube.com/watch?v=" + yt_videoid)
+
+                        tasks = [fetch(session1, yt_videoid) for yt_videoid in yt_videoids]
+                        results = await asyncio.gather(*tasks)
+
+                        fileContent = "\n".join(filter(None, results))
+                        if fileContent:
+                            filename = f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
+                            with open(filename, 'a', encoding='utf-8') as f:
+                                f.write(fileContent)
+                                print(f"File {filename} updated.")
+# 메인 실행
+if __name__ == "__main__":
+    # 추출할 유튜브 채널의 동영상 탭
+    urllist = [
+            'https://www.youtube.com/c/14FMBC/videos',
+            'https://www.youtube.com/c/BMan%EC%82%90%EB%A7%A8/videos',
+            'https://www.youtube.com/@Btv%EC%9D%B4%EB%8F%99%EC%A7%84%EC%9D%98%ED%8C%8C%EC%9D%B4%EC%95%84%ED%82%A4%EC%95%84/videos',
+            'https://www.youtube.com/c/movietrip%EB%AC%B4%EB%B9%84%ED%8A%B8%EB%A6%BD/videos',
+            'https://www.youtube.com/channel/UC5aNQ65ADb02zEJxzb_zmYQ/videos',
+            'https://www.youtube.com/user/rladndgussla/videos',
+            'https://www.youtube.com/@%EA%B9%80%EB%B0%94%EB%B9%84/videos',
+            'https://www.youtube.com/c/%EB%8F%88%EB%A6%BD%EB%A7%8C%EC%84%B8/videos',
+            'https://www.youtube.com/@ddeunddeun/videos',
+            'https://www.youtube.com/c/Owlsreview/videos',
+            'https://www.youtube.com/@nicekiyoung/videos',
+            'https://www.youtube.com/@nofeetbird/videos',
+            'https://www.youtube.com/@red12734/videos',
+            'https://www.youtube.com/@443RohmoohyunFoundation/videos',
+            'https://www.youtube.com/@%EC%82%AC%EB%AC%BC%EA%B6%81%EC%9D%B4/videos',
+            'https://www.youtube.com/@%EC%84%B8%EB%AA%A8%EC%A7%80/videos',
+            'https://www.youtube.com/@Sherlock_HJ/videos',
+            'https://www.youtube.com/@%EC%86%8C%EB%B9%84%EB%8D%94%EB%A8%B8%EB%8B%88/videos',
+            'https://www.youtube.com/@syukaworld/videos',
+            'https://www.youtube.com/@syukaworld-comics/videos',
+            'https://www.youtube.com/@ens8388/videos',
+            'https://www.youtube.com/@yuna_ogura/videos',
+            'https://www.youtube.com/@OMG_electronics/videos',
+            'https://www.youtube.com/@autoview2009/videos',
+            'https://www.youtube.com/@jiaxi_lee/videos',
+            'https://www.youtube.com/@geniussklee/videos',
+            'https://www.youtube.com/@geniussklee_act2838/videos',
+            'https://www.youtube.com/@choemazon/videos',
+            'https://www.youtube.com/@TTimesTV/videos',
+            'https://www.youtube.com/@%ED%94%BD%EC%B8%84/videos',
+            'https://www.youtube.com/@HanSangKi/videos',
+            'https://www.youtube.com/@hansangki9105/videos',
+            'https://www.youtube.com/@TEDEd/videos',
+            'https://www.youtube.com/@kurzgesagt/videos',
+            'https://www.youtube.com/@Vox/videos',
+            'https://www.youtube.com/c/LGElectronicsKorea/videos',
+            'https://www.youtube.com/user/LGSTORY/videos',
+            'https://www.youtube.com/c/DisneyMovieKr/videos',
+            'https://www.youtube.com/c/MarvelKorea/videos',
+            'https://www.youtube.com/@ArgentUnicorn/videos',
+            'https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos',
+            'https://www.youtube.com/@bamgongwon/videos',
+            'https://www.youtube.com/@haeinleezy/videos',
+            ]
+
+    # TEST
+    # urllist = [
+    # 'https://www.youtube.com/user/dlrldud1111/videos'
+    # ]
+
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.run(main(urllist))
+    # 시간1과 시간2의 차이를 구한다
+    datetime2 = datetime.now()
+    print(datetime1.strftime('%Y-%m-%d %H:%M:%S') + " ~ " + datetime2.strftime('%Y-%m-%d %H:%M:%S') + " - Ending")
+    print(datetime2 - datetime1)
