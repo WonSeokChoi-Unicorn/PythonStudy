@@ -16,7 +16,7 @@ todaytime = datetime.today().strftime('%Y%m%d%H%M%S')
 todaytimeHH = datetime.today().strftime('%H')
 
 # 실행 과정을 기록할 파일
-runlog = open('D:\\Python\LOG\\' + todaytime + '_ggoorr_output.txt', 'w', encoding = 'utf-8')
+runlog = open('D:\\Python\\LOG\\' + todaytime + '_ggoorr_output.txt', 'w', encoding = 'utf-8')
 # 정상 실행
 # sys.stdout = runlog
 # 실행 오류
