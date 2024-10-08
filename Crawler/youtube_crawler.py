@@ -40,10 +40,10 @@ englishchannel = ['Kurzgesagt – In a Nutshell', 'TED-Ed', 'Vox']
 
 # 전일 오전 7시
 yesterday = datetime.today() - timedelta(days = 1)
-fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0, tzinfo = kst)
+fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0).astimezone(kst)
 
 # 당일 오전 6시 59분 59초
-todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59, tzinfo = kst)
+todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59).astimezone(kst)
 
 # 파일명을 날짜로 이용
 nowDate = datetime.now()
