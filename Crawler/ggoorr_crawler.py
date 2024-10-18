@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 # pip install user-agent
 from user_agent import generate_user_agent
 import html
-import cv2
 import re
 
 # 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
@@ -151,6 +150,13 @@ def getDetail(detailUrl, option):
                 # 2023.11.24 title이 Advertisement 있으면 다음으로 진행
                 if pLine['title'] == 'Advertisement':
                     continue
+            except:
+                pass
+            try:
+                # 2024.10.19 fontawesome 있으면 다음으로 진행
+                for pLineimg_tag in pLine.find_all('img'):
+                    if pLineimg_tag.get('src', '').startswith('../../common/fontawesome'):
+                        pLineimg_tag.decompose()
             except:
                 pass
             # 2024.02.29 불필요 style='width:1px;height:1px;overflow:hidden;' 제외
@@ -500,7 +506,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/16828395",
+"https://ggoorr.net/all/17424349",
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
