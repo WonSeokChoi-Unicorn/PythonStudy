@@ -136,8 +136,8 @@ def getDetail(detailUrl, option):
 
         # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
         for pLine in articleBody.div.div.children:
-            # 2023.11.09 "<p> </p>"인 경우 다음으로 진행
-            if pLine.get_text() == '\xa0':
+            # 2024.10.21 "<p> </p>"인 경우 다음으로 진행
+            if str(pLine) == '<p> </p>':
                 continue
             # 2023.11.11 "<p></p>"인 경우 다음으로 진행
             if str(pLine) == '<p></p>':
@@ -506,7 +506,7 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/17424349",
+"https://ggoorr.net/all/17428729",
 ]
 # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
