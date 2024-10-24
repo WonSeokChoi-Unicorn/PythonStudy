@@ -208,6 +208,7 @@ if __name__ == "__main__":
             'https://www.youtube.com/c/DisneyMovieKr/videos',
             'https://www.youtube.com/c/MarvelKorea/videos',
             'https://www.youtube.com/@ArgentUnicorn/videos',
+            'https://www.youtube.com/@ArgentUnicornPlayground/videos',
             'https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos',
             'https://www.youtube.com/@bamgongwon/videos',
             'https://www.youtube.com/@haeinleezy/videos',
