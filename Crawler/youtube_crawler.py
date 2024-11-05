@@ -11,9 +11,12 @@ from datetime import datetime, timedelta
 from yt_iframe import yt
 # 숫자만 추출하기 위한 re를 import 한다.
 import re
-# 카카오 번역
-# pip install kakaotrans
-from kakaotrans import Translator
+# # 카카오 번역
+# # pip install kakaotrans
+# from kakaotrans import Translator
+# 구글 번역
+# pip install googletrans==4.0.0-rc.1
+from googletrans import Translator
 import pytz
 import json
 import asyncio
@@ -48,7 +51,9 @@ todate = datetime(datetime.today().year, datetime.today().month, datetime.today(
 # 파일명을 날짜로 이용
 nowDate = datetime.now()
 
-# 카카오 번역 선언
+# # 카카오 번역 선언
+# translator = Translator()
+# 구글 번역 선언
 translator = Translator()
 
 # 비동기 fetch 함수 정의
@@ -75,7 +80,10 @@ async def fetch(session, yt_videoid, ):
 
             # 영어 채널일 경우 제목 번역
             if channelname in englishchannel:
-                yt_title = translator.translate(yt_title, src = 'en', tgt = 'kr')
+                # # 카카오 번역
+                # yt_title = translator.translate(yt_title, src = 'en', tgt = 'kr')
+                # 구글 번역
+                yt_title = translator.translate(yt_title, src = 'en', dest = 'ko').text
 
             # 날짜 기준 체크
             if yt_datePublisheddtkst > todate:
