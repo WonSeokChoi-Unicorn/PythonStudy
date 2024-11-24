@@ -21,6 +21,7 @@ import pytz
 import json
 import asyncio
 import aiohttp
+import time
 
 # 시간1
 datetime1 = datetime.now()
@@ -33,6 +34,7 @@ kst = pytz.timezone('Asia/Seoul')
 
 # 대기 시간
 waittimedot5 = 0.5
+waittime5 = 5
 
 # iframe 태그 생성을 위해 폭과 높이를 설정
 width = '560'
@@ -80,10 +82,16 @@ async def fetch(session, yt_videoid, ):
 
             # 영어 채널일 경우 제목 번역
             if channelname in englishchannel:
-                # # 카카오 번역
-                # yt_title = translator.translate(yt_title, src = 'en', tgt = 'kr')
-                # 구글 번역
-                yt_title = translator.translate(yt_title, src = 'en', dest = 'ko').text
+                while True:
+                    try:
+                        # # 카카오 번역
+                        # yt_title = translator.translate(yt_title, src = 'en', tgt = 'kr')
+                        # 구글 번역
+                        yt_title = translator.translate(yt_title, src = 'en', dest = 'ko').text
+                        break
+                    except:
+                        time.sleep(waittime5)
+
 
             # 날짜 기준 체크
             if yt_datePublisheddtkst > todate:
