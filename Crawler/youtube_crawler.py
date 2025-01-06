@@ -184,7 +184,6 @@ if __name__ == "__main__":
             'https://www.youtube.com/c/14FMBC/videos',
             'https://www.youtube.com/c/BMan%EC%82%90%EB%A7%A8/videos',
             'https://www.youtube.com/@Btv%EC%9D%B4%EB%8F%99%EC%A7%84%EC%9D%98%ED%8C%8C%EC%9D%B4%EC%95%84%ED%82%A4%EC%95%84/videos',
-            'https://www.youtube.com/c/movietrip%EB%AC%B4%EB%B9%84%ED%8A%B8%EB%A6%BD/videos',
             'https://www.youtube.com/channel/UC5aNQ65ADb02zEJxzb_zmYQ/videos',
             'https://www.youtube.com/user/rladndgussla/videos',
             'https://www.youtube.com/@%EA%B9%80%EB%B0%94%EB%B9%84/videos',
