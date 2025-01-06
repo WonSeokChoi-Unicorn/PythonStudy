@@ -471,7 +471,7 @@ def startCrawlering():
     print(datetime1.strftime('%Y-%m-%d %H:%M:%S') + " - Starting")
 
     # 15페이지까지 검색
-    for page in range(1, 15 + 1):
+    for page in range(1, 10 + 1):
         searchList(page)
     print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Starting Crawling")
 
@@ -506,9 +506,10 @@ def startCrawlering():
     print(datetime2 - datetime1)
 
 tempurllist = [
-"https://ggoorr.net/all/17428729",
+"https://ggoorr.net/all/17574409",
+"https://ggoorr.net/all/17574423",
 ]
-# 임시 작업일 경우 아래 4개줄 주석 해제
+# # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
 #     getDetail(tempurl, 'N')
 # SaveSortedContentDictionary()
