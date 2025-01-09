@@ -470,7 +470,7 @@ def startCrawlering():
     datetime1 = datetime.now()
     print(datetime1.strftime('%Y-%m-%d %H:%M:%S') + " - Starting")
 
-    # 15페이지까지 검색
+    # 10페이지까지 검색
     for page in range(1, 10 + 1):
         searchList(page)
     print(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + " Starting Crawling")
