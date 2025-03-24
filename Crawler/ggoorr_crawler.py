@@ -9,20 +9,16 @@ from datetime import datetime, timedelta
 from user_agent import generate_user_agent
 import html
 import re
+import pytz
 
 # 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
 todaytime = datetime.today().strftime("%Y%m%d%H%M%S")
 # 시간을 HH 형태로 변경
 todaytimeHH = datetime.today().strftime("%H")
 
-# 실행 과정을 기록할 파일
-runlog = open(
-    "D:\\Python\\LOG\\" + todaytime + "_ggoorr_output.txt", "w", encoding="utf-8"
-)
-# 정상 실행
-# sys.stdout = runlog
-# 실행 오류
-# sys.stderr = runlog
+# KST 시간대 설정
+kst_timezone = pytz.timezone("Asia/Seoul")
+
 # 전역 변수 설정
 # 꾸르 메인 주소
 GGOORR_MAIN_URL = "https://ggoorr.net"
@@ -79,17 +75,12 @@ def getDetail(detailUrl, option):
         detailSoup = BeautifulSoup(detailHtml, "lxml")
         # 제목
         title = detailSoup.find("h1").get_text().strip()
-        # title = detailSoup.find('h1', attrs = {"class" : "np_18px"}).get_text().strip()
         # 작성 날짜/시간
         writetimetemp = detailSoup.find("time")["datetime"]
-        writetime = datetime(
-            int(writetimetemp[: 3 + 1]),
-            int(writetimetemp[5 : 6 + 1]),
-            int(writetimetemp[8 : 9 + 1]),
-            int(writetimetemp[11 : 12 + 1]),
-            int(writetimetemp[14 : 15 + 1]),
-            0,
-        )
+        # ISO 8601 형식의 시간을 datetime 객체로 변환
+        utc_time = datetime.fromisoformat(writetimetemp)
+        # UTC 시간을 KST로 변환
+        writetime = utc_time.astimezone(kst_timezone)
 
         # 2023.07.21 실행 시간에 따라서 기준(시작~종료) 시간을 변경
         if todaytimeHH >= "15":
@@ -101,15 +92,19 @@ def getDetail(detailUrl, option):
                 7,
                 0,
                 0,
-            )
+            ).astimezone(kst_timezone)
 
             # 내일 오전 6시 59분 59초
             tomorrow = datetime.today() + timedelta(days=1)
-            todate = datetime(tomorrow.year, tomorrow.month, tomorrow.day, 6, 59, 59)
+            todate = datetime(
+                tomorrow.year, tomorrow.month, tomorrow.day, 6, 59, 59
+            ).astimezone(kst_timezone)
         else:
             # 전일 오전 7시
             yesterday = datetime.today() - timedelta(days=1)
-            fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0)
+            fromdate = datetime(
+                yesterday.year, yesterday.month, yesterday.day, 7, 0, 0
+            ).astimezone(kst_timezone)
 
             # 당일 오전 6시 59분 59초
             todate = datetime(
@@ -119,12 +114,12 @@ def getDetail(detailUrl, option):
                 6,
                 59,
                 59,
-            )
+            ).astimezone(kst_timezone)
 
         # 진행
         print(
             datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-            + " - "
+            + ", "
             + title
             + " - "
             + detailUrl
@@ -160,7 +155,7 @@ def getDetail(detailUrl, option):
                 )
 
         # 본문을 찾기 위해 article 태그의 데이터만 사용함
-        articleBody = detailSoup.find("article")
+        articleBody = detailSoup.find("div", attrs={"id": "article_1"})
         # 문자열로 변환
         articleBodyText = str(articleBody)
         # 2021.06.29 제외되는 게시글들을 URL로 저장
@@ -190,8 +185,8 @@ def getDetail(detailUrl, option):
             contentDictionary[realwritetime] = fileContent
             return
         # 게시글 머릿말/꼬리말 설정
-        articleHeader = '<article><div id="article_1"><div>'
-        articleTail = "</div></div></article>"
+        articleHeader = '<div id="article_1"><div>'
+        articleTail = "</div></div>"
         # 01 게시글 앞에 머릿말 추가
         articleString = articleHeader
         # 20233.07.10 유튜브 키 리스트 초기화
@@ -199,7 +194,7 @@ def getDetail(detailUrl, option):
         # 02 article 태그 안에서 <p>태그들을 찾아서 저장함
 
         # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
-        for pLine in articleBody.div.div.children:
+        for pLine in articleBody.div.children:
             # 2024.10.21 "<p> </p>"인 경우 다음으로 진행
             if str(pLine) == "<p> </p>":
                 continue
@@ -452,7 +447,6 @@ def getDetail(detailUrl, option):
             # 줄 끝에 줄 바꿈 처리
             # 2023.12.20 pLine 내에 처리 부분 포함 되어 있어서 다시 처리 추가
             articleString += re.sub(r"<p>\xa0*</p>|\xa0|\n", "", tempStr) + "\n"
-            # articleString += tempStr.replace('<p>\xa0</p>', '').replace('\n', '').replace('\xa0', '') + "\n"
         # 03 게시글 끝에 꼬릿말 추가
         articleString += articleTail
         # 04 cdn.ggoorr.net은 프록시 서버 경유
@@ -496,19 +490,18 @@ def searchList(page):
     if res.status_code == 200:
         # 응답 html코드를 text로 변환
         html = res.text
-        # 응답받은 html코드를 BeautifulSoup에 사용하기 위하여 인스턴스 지정
-        # 2022.07.24 가져오는 방식 변경
         # HTML을 'lxml(XML, HTML 처리)'를 사용하여 분석
         soup = BeautifulSoup(html, "lxml")
-        # tbody 에 필요한 게시글 목록이 있어 해당 영역 가져오기 처리
+        listdocument = soup.find("div", attrs={"class": "list-document"})
         # 2022.07.24 가져오는 방식 변경
-        tbody = soup.find("table", "bd_lst bd_tb_lst bd_tb")
-        # 2022.07.24 가져오는 방식 변경
-        contentsBody = tbody.find("tbody")
+        listdocumentlis = listdocument.find_all("li")
         # 게시글 처리 순서 저장
         nCnt = 1
         # tr - 개별 게시글 확인
-        for trOne in contentsBody.select("tr"):
+        for listdocumentli in listdocumentlis:
+            # 중간 광고 있으면 다음으로 진행
+            if listdocumentli["class"] == ["code-list-middle"]:
+                continue
             print(
                 datetime.today().strftime("%Y-%m-%d %H:%M:%S")
                 + ", ---------- [ "
@@ -517,91 +510,67 @@ def searchList(page):
                 + str(nCnt)
                 + " line ] ----------"
             )
-
-            # 공지글은 생략
-            if None != trOne.get("class"):
-                if "notice" == trOne["class"][0]:
-                    print(
-                        datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                        + ", 공지는 PASS!!"
-                    )
-                    nCnt += 1
-                    continue
-            else:
-                # 변수 초기화
-                title = ""
-                author = ""
-                time1 = ""
-                time2 = ""
-                detailUrl = ""
-                timenumber = ""
-                writetime = ""
-
-                # td 확인
-                for tdTag in trOne.select("td"):
-                    # td 태그의 class 가져오기
-                    classNm = tdTag["class"][0]
-                    if classNm == "title":
-                        # 제목 및 URL
-                        # 2023.09.19 가져오는 코드 수정
-                        alist = tdTag.find_all("a", attrs={"class": "hx"})
-                        title = alist[0].get_text().strip().replace("\n", "")
-                        # 2023.09.19 사이트 개편으로 수정
-                        detailUrl = GGOORR_MAIN_URL + alist[0]["href"]
-                        # 2023.03.09 정확한 시간 파악 위해서 url 먼저 수집
-                        detailUrllist.append(detailUrl)
-                    elif classNm == "author":
-                        # 작성자
-                        author = tdTag.get_text()
-                    elif classNm == "time":
-                        # 1일 이내는 N분 전/N시간 전, 1일 이후는 날짜
-                        time1 = tdTag.get_text()
-                        # 1일 이내는 N분 전/N시간 전, 1일 이후는 시간
-                        time2 = tdTag.attrs["title"]
-
-                        if "분" in time1:
-                            # 분일 경우 작성 시간 확인
-                            timenumber = time1[0 : time1.find("분")]
-                            writetime = datetime.today() - timedelta(
-                                minutes=int(timenumber)
-                            )
-                        elif "시간" in time1:
-                            # 시간일 경우 작성 시간 확인
-                            timenumber = time1[0 : time1.find("시간")]
-                            writetime = datetime.today() - timedelta(
-                                hours=int(timenumber)
-                            )
-                        else:
-                            # 분과 시간이 아니면 날짜와 시간을 조합
-                            writetime = datetime.strptime(
-                                (time1 + " " + time2), "%Y.%m.%d %H:%M"
-                            )
-                    else:
-                        pass
-
-                # 게시물 1개에 대한 처리여부 확인 로직 시작......
-                print(
-                    datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                    + ", title : "
-                    + title
-                )
-                print(
-                    datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                    + ", author : "
-                    + author
-                )
-                print(
-                    datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                    + ", writetime : "
-                    + writetime.strftime("%Y-%m-%d %H:%M:%S")
-                )
-                print(
-                    datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                    + ", detailUrl : "
-                    + detailUrl
-                )
-
             nCnt += 1
+            # 변수 초기화
+            title = ""
+            author = ""
+            time1 = ""
+            time2 = ""
+            detailUrl = ""
+            writetime = ""
+
+            # 제목
+            title = listdocumentli.find("a").get_text().strip()
+            # URL
+            detailUrl = GGOORR_MAIN_URL + listdocumentli.find("a")["href"]
+            # 2023.03.09 정확한 시간 파악 위해서 url 먼저 수집
+            detailUrllist.append(detailUrl)
+            # 정보 찾기
+            infos = listdocumentli.find("div", attrs={"class": "lu-info lddu-info"})
+            # 작성자
+            author = infos.find_all("span")[0].get_text().strip()
+            # 날짜 텍스트
+            time1 = (
+                listdocumentli.find("span", attrs={"class": "date-msover-date"})
+                .get_text()
+                .strip()
+            )
+            # 시간 텍스트
+            time2 = (
+                listdocumentli.find("span", attrs={"class": "date-msover-time"})
+                .get_text()
+                .strip()
+            )
+
+            # 날짜 처리 (ex: "2일 전", "4시간 전")
+            if "일 전" in time1:
+                days_ago = int(time1.replace("일 전", "").strip())
+                post_date = datetime.today() - timedelta(days=days_ago)
+            elif "시간 전" in time1:
+                hours_ago = int(time1.replace("시간 전", "").strip())
+                post_date = datetime.today() - timedelta(hours=hours_ago)
+            # 시간 추가
+            hour, minute = map(int, time2.split(":"))
+            post_date = post_date.replace(hour=hour, minute=minute, second=0)
+            # 최종 writetime 출력
+            writetime = post_date.strftime("%Y-%m-%d %H:%M:%S")
+
+            # 게시물 1개에 대한 처리여부 확인 로직 시작......
+            print(datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", title : " + title)
+            print(
+                datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", author : " + author
+            )
+            print(
+                datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+                + ", writetime : "
+                + writetime
+            )
+            print(
+                datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+                + ", detailUrl : "
+                + detailUrl
+            )
+
         print(
             datetime.today().strftime("%Y-%m-%d %H:%M:%S")
             + ", ========== "
@@ -645,13 +614,13 @@ def startCrawlering():
     # 10페이지까지 검색
     for page in range(1, 10 + 1):
         searchList(page)
-    print(datetime.today().strftime("%Y-%m-%d %H:%M:%S") + " Starting Crawling")
+    print(datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", Starting Crawling")
 
     # 크롤링 시작
     for detailUrl in detailUrllist:
         print(
             datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-            + " "
+            + ", "
             + str(detailUrllist.index(detailUrl) + 1)
             + "/"
             + str(len(detailUrllist))
@@ -670,7 +639,7 @@ def startCrawlering():
             for errorurl in errorurls[:]:
                 print(
                     datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                    + " "
+                    + ", "
                     + str(errorurls.index(errorurl))
                     + "/"
                     + str(len(errorurls))
