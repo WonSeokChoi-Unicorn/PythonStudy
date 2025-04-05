@@ -276,6 +276,7 @@ if __name__ == "__main__":
         "https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos",
         "https://www.youtube.com/@bamgongwon/videos",
         "https://www.youtube.com/@haeinleezy/videos",
+        "https://www.youtube.com/@%EB%B0%A4%EA%B3%B5%EC%9B%90/videos",
     ]
 
     # TEST
