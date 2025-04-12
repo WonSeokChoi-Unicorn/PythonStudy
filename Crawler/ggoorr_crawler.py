@@ -542,13 +542,16 @@ def searchList(page):
                 .strip()
             )
 
-            # 날짜 처리 (ex: "2일 전", "4시간 전")
+            # 날짜 처리 (ex: "2일 전", "4시간 전", "32분 전")
             if "일 전" in time1:
                 days_ago = int(time1.replace("일 전", "").strip())
                 post_date = datetime.today() - timedelta(days=days_ago)
             elif "시간 전" in time1:
                 hours_ago = int(time1.replace("시간 전", "").strip())
                 post_date = datetime.today() - timedelta(hours=hours_ago)
+            elif "분 전" in time1:
+                minutes_ago = int(time1.replace("분 전", "").strip())
+                post_date = datetime.today() - timedelta(minutes=minutes_ago)
             # 시간 추가
             hour, minute = map(int, time2.split(":"))
             post_date = post_date.replace(hour=hour, minute=minute, second=0)
@@ -667,8 +670,7 @@ def startCrawlering():
 
 
 tempurllist = [
-    "https://ggoorr.net/all/17574409",
-    "https://ggoorr.net/all/17574423",
+    "https://ggoorr.net/all/17818755",
 ]
 # # 임시 작업일 경우 아래 4개줄 주석 해제
 # for tempurl in tempurllist:
