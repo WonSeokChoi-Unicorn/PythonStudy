@@ -19,8 +19,7 @@ import re
 # # pip install kakaotrans
 # from kakaotrans import Translator
 # 구글 번역
-# pip install googletrans==4.0.0-rc.1
-# 최신 httpx 호환 문제로 사용 못 함 Python 3.8 환경에서 실행 필요
+# pip install googletrans-py
 from googletrans import Translator
 import pytz
 import json
