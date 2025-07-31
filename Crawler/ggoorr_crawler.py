@@ -84,34 +84,34 @@ def getDetail(detailUrl, option):
 
         # 2023.07.21 실행 시간에 따라서 기준(시작~종료) 시간을 변경
         if todaytimeHH >= "15":
-            # 당일 오전 7시
+            # 당일 오전 6시
             fromdate = datetime(
-                datetime.today().year,
-                datetime.today().month,
-                datetime.today().day,
-                7,
-                0,
-                0,
-            ).astimezone(kst_timezone)
-
-            # 내일 오전 6시 59분 59초
-            tomorrow = datetime.today() + timedelta(days=1)
-            todate = datetime(
-                tomorrow.year, tomorrow.month, tomorrow.day, 6, 59, 59
-            ).astimezone(kst_timezone)
-        else:
-            # 전일 오전 7시
-            yesterday = datetime.today() - timedelta(days=1)
-            fromdate = datetime(
-                yesterday.year, yesterday.month, yesterday.day, 7, 0, 0
-            ).astimezone(kst_timezone)
-
-            # 당일 오전 6시 59분 59초
-            todate = datetime(
                 datetime.today().year,
                 datetime.today().month,
                 datetime.today().day,
                 6,
+                0,
+                0,
+            ).astimezone(kst_timezone)
+
+            # 내일 오전 5시 59분 59초
+            tomorrow = datetime.today() + timedelta(days=1)
+            todate = datetime(
+                tomorrow.year, tomorrow.month, tomorrow.day, 5, 59, 59
+            ).astimezone(kst_timezone)
+        else:
+            # 전일 오전 6시
+            yesterday = datetime.today() - timedelta(days=1)
+            fromdate = datetime(
+                yesterday.year, yesterday.month, yesterday.day, 6, 0, 0
+            ).astimezone(kst_timezone)
+
+            # 당일 오전 5시 59분 59초
+            todate = datetime(
+                datetime.today().year,
+                datetime.today().month,
+                datetime.today().day,
+                5,
                 59,
                 59,
             ).astimezone(kst_timezone)

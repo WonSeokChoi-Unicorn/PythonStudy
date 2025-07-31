@@ -48,15 +48,15 @@ height = "315"
 # 한국어로 구글 번역할 영어 채널 리스트
 englishchannel = ["Kurzgesagt – In a Nutshell", "TED-Ed", "Vox"]
 
-# 전일 오전 7시
+# 전일 오전 6시
 yesterday = datetime.today() - timedelta(days=1)
-fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 7, 0, 0).astimezone(
+fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 6, 0, 0).astimezone(
     kst
 )
 
-# 당일 오전 6시 59분 59초
+# 당일 오전 5시 59분 59초
 todate = datetime(
-    datetime.today().year, datetime.today().month, datetime.today().day, 6, 59, 59
+    datetime.today().year, datetime.today().month, datetime.today().day, 5, 59, 59
 ).astimezone(kst)
 
 # 파일명을 날짜로 이용
@@ -113,17 +113,17 @@ async def fetch(
 
             # 날짜 기준 체크
             if yt_datePublisheddtkst > todate:
-                print("작성 대상 아님 (당일 7시 이후)")
+                print("작성 대상 아님 (당일 6시 이후)")
                 print(yt_title)
                 print(yt_videoid)
                 print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
             elif yt_datePublisheddtkst <= fromdate:
-                print("작성 대상 아님 (전일 7시 이전)")
+                print("작성 대상 아님 (전일 6시 이전)")
                 print(yt_title)
                 print(yt_videoid)
                 print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
             else:
-                print("작성 대상 맞음 (전일 7시 ~ 당일 6시 59분 59초)")
+                print("작성 대상 맞음 (전일 6시 ~ 당일 5시 59분 59초)")
                 print(yt_title)
                 print(yt_videoid)
                 print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
