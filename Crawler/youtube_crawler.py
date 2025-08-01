@@ -112,17 +112,17 @@ async def fetch(
 
             # 날짜 기준 체크
             if yt_datePublisheddtkst > todate:
-                print("작성 대상 아님 (당일 6시 이후)")
+                print("작성 대상 아님 (" + todate.strftime("%Y-%m-%d %H:%M:%S") + " 이후)")
                 print(yt_title)
                 print(yt_videoid)
                 print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
             elif yt_datePublisheddtkst <= fromdate:
-                print("작성 대상 아님 (전일 6시 이전)")
+                print("작성 대상 아님 (" + fromdate.strftime("%Y-%m-%d %H:%M:%S") + " 이전)")
                 print(yt_title)
                 print(yt_videoid)
                 print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
             else:
-                print("작성 대상 맞음 (전일 6시 ~ 당일 5시 59분 59초)")
+                print("작성 대상 맞음 (" + fromdate.strftime("%Y-%m-%d %H:%M:%S") + " ~ " + todate.strftime("%Y-%m-%d %H:%M:%S") + ")")
                 print(yt_title)
                 print(yt_videoid)
                 print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
