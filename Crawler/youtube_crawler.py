@@ -248,7 +248,7 @@ if __name__ == "__main__":
         "https://www.youtube.com/@Sherlock_HJ/videos",
         "https://www.youtube.com/@%EC%86%8C%EB%B9%84%EB%8D%94%EB%A8%B8%EB%8B%88/videos",
         "https://www.youtube.com/@syukaworld/videos",
-        "https://www.youtube.com/@syukaworld-comics/videos",
+        "https://www.youtube.com/@moneymoneycomics/videos",
         "https://www.youtube.com/@ens8388/videos",
         "https://www.youtube.com/@yuna_ogura/videos",
         "https://www.youtube.com/@OMG_electronics/videos",
