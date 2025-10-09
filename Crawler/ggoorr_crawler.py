@@ -10,6 +10,7 @@ from user_agent import generate_user_agent
 import html
 import re
 import pytz
+from pathlib import Path
 
 # 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
 todaytime = datetime.today().strftime("%Y%m%d%H%M%S")
@@ -24,12 +25,14 @@ kst_timezone = pytz.timezone("Asia/Seoul")
 GGOORR_MAIN_URL = "https://ggoorr.net"
 # 꾸르 상세 주소
 GGOORR_DETAIL_URL = "https://ggoorr.net/main/page/"
+# 저장 폴더
+savefolder = Path("D:/ggoorr")
 # 에러 발생 URL 모음
 errorurls = []
 # 파일 변수 글로벌로 이동
 nowDate = datetime.now()
 # 파일 작성 시간이 길어져서 년월일로 파일명 생성
-f = open(nowDate.strftime("%Y-%m-%d") + "_ggoorr.txt", mode="wt", encoding="utf-8")
+f = open(savefolder / (nowDate.strftime("%Y-%m-%d") + "_ggoorr.txt"), mode="wt", encoding="utf-8")
 # 전체 컨텐츠가 저장되는 dictionary
 contentDictionary = {}
 # 전체 컨텐츠가 sort 되어 저장되는 dictionary

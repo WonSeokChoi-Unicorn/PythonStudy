@@ -26,6 +26,7 @@ import json
 import asyncio
 import aiohttp
 import time
+from pathlib import Path
 
 # 시간1
 datetime1 = datetime.now()
@@ -66,6 +67,8 @@ nowDate = datetime.now()
 # 구글 번역 선언
 translator = Translator()
 
+# 저장 폴더
+savefolder = Path("D:/ggoorr")
 
 # 비동기 fetch 함수 정의
 async def fetch(
@@ -167,7 +170,7 @@ async def main(urllist):
                 fileContent = channelheader
 
                 if fileContent:
-                    filename = f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
+                    filename = savefolder / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
                     with open(filename, "a", encoding="utf-8") as f:
                         f.write(fileContent)
                         print(f"File {filename} updated.")
@@ -217,7 +220,7 @@ async def main(urllist):
                         fileContent = "\n".join(filter(None, results))
                         if fileContent:
                             filename = (
-                                f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
+                                savefolder / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
                             )
                             with open(filename, "a", encoding="utf-8") as f:
                                 f.write(fileContent)
