@@ -70,6 +70,7 @@ translator = Translator()
 # 저장 폴더
 savefolder = Path("D:/ggoorr")
 
+
 # 비동기 fetch 함수 정의
 async def fetch(
     session,
@@ -115,17 +116,29 @@ async def fetch(
 
             # 날짜 기준 체크
             if yt_datePublisheddtkst > todate:
-                print("작성 대상 아님 (" + todate.strftime("%Y-%m-%d %H:%M:%S") + " 이후)")
+                print(
+                    "작성 대상 아님 (" + todate.strftime("%Y-%m-%d %H:%M:%S") + " 이후)"
+                )
                 print(yt_title)
                 print(yt_videoid)
                 print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
             elif yt_datePublisheddtkst <= fromdate:
-                print("작성 대상 아님 (" + fromdate.strftime("%Y-%m-%d %H:%M:%S") + " 이전)")
+                print(
+                    "작성 대상 아님 ("
+                    + fromdate.strftime("%Y-%m-%d %H:%M:%S")
+                    + " 이전)"
+                )
                 print(yt_title)
                 print(yt_videoid)
                 print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
             else:
-                print("작성 대상 맞음 (" + fromdate.strftime("%Y-%m-%d %H:%M:%S") + " ~ " + todate.strftime("%Y-%m-%d %H:%M:%S") + ")")
+                print(
+                    "작성 대상 맞음 ("
+                    + fromdate.strftime("%Y-%m-%d %H:%M:%S")
+                    + " ~ "
+                    + todate.strftime("%Y-%m-%d %H:%M:%S")
+                    + ")"
+                )
                 print(yt_title)
                 print(yt_videoid)
                 print(yt_datePublisheddtkst.strftime("%Y-%m-%d %H:%M:%S"))
@@ -170,7 +183,10 @@ async def main(urllist):
                 fileContent = channelheader
 
                 if fileContent:
-                    filename = savefolder / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
+                    filename = (
+                        savefolder
+                        / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
+                    )
                     with open(filename, "a", encoding="utf-8") as f:
                         f.write(fileContent)
                         print(f"File {filename} updated.")
@@ -220,7 +236,8 @@ async def main(urllist):
                         fileContent = "\n".join(filter(None, results))
                         if fileContent:
                             filename = (
-                                savefolder / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
+                                savefolder
+                                / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
                             )
                             with open(filename, "a", encoding="utf-8") as f:
                                 f.write(fileContent)
@@ -242,6 +259,7 @@ if __name__ == "__main__":
         "https://www.youtube.com/c/%EB%A1%9C%EC%9D%B4%EC%96%B4%ED%94%84%EB%A0%8C%EC%A6%88lawyerfriends/videos",
         "https://www.youtube.com/c/Owlsreview/videos",
         "https://www.youtube.com/@nicekiyoung/videos",
+        "https://www.youtube.com/@pyeongsanbooks/videos",
         "https://www.youtube.com/@nofeetbird/videos",
         "https://www.youtube.com/@red12734/videos",
         "https://www.youtube.com/@443RohmoohyunFoundation/videos",
