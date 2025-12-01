@@ -39,6 +39,7 @@ kst = pytz.timezone("Asia/Seoul")
 
 # 대기 시간
 waittimedot5 = 0.5
+waittime1 = 1
 waittime5 = 5
 
 # iframe 태그 생성을 위해 폭과 높이를 설정
@@ -167,7 +168,6 @@ async def main(urllist):
                 channelname = (
                     Soup1.find("title").get_text().strip().replace(" - YouTube", "")
                 )
-
                 # 채널명은 반복문 전 파일에 1번만 저장하도록
                 channelheader = "<p>" + "#####*****" + channelname + "</p>"
                 channelheader += "\n"
@@ -242,6 +242,7 @@ async def main(urllist):
                             with open(filename, "a", encoding="utf-8") as f:
                                 f.write(fileContent)
                                 print(f"File {filename} updated.")
+            time.sleep(waittime1)
 
 
 # 메인 실행
