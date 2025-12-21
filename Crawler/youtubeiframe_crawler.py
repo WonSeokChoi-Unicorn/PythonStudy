@@ -19,8 +19,6 @@ import os
 # 날짜 시간 처리 위해 datetime를 import 한다.
 from datetime import datetime
 
-# from selenium.webdriver.chrome.service import Service
-# from webdriver_manager.chrome import ChromeDriverManager
 from pathlib import Path
 
 # 저장 폴더
@@ -56,9 +54,8 @@ options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
 # 크롬 브라우저 안 보이게
 options.add_argument("headless")
-# driver란 변수에 객체를 만들어 준다. chromedriver는 파이썬이 있는 경로에 두거나, 다른 경로에 두면 전체 경로명을 다 적어 줍니다.
+# driver란 변수에 객체를 만들어 준다.
 driver = webdriver.Chrome(options=options)
-# driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = options)
 
 for line in reversed(lines):
     utubeKey = ""  # 유튜브 키값 초기화
