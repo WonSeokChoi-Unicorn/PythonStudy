@@ -12,6 +12,18 @@ import re
 import pytz
 from pathlib import Path
 
+# 크롤링 기준 날짜 설정 (None이면 오늘 날짜, "YYYY-MM-DD" 형식이면 해당 날짜 지정)
+TARGET_DATE = None
+# TARGET_DATE = "2025-12-18"
+
+# 크롤링할 페이지 범위 설정
+# 평소(TARGET_DATE is None)에는 1~10페이지를 탐색하고,
+# 특정 날짜 지정 시에는 아래 범위를 사용하도록 로직을 수정합니다.
+# 시작 페이지
+TARGET_START_PAGE = 45
+# 종료 페이지
+TARGET_END_PAGE = 55
+
 # 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
 todaytime = datetime.today().strftime("%Y%m%d%H%M%S")
 # 시간을 HH 형태로 변경
@@ -85,39 +97,57 @@ def getDetail(detailUrl, option):
         # UTC 시간을 KST로 변환
         writetime = utc_time.astimezone(kst_timezone)
 
-        # 2023.07.21 실행 시간에 따라서 기준(시작~종료) 시간을 변경
-        if todaytimeHH >= "15":
-            # 당일 오전 6시
+        # [수정 1-2] 기준 날짜(target_base_date) 결정
+        if 'TARGET_DATE' in globals() and TARGET_DATE:
+            target_base_date = datetime.strptime(TARGET_DATE, "%Y-%m-%d")
+            # 지정된 날짜가 있으면 시간(todaytimeHH)과 관계없이 해당 날짜의 06:00 ~ 익일 05:59를 기준으로 설정
             fromdate = datetime(
-                datetime.today().year,
-                datetime.today().month,
-                datetime.today().day,
+                target_base_date.year,
+                target_base_date.month,
+                target_base_date.day,
                 6,
                 0,
                 0,
             ).astimezone(kst_timezone)
 
-            # 내일 오전 5시 59분 59초
-            tomorrow = datetime.today() + timedelta(days=1)
+            tomorrow = target_base_date + timedelta(days=1)
             todate = datetime(
                 tomorrow.year, tomorrow.month, tomorrow.day, 5, 59, 59
             ).astimezone(kst_timezone)
         else:
-            # 전일 오전 6시
-            yesterday = datetime.today() - timedelta(days=1)
-            fromdate = datetime(
-                yesterday.year, yesterday.month, yesterday.day, 6, 0, 0
-            ).astimezone(kst_timezone)
+            # 2023.07.21 실행 시간에 따라서 기준(시작~종료) 시간을 변경
+            if todaytimeHH >= "15":
+                # 당일 오전 6시
+                fromdate = datetime(
+                    datetime.today().year,
+                    datetime.today().month,
+                    datetime.today().day,
+                    6,
+                    0,
+                    0,
+                ).astimezone(kst_timezone)
 
-            # 당일 오전 5시 59분 59초
-            todate = datetime(
-                datetime.today().year,
-                datetime.today().month,
-                datetime.today().day,
-                5,
-                59,
-                59,
-            ).astimezone(kst_timezone)
+                # 내일 오전 5시 59분 59초
+                tomorrow = datetime.today() + timedelta(days=1)
+                todate = datetime(
+                    tomorrow.year, tomorrow.month, tomorrow.day, 5, 59, 59
+                ).astimezone(kst_timezone)
+            else:
+                # 전일 오전 6시
+                yesterday = datetime.today() - timedelta(days=1)
+                fromdate = datetime(
+                    yesterday.year, yesterday.month, yesterday.day, 6, 0, 0
+                ).astimezone(kst_timezone)
+
+                # 당일 오전 5시 59분 59초
+                todate = datetime(
+                    datetime.today().year,
+                    datetime.today().month,
+                    datetime.today().day,
+                    5,
+                    59,
+                    59,
+                ).astimezone(kst_timezone)
 
         # 진행
         print(
@@ -171,7 +201,7 @@ def getDetail(detailUrl, option):
             )
             # 파일에 저장
             fileContent = (
-                "<br><br></br></br><p>" + title + "</p>"
+                '<br><br></br></br><article><h1 style="font-size: 2em; line-height: 1.3; word-break: keep-all;">' + title + '</h1>'
             )  # 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가. 2021.01.03 추가
             fileContent += "\n"
             fileContent += (
@@ -187,9 +217,13 @@ def getDetail(detailUrl, option):
             # realwritetime을 key로해서 html코드를 value로 저장
             contentDictionary[realwritetime] = fileContent
             return
+        try:
+            n = detailUrllist.index(detailUrl) + 1
+        except ValueError:
+            n = 1 # 찾을 수 없는 경우 기본값
         # 게시글 머릿말/꼬리말 설정
-        articleHeader = '<div id="article_1"><div>'
-        articleTail = "</div></div>"
+        articleHeader = f'<div id="article_{n}" class="article-content">'
+        articleTail = "</div></article>"
         # 01 게시글 앞에 머릿말 추가
         articleString = articleHeader
         # 20233.07.10 유튜브 키 리스트 초기화
@@ -464,7 +498,7 @@ def getDetail(detailUrl, option):
         articleString = articleString.replace(html.escape(title), "")
         # 파일에 저장
         # 2021.01.03 게시글 제목 앞에 <p> 추가, 제목 뒤에 </p> 추가.
-        fileContent = "<p>" + title + "</p>"
+        fileContent = '<article><h1 style="font-size: 2em; line-height: 1.3; word-break: keep-all;">' + title + '</h1>'
         fileContent += "\n"
         fileContent += articleString
         fileContent += "\n"
@@ -498,91 +532,18 @@ def searchList(page):
         listdocument = soup.find("div", attrs={"class": "list-document"})
         # 2022.07.24 가져오는 방식 변경
         listdocumentlis = listdocument.find_all("li")
-        # 게시글 처리 순서 저장
-        nCnt = 1
         # tr - 개별 게시글 확인
         for listdocumentli in listdocumentlis:
             # 중간 광고 있으면 다음으로 진행
             if listdocumentli["class"] == ["code-list-middle"]:
                 continue
-            print(
-                datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                + ", ---------- [ "
-                + str(page)
-                + " page / "
-                + str(nCnt)
-                + " line ] ----------"
-            )
-            nCnt += 1
             # 변수 초기화
-            title = ""
-            author = ""
-            time1 = ""
-            time2 = ""
             detailUrl = ""
-            writetime = ""
 
-            # 제목
-            title = listdocumentli.find("a").get_text().strip()
             # URL
             detailUrl = GGOORR_MAIN_URL + listdocumentli.find("a")["href"]
             # 2023.03.09 정확한 시간 파악 위해서 url 먼저 수집
             detailUrllist.append(detailUrl)
-            # 정보 찾기
-            infos = listdocumentli.find("div", attrs={"class": "lu-info lddu-info"})
-            # 작성자
-            author = infos.find_all("span")[0].get_text().strip()
-            # 날짜 텍스트
-            time1 = (
-                listdocumentli.find("span", attrs={"class": "date-msover-date"})
-                .get_text()
-                .strip()
-            )
-            # 시간 텍스트
-            time2 = (
-                listdocumentli.find("span", attrs={"class": "date-msover-time"})
-                .get_text()
-                .strip()
-            )
-
-            # 날짜 처리 (ex: "2일 전", "4시간 전", "32분 전")
-            if "일 전" in time1:
-                days_ago = int(time1.replace("일 전", "").strip())
-                post_date = datetime.today() - timedelta(days=days_ago)
-            elif "시간 전" in time1:
-                hours_ago = int(time1.replace("시간 전", "").strip())
-                post_date = datetime.today() - timedelta(hours=hours_ago)
-            elif "분 전" in time1:
-                minutes_ago = int(time1.replace("분 전", "").strip())
-                post_date = datetime.today() - timedelta(minutes=minutes_ago)
-            # 시간 추가
-            hour, minute = map(int, time2.split(":"))
-            post_date = post_date.replace(hour=hour, minute=minute, second=0)
-            # 최종 writetime 출력
-            writetime = post_date.strftime("%Y-%m-%d %H:%M:%S")
-
-            # 게시물 1개에 대한 처리여부 확인 로직 시작......
-            print(datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", title : " + title)
-            print(
-                datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", author : " + author
-            )
-            print(
-                datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                + ", writetime : "
-                + writetime
-            )
-            print(
-                datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                + ", detailUrl : "
-                + detailUrl
-            )
-
-        print(
-            datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-            + ", ========== "
-            + str(page)
-            + " page end =========="
-        )
         return True
     else:
         print(
@@ -617,9 +578,22 @@ def startCrawlering():
     datetime1 = datetime.now()
     print(datetime1.strftime("%Y-%m-%d %H:%M:%S") + " - Starting")
 
-    # 10페이지까지 검색
-    for page in range(1, 10 + 1):
+    # 페이지 탐색 범위 결정 로직
+    if 'TARGET_DATE' in globals() and TARGET_DATE:
+        # 특정 날짜 지정 모드: 설정된 시작~종료 페이지 사용
+        s_page = TARGET_START_PAGE
+        e_page = TARGET_END_PAGE
+        print(f"Target Date Mode: {TARGET_DATE} (Page {s_page} ~ {e_page})")
+    else:
+        # 일반 모드 (매일 실행): 1 ~ 10 페이지
+        s_page = 1
+        e_page = 10
+        print(f"Daily Routine Mode (Page {s_page} ~ {e_page})")
+
+    # 결정된 범위로 검색 수행
+    for page in range(s_page, e_page + 1):
         searchList(page)
+
     print(datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", Starting Crawling")
 
     # 크롤링 시작
