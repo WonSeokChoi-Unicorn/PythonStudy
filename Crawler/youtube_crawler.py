@@ -287,6 +287,7 @@ if __name__ == "__main__":
         "https://www.youtube.com/@hansangki9105/videos",
         "https://www.youtube.com/@TEDEd/videos",
         "https://www.youtube.com/@kurzgesagt/videos",
+        "https://www.youtube.com/@nightshift_kurzgesagt/videos",
         "https://www.youtube.com/@Vox/videos",
         "https://www.youtube.com/c/LGElectronicsKorea/videos",
         "https://www.youtube.com/user/LGSTORY/videos",
