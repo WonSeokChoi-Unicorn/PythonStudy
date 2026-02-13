@@ -224,11 +224,11 @@ async def main(urllist):
                             ).get("videoRenderer", {})
                             yt_videoid = yt_videorenderer.get("videoId", None)
                             if yt_videoid:
-                                # 방법 1: upcomingEventData 확인
+                                # 예정된 동영상 확인 방법 1: upcomingEventData 확인
                                 if "upcomingEventData" in yt_videorenderer:
                                     # 예정된 동영상이므로 제외
                                     continue
-                                # 방법 2: thumbnailOverlays 확인
+                                # 예정된 동영상 확인 방법 2: thumbnailOverlays 확인
                                 thumbnails_overlays = yt_videorenderer.get("thumbnailOverlays", [])
                                 is_upcoming = any(
                                     overlay.get("thumbnailOverlayTimeStatusRenderer", {}).get("style") == "UPCOMING"
@@ -236,6 +236,19 @@ async def main(urllist):
                                 )
                                 if is_upcoming:
                                     # 예정된 동영상이므로 제외
+                                    continue
+                                # 회원 전용(Members-only) 동영상 제외 로직
+                                badges = yt_videorenderer.get("badges", [])
+                                is_members_only = False
+                                for badge in badges:
+                                    badge_renderer = badge.get("metadataBadgeRenderer", {})
+                                    style = badge_renderer.get("style", "")
+                                    # 스타일이 회원 전용이거나, 라벨 텍스트에 '회원'이 포함된 경우 체크
+                                    if style == "BADGE_STYLE_TYPE_MEMBERS_ONLY" or "회원" in badge_renderer.get("label", ""):
+                                        is_members_only = True
+                                        break
+                                # 회원 전용 동영상이므로 제외
+                                if is_members_only:
                                     continue
                                 yt_videoids.append(
                                     "https://www.youtube.com/watch?v=" + yt_videoid
