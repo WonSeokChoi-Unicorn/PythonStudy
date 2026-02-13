@@ -39,7 +39,6 @@ kst = pytz.timezone("Asia/Seoul")
 
 # 대기 시간
 waittimedot5 = 0.5
-waittime1 = 1
 waittime5 = 5
 
 # iframe 태그 생성을 위해 폭과 높이를 설정
@@ -168,6 +167,7 @@ async def main(urllist):
                 channelname = (
                     Soup1.find("title").get_text().strip().replace(" - YouTube", "")
                 )
+
                 # 채널명은 반복문 전 파일에 1번만 저장하도록
                 channelheader = "<p>" + "#####*****" + channelname + "</p>"
                 channelheader += "\n"
@@ -224,6 +224,19 @@ async def main(urllist):
                             ).get("videoRenderer", {})
                             yt_videoid = yt_videorenderer.get("videoId", None)
                             if yt_videoid:
+                                # 방법 1: upcomingEventData 확인
+                                if "upcomingEventData" in yt_videorenderer:
+                                    # 예정된 동영상이므로 제외
+                                    continue
+                                # 방법 2: thumbnailOverlays 확인
+                                thumbnails_overlays = yt_videorenderer.get("thumbnailOverlays", [])
+                                is_upcoming = any(
+                                    overlay.get("thumbnailOverlayTimeStatusRenderer", {}).get("style") == "UPCOMING"
+                                    for overlay in thumbnails_overlays
+                                )
+                                if is_upcoming:
+                                    # 예정된 동영상이므로 제외
+                                    continue
                                 yt_videoids.append(
                                     "https://www.youtube.com/watch?v=" + yt_videoid
                                 )
@@ -242,7 +255,6 @@ async def main(urllist):
                             with open(filename, "a", encoding="utf-8") as f:
                                 f.write(fileContent)
                                 print(f"File {filename} updated.")
-            time.sleep(waittime1)
 
 
 # 메인 실행
