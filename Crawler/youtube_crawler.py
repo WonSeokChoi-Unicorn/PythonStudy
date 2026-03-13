@@ -14,7 +14,7 @@ from yt_iframe import yt
 
 # 숫자만 추출하기 위한 re를 import 한다.
 import re
-
+from user_agent import generate_user_agent
 # # 카카오 번역
 # # pip install kakaotrans
 # from kakaotrans import Translator
@@ -158,16 +158,18 @@ async def fetch(
 
 
 async def main(urllist):
-    async with aiohttp.ClientSession() as session1:
+    async with aiohttp.ClientSession(headers = headers) as session1:
         for url in urllist:
             response1 = await session1.get(url)
             if response1.status == 200:
                 Html1 = await response1.text()
                 Soup1 = BeautifulSoup(Html1, "lxml")
-                channelname = (
-                    Soup1.find("title").get_text().strip().replace(" - YouTube", "")
-                )
-
+                try:
+                    channelname = (
+                        Soup1.find("title").get_text().strip().replace(" - YouTube", "")
+                    )
+                except:
+                    pass
                 # 채널명은 반복문 전 파일에 1번만 저장하도록
                 channelheader = "<p>" + "#####*****" + channelname + "</p>"
                 channelheader += "\n"
@@ -330,7 +332,7 @@ if __name__ == "__main__":
     # urllist = [
     # 'https://www.youtube.com/user/dlrldud1111/videos'
     # ]
-
+    headers = {"User-Agent" : generate_user_agent(device_type = 'desktop', navigator='chrome')}
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main(urllist))
     # 시간1과 시간2의 차이를 구한다
