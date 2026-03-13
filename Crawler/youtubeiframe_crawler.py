@@ -1,153 +1,154 @@
-# selenium에서 webdriver를 사용할 수 있게 webdriver를 import 한다.
-# https://sites.google.com/chromium.org/driver/
-# 에서 크롬 버전에 맞는 크롬드라이버를 다운로드 후 Scripts 폴더로 복사하기
-import time
-from selenium import webdriver
-
-# find_element 사용 위해서 import
-from selenium.webdriver.common.by import By
-
-# BeautifulSoup4를 import 한다.
-from bs4 import BeautifulSoup
-
-# iframe TAG 작성을 위해 yt를 import 한다. (pip install yt-iframe)
-from yt_iframe import yt
-
-# 파일 존재 여부 확인 위한 os를 import 한다.
 import os
-
-# 날짜 시간 처리 위해 datetime를 import 한다.
+import requests
 from datetime import datetime
-
 from pathlib import Path
+from urllib.parse import urlparse, parse_qs
 
 # 저장 폴더
 savefolder = Path("D:/ggoorr")
 
 # 유튜브 URL 정리한 텍스트 파일을 한 줄씩 읽어 옵니다
-# 경로에 기본 확장 문자(escape sequence)를 피하기 위해서 역슬래시를 2개 사용
-fr = open("D:\\youtubeurl.txt", "r")
+fr = open("D:\\youtubeurl.txt", "r", encoding="utf-8")
 # 한 줄씩 읽기
 lines = fr.readlines()
 
 # 파일명을 날짜로 이용하기 위해 글로벌로 이동
 nowDate = datetime.now()
 
+# 결과 파일 경로
+outfile = savefolder / (nowDate.strftime("%Y-%m-%d") + "_youtubeonce.txt")
+
 # 파일에 저장 (시작)
-if os.path.isfile(savefolder / (nowDate.strftime("%Y-%m-%d") + "_youtubeonce.txt")):
+if os.path.isfile(outfile):
     # 파일이 존재할 경우 추가, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-    fw = open(
-        savefolder / (nowDate.strftime("%Y-%m-%d") + "_youtubeonce.txt"),
-        mode="at",
-        encoding="utf-8",
-    )
+    fw = open(outfile, mode="at", encoding="utf-8")
 else:
     # 파일이 존재하지 않을 경우 생성, 파일 작성 시간이 길어져서 년월일로 파일명 생성
-    fw = open(
-        savefolder / (nowDate.strftime("%Y-%m-%d") + "_youtubeonce.txt"),
-        mode="wt",
-        encoding="utf-8",
-    )
+    fw = open(outfile, mode="wt", encoding="utf-8")
 
-options = webdriver.ChromeOptions()
-# 로그를 없애는 설정
-options.add_experimental_option("excludeSwitches", ["enable-logging"])
-# 크롬 브라우저 안 보이게
-options.add_argument("headless")
-# driver란 변수에 객체를 만들어 준다.
-driver = webdriver.Chrome(options=options)
+
+# oEmbed 요청 함수[web:19]
+def get_oembed_data(video_url: str):
+    endpoint = "https://www.youtube.com/oembed"
+    params = {
+        "url": video_url,
+        "format": "json",
+    }
+    headers = {
+        "User-Agent": "Mozilla/5.0 (compatible; youtube-oembed-bot/1.0)"
+    }
+
+    resp = requests.get(endpoint, params=params, headers=headers, timeout=10)
+    if resp.status_code != 200:
+        raise RuntimeError(f"oEmbed 요청 실패: {resp.status_code} {resp.text}")
+    return resp.json()
+
+
+# Shorts URL을 oEmbed용 watch URL로 변환[web:23]
+def normalize_youtube_url(url: str) -> str:
+    url = url.strip()
+
+    if not url:
+        return url
+
+    if "/shorts/" in url:
+        video_id = url.split("/shorts/")[1]
+        if "?" in video_id:
+            video_id = video_id.split("?", 1)[0]
+        return f"https://www.youtube.com/watch?v={video_id}"
+
+    # watch, youtu.be 등은 그대로 사용[web:19]
+    return url
+
+
+# 다양한 형태의 유튜브 URL에서 Video ID 추출
+def extract_video_id(url: str) -> str:
+    url = url.strip()
+    if not url:
+        return ""
+
+    # shorts
+    if "/shorts/" in url:
+        video_id = url.split("/shorts/")[1]
+        if "?" in video_id:
+            video_id = video_id.split("?", 1)[0]
+        return video_id
+
+    parsed = urlparse(url)
+
+    # watch?v= 형태
+    if parsed.path == "/watch":
+        qs = parse_qs(parsed.query)
+        if "v" in qs:
+            return qs["v"][0]
+
+    # youtu.be 단축 URL
+    if "youtu.be" in parsed.netloc and parsed.path:
+        return parsed.path.lstrip("/")
+
+    # /embed/ID 형태
+    if "/embed/" in parsed.path:
+        return parsed.path.split("/embed/")[1]
+
+    return ""
+
 
 for line in reversed(lines):
-    utubeKey = ""  # 유튜브 키값 초기화
-    url = ""  # url 초기화
-    iframe = ""  # iframe 초기화
-    fileContent = ""  # fileContent 초기화
-    tempstr = ""  # 임시 저장 초기화
-
-    # iframe 태그 생성을 위해 폭과 높이를 설정
-    width = "560"  # (Optional)
-    height = "315"  # (Optional)
-
     # 빈 줄일 경우 통과
     if line.strip() == "":
         continue
 
-    # line의 공백 제거
-    line = line.strip()
+    original_url = line.strip()
 
-    # 원하는 사이트의 url을 입력하여 사이트를 연다.
-    driver.get(line)
+    # oEmbed용 URL 정규화 (특히 shorts → watch)[web:23]
+    normalized_url = normalize_youtube_url(original_url)
 
-    # 대기
-    time.sleep(3)
+    try:
+        data = get_oembed_data(normalized_url)
+    except Exception as e:
+        print("################################################################################################")
+        print(f"oEmbed 실패: {original_url}")
+        print(e)
+        print("################################################################################################")
+        continue
 
-    # body를 스크롤하기 위해 tagname이 body로 되어있는것을 추출합니다.
-    body = driver.find_element(By.TAG_NAME, "body")
+    # oEmbed 응답에서 제목만 사용[web:19]
+    title = data.get("title", "").strip()
 
-    # 로드 된 페이지 소스를 html이란 변수에 저장합니다.
-    html = driver.page_source
+    # 최종 iframe 생성을 위해 Video ID 추출
+    video_id = extract_video_id(original_url)
+    if not video_id:
+        print("VIDEO ID 추출 실패: ", original_url)
+        continue
 
-    # html을 'lxml' parser를 사용하여 분석합니다.
-    soup = BeautifulSoup(html, "lxml")
-
-    # 제목 조건에 맞는 모든 div 태그의 ytp-title-text class들을 가져옵니다.
-    title = soup.find("title").get_text()
-
-    # " - YouTube"를 삭제 처리
-    title = title.replace(" - YouTube", "")
-    print(
-        "####################################################################################################################################"
+    # 원하는 최종 형태의 iframe 직접 생성
+    iframe_html = (
+        f'<iframe width="560" height="315" '
+        f'src="https://www.youtube.com/embed/{video_id}" '
+        f'frameborder="0" '
+        f'allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" '
+        f'allowfullscreen></iframe>'
     )
+
+    print("################################################################################################")
     print(title)
-    print(
-        "####################################################################################################################################"
-    )
+    print("################################################################################################")
 
-    # url 길이에 따라서 Video ID 추출하는 방법 구분
-    if "/shorts/" in line:
-        # 유튜브 Video ID 추출
-        utubeKey = line[line.index("/shorts/") + 8 :]
-        # 유튜브 URL 만들기
-        url = "https://www.youtube.com/shorts/" + str(utubeKey)
-        # iframe 태그 생성 - 아직 라이브러리가 없어서 수동 처리
-        iframe = (
-            '<iframe width="315" height="560" src="https://www.youtube.com/embed/'
-            + str(utubeKey)
-            + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
-        )
-    elif len(line) == 43:
-        utubeKey = line[32 : 32 + 11]
-        # 유튜브 URL 만들기
-        url = "https://www.youtube.com/watch?v=" + str(utubeKey)
-        # iframe 태그 생성
-        iframe = yt.video(url, width=width, height=height)
-    elif len(line) == 39:
-        utubeKey = line[28 : 28 + 11]
-        # 유튜브 URL 만들기
-        url = "https://www.youtube.com/watch?v=" + str(utubeKey)
-        # iframe 태그 생성
-        iframe = yt.video(url, width=width, height=height)
-    elif len(line) == 28:
-        utubeKey = line[17 : 17 + 11]
-        # 유튜브 URL 만들기
-        url = "https://www.youtube.com/watch?v=" + str(utubeKey)
-        # iframe 태그 생성
-        iframe = yt.video(url, width=width, height=height)
+    # 출력 형식:
+    # <p>제목</p>
+    # <p><a target=_blank href="URL">URL</a></p>
+    # <p><iframe ...></iframe></p>
+    tempstr = ""
+    tempstr += f'<p>{title}</p>\n'
+    tempstr += f'<p><a target=_blank href="{original_url}">{original_url}</a></p>\n'
+    tempstr += f'<p>{iframe_html}</p>\n\n'
 
-    tempstr = "<p>" + title + "</p>"
-    tempstr += "\n"
-    tempstr += '<p><a target=_blank href="' + url + '">' + url + "</a></p>"
-    tempstr += "\n"
-    tempstr += "<p>" + iframe + "</p>"
-    tempstr += "\n"
-
-    # 파일에 저장 (계속)
     fileContent = tempstr
 
     if (fw is not None) and fw.write(fileContent):
         print("fileContent write OK ")
     else:
-        fw.close
-# webdriver를 종료한다.
-driver.quit()
+        fw.close()
+
 fr.close()
+fw.close()
