@@ -159,180 +159,201 @@ async def fetch(
 
 async def main(urllist):
     async with aiohttp.ClientSession(headers = headers) as session1:
-        for url in urllist:
-            response1 = await session1.get(url)
-            if response1.status == 200:
-                Html1 = await response1.text()
-                Soup1 = BeautifulSoup(Html1, "lxml")
-                try:
-                    channelname = (
-                        Soup1.find("title").get_text().strip().replace(" - YouTube", "")
-                    )
-                except:
-                    pass
-                # 채널명은 반복문 전 파일에 1번만 저장하도록
-                channelheader = "<p>" + "#####*****" + channelname + "</p>"
-                channelheader += "\n"
+        for base_url in urllist:
+            base_url = base_url.rstrip("/")
 
-                print(
-                    "##################################################################"
-                )
-                print(channelname)
-                print(
-                    "##################################################################"
-                )
+            # 1. 채널명 추출을 위해 기본 URL에 먼저 접속
+            response1 = await session1.get(base_url)
+            if response1.status != 200:
+                continue
 
-                fileContent = channelheader
+            Html1 = await response1.text()
+            Soup1 = BeautifulSoup(Html1, "lxml")
+            try:
+                channelname = Soup1.find("title").get_text().strip().replace(" - YouTube", "")
+            except:
+                channelname = base_url.split("/")[-1]
+
+            # 채널명은 반복문 전 파일에 1번만 저장하도록
+            channelheader = "\n" + "#####***** " + channelname + " *****#####\n"
+            print("##################################################################")
+            print(channelname)
+            print("##################################################################")
+
+            filename = savefolder / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
+            with open(filename, "a", encoding="utf-8") as f:
+                f.write(channelheader)
+
+            # 2. 채널 내 3가지 탭(videos, streams, shorts) 순차적 크롤링
+            for tab_name in ["videos", "streams", "shorts"]:
+                url = f"{base_url}/{tab_name}"
+                response_tab = await session1.get(url)
+                if response_tab.status != 200:
+                    continue
+
+                Html_tab = await response_tab.text()
+                Soup_tab = BeautifulSoup(Html_tab, "lxml")
+
+                yt_scripttags = Soup_tab.find_all("script", string=re.compile(r"ytInitialData"))
+                if not yt_scripttags:
+                    continue
+
+                yt_datascript = yt_scripttags[0].string
+                yt_initialdata_match = re.search(r"ytInitialData\s*=\s*({.*?});", yt_datascript, re.DOTALL)
+                if not yt_initialdata_match:
+                    continue
+
+                yt_initialdata = json.loads(yt_initialdata_match.group(1))
+
+                # 접속한 탭(selected=True)의 컨텐츠 데이터 찾기
+                yt_tabs = yt_initialdata.get("contents", {}).get("twoColumnBrowseResultsRenderer", {}).get("tabs", [])
+                yt_gridcontents = []
+                for tab in yt_tabs:
+                    tab_renderer = tab.get("tabRenderer", {})
+                    if tab_renderer.get("selected", False):
+                        content = tab_renderer.get("content", {})
+                        if "richGridRenderer" in content:
+                            yt_gridcontents = content.get("richGridRenderer", {}).get("contents", [])
+                        break
+
+                yt_videoids = []
+                for item in yt_gridcontents:
+                    yt_richitemrenderer = item.get("richItemRenderer", {})
+                    if not yt_richitemrenderer:
+                        continue
+
+                    content_item = yt_richitemrenderer.get("content", {})
+
+                    yt_videoid = None
+                    is_upcoming = False
+                    is_members_only = False
+
+                    # 일반 동영상 및 라이브 스트리밍 처리 (videoRenderer)
+                    if "videoRenderer" in content_item:
+                        yt_videorenderer = content_item["videoRenderer"]
+                        yt_videoid = yt_videorenderer.get("videoId")
+
+                        # 예정된 동영상 확인
+                        if "upcomingEventData" in yt_videorenderer:
+                            continue
+
+                        thumbnails_overlays = yt_videorenderer.get("thumbnailOverlays", [])
+                        is_upcoming = any(
+                            overlay.get("thumbnailOverlayTimeStatusRenderer", {}).get("style") == "UPCOMING"
+                            for overlay in thumbnails_overlays
+                        )
+                        if is_upcoming:
+                            continue
+
+                        # 회원 전용 확인
+                        badges = yt_videorenderer.get("badges", [])
+                        for badge in badges:
+                            badge_renderer = badge.get("metadataBadgeRenderer", {})
+                            style = badge_renderer.get("style", "")
+                            if style == "BADGE_STYLE_TYPE_MEMBERS_ONLY" or "회원" in badge_renderer.get("label", ""):
+                                is_members_only = True
+                                break
+                        if is_members_only:
+                            continue
+
+                    # 쇼츠 동영상 처리 (shortsLockupViewModel) - 유튜브 구조 변경 대응
+                    elif "shortsLockupViewModel" in content_item:
+                        shorts_lockup = content_item["shortsLockupViewModel"]
+                        url_path = shorts_lockup.get("onTap", {}).get("innertubeCommand", {}).get("commandMetadata", {}).get("webCommandMetadata", {}).get("url", "")
+
+                        if url_path.startswith("/shorts/"):
+                            yt_videoid = url_path.replace("/shorts/", "").split("?")[0]
+                        else:
+                            entity_id = shorts_lockup.get("entityId", "")
+                            if entity_id.startswith("shorts-shelf-item-"):
+                                yt_videoid = entity_id.replace("shorts-shelf-item-", "")
+
+                    if yt_videoid:
+                        # Shorts도 일반 youtube watch 링크로 접근이 가능하여 기존 fetch 함수 재사용 가능
+                        yt_videoids.append("https://www.youtube.com/watch?v=" + yt_videoid)
+
+                if not yt_videoids:
+                    continue
+
+                # 비동기 정보 수집(기존 fetch 함수 호출)
+                tasks = [fetch(session1, yt_videoid) for yt_videoid in yt_videoids]
+                results = await asyncio.gather(*tasks)
+                fileContent = "\n".join(filter(None, results))
 
                 if fileContent:
-                    filename = (
-                        savefolder
-                        / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
-                    )
                     with open(filename, "a", encoding="utf-8") as f:
                         f.write(fileContent)
-                        print(f"File {filename} updated.")
-
-                del fileContent
-
-                yt_scripttags = Soup1.find_all(
-                    "script", string=re.compile(r"ytInitialData")
-                )
-                if yt_scripttags:
-                    yt_datascript = yt_scripttags[0].string
-                    yt_initialdata = re.search(
-                        r"ytInitialData\s*=\s*({.*?});", yt_datascript, re.DOTALL
-                    )
-
-                    if yt_initialdata:
-                        yt_initialdatajsonstr = yt_initialdata.group(1)
-                        yt_initialdata = json.loads(yt_initialdatajsonstr)
-                        yt_videoids = []
-
-                        yt_richgridrenderer = (
-                            yt_initialdata.get("contents", {})
-                            .get("twoColumnBrowseResultsRenderer", {})
-                            .get("tabs", [])[1]
-                            .get("tabRenderer", {})
-                            .get("content", {})
-                            .get("richGridRenderer", {})
-                        )
-                        yt_gridcontents = yt_richgridrenderer.get("contents", [])
-
-                        for item in yt_gridcontents:
-                            yt_richitemrenderer = item.get("richItemRenderer", {})
-                            yt_videorenderer = yt_richitemrenderer.get(
-                                "content", {}
-                            ).get("videoRenderer", {})
-                            yt_videoid = yt_videorenderer.get("videoId", None)
-                            if yt_videoid:
-                                # 예정된 동영상 확인 방법 1: upcomingEventData 확인
-                                if "upcomingEventData" in yt_videorenderer:
-                                    # 예정된 동영상이므로 제외
-                                    continue
-                                # 예정된 동영상 확인 방법 2: thumbnailOverlays 확인
-                                thumbnails_overlays = yt_videorenderer.get("thumbnailOverlays", [])
-                                is_upcoming = any(
-                                    overlay.get("thumbnailOverlayTimeStatusRenderer", {}).get("style") == "UPCOMING"
-                                    for overlay in thumbnails_overlays
-                                )
-                                if is_upcoming:
-                                    # 예정된 동영상이므로 제외
-                                    continue
-                                # 회원 전용(Members-only) 동영상 제외 로직
-                                badges = yt_videorenderer.get("badges", [])
-                                is_members_only = False
-                                for badge in badges:
-                                    badge_renderer = badge.get("metadataBadgeRenderer", {})
-                                    style = badge_renderer.get("style", "")
-                                    # 스타일이 회원 전용이거나, 라벨 텍스트에 '회원'이 포함된 경우 체크
-                                    if style == "BADGE_STYLE_TYPE_MEMBERS_ONLY" or "회원" in badge_renderer.get("label", ""):
-                                        is_members_only = True
-                                        break
-                                # 회원 전용 동영상이므로 제외
-                                if is_members_only:
-                                    continue
-                                yt_videoids.append(
-                                    "https://www.youtube.com/watch?v=" + yt_videoid
-                                )
-
-                        tasks = [
-                            fetch(session1, yt_videoid) for yt_videoid in yt_videoids
-                        ]
-                        results = await asyncio.gather(*tasks)
-
-                        fileContent = "\n".join(filter(None, results))
-                        if fileContent:
-                            filename = (
-                                savefolder
-                                / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
-                            )
-                            with open(filename, "a", encoding="utf-8") as f:
-                                f.write(fileContent)
-                                print(f"File {filename} updated.")
+                    print(f"[{tab_name}] 탭에서 조건에 맞는 영상 기록 완료")
 
 
 # 메인 실행
 if __name__ == "__main__":
     # 추출할 유튜브 채널의 동영상 탭
     urllist = [
-        "https://www.youtube.com/c/14FMBC/videos",
-        "https://www.youtube.com/c/BMan%EC%82%90%EB%A7%A8/videos",
-        "https://www.youtube.com/@Btv%EC%9D%B4%EB%8F%99%EC%A7%84%EC%9D%98%ED%8C%8C%EC%9D%B4%EC%95%84%ED%82%A4%EC%95%84/videos",
-        "https://www.youtube.com/channel/UC5aNQ65ADb02zEJxzb_zmYQ/videos",
-        "https://www.youtube.com/user/rladndgussla/videos",
-        "https://www.youtube.com/@%EA%B9%80%EB%B0%94%EB%B9%84/videos",
-        "https://www.youtube.com/c/%EB%8F%88%EB%A6%BD%EB%A7%8C%EC%84%B8/videos",
-        "https://www.youtube.com/@ddeunddeun/videos",
-        "https://www.youtube.com/c/%EB%A1%9C%EC%9D%B4%EC%96%B4%ED%94%84%EB%A0%8C%EC%A6%88lawyerfriends/videos",
-        "https://www.youtube.com/c/Owlsreview/videos",
-        "https://www.youtube.com/@nicekiyoung/videos",
-        "https://www.youtube.com/@pyeongsanbooks/videos",
-        "https://www.youtube.com/@nofeetbird/videos",
-        "https://www.youtube.com/@red12734/videos",
-        "https://www.youtube.com/@443RohmoohyunFoundation/videos",
-        "https://www.youtube.com/@%EC%82%AC%EB%AC%BC%EA%B6%81%EC%9D%B4/videos",
-        "https://www.youtube.com/@sebasi15/videos",
-        "https://www.youtube.com/@%EC%84%B8%EB%AA%A8%EC%A7%80/videos",
-        "https://www.youtube.com/@Sherlock_HJ/videos",
-        "https://www.youtube.com/@%EC%86%8C%EB%B9%84%EB%8D%94%EB%A8%B8%EB%8B%88/videos",
-        "https://www.youtube.com/@syukaworld/videos",
-        "https://www.youtube.com/@moneymoneycomics/videos",
-        "https://www.youtube.com/@ens8388/videos",
-        "https://www.youtube.com/@yuna_ogura/videos",
-        "https://www.youtube.com/@OMG_electronics/videos",
-        "https://www.youtube.com/@autoview2009/videos",
-        "https://www.youtube.com/@jiaxi_lee/videos",
-        "https://www.youtube.com/@genreismoney/videos",
-        "https://www.youtube.com/@%EC%B0%A8%EC%82%B0%EC%84%A0%EC%83%9D%EB%B2%95%EB%A5%A0%EC%83%81%EC%8B%9D-d6j/videos",
-        "https://www.youtube.com/@geniussklee/videos",
-        "https://www.youtube.com/@geniussklee_act2838/videos",
-        "https://www.youtube.com/@choemazon/videos",
-        "https://www.youtube.com/@TTimesTV/videos",
-        "https://www.youtube.com/@%ED%94%BD%EC%B8%84/videos",
-        "https://www.youtube.com/@HanSangKi/videos",
-        "https://www.youtube.com/@hansangki9105/videos",
-        "https://www.youtube.com/@TEDEd/videos",
-        "https://www.youtube.com/@kurzgesagt/videos",
-        "https://www.youtube.com/@nightshift_kurzgesagt/videos",
-        "https://www.youtube.com/@Vox/videos",
-        "https://www.youtube.com/c/LGElectronicsKorea/videos",
-        "https://www.youtube.com/user/LGSTORY/videos",
-        "https://www.youtube.com/c/DisneyMovieKr/videos",
-        "https://www.youtube.com/c/MarvelKorea/videos",
-        "https://www.youtube.com/@ArgentUnicorn/videos",
-        "https://www.youtube.com/@ArgentUnicornPlayground/videos",
-        "https://www.youtube.com/channel/UC7A1QdDXcu3zu_KS8DddL1A/videos",
-        "https://www.youtube.com/@bamgongwon/videos",
-        "https://www.youtube.com/@haeinleezy/videos",
-        "https://www.youtube.com/@%EB%B0%A4%EA%B3%B5%EC%9B%90/videos",
+        "https://www.youtube.com/@14FMBC",
+        "https://www.youtube.com/@%EC%82%90%EB%A7%A8",
+        "https://www.youtube.com/@Btv%EC%9D%B4%EB%8F%99%EC%A7%84%EC%9D%98%ED%8C%8C%EC%9D%B4%EC%95%84%ED%82%A4%EC%95%84",
+        "https://www.youtube.com/@%EA%B0%80%EC%A0%84%EC%A3%BC%EB%B6%80GJJB",
+        "https://www.youtube.com/@%EA%B3%A0%EB%AA%BD",
+        "https://www.youtube.com/@%EA%B9%80%EB%B0%94%EB%B9%84",
+        "https://www.youtube.com/@%EB%A8%B8%EB%8B%88%EC%95%A4%EB%9D%BC%EC%9D%B4%ED%94%84",
+        "https://www.youtube.com/@ddeunddeun",
+        "https://www.youtube.com/@lawyerfriends",
+        "https://www.youtube.com/@%EB%A6%AC%EB%B7%B0%EC%97%89%EC%9D%B4",
+        "https://www.youtube.com/@nicekiyoung",
+        "https://www.youtube.com/@pyeongsanbooks",
+        "https://www.youtube.com/@nofeetbird",
+        "https://www.youtube.com/@red12734",
+        "https://www.youtube.com/@443RohmoohyunFoundation",
+        "https://www.youtube.com/@%EC%82%AC%EB%AC%BC%EA%B6%81%EC%9D%B4",
+        "https://www.youtube.com/@sebasi15",
+        "https://www.youtube.com/@%EC%84%B8%EB%AA%A8%EC%A7%80",
+        "https://www.youtube.com/@Sherlock_HJ",
+        "https://www.youtube.com/@%EC%86%8C%EB%B9%84%EB%8D%94%EB%A8%B8%EB%8B%88",
+        "https://www.youtube.com/@syukaworld",
+        "https://www.youtube.com/@moneymoneycomics",
+        "https://www.youtube.com/@ens8388",
+        "https://www.youtube.com/@yuna_ogura",
+        "https://www.youtube.com/@OMG_electronics",
+        "https://www.youtube.com/@autoview2009",
+        "https://www.youtube.com/@jiaxi_lee",
+        "https://www.youtube.com/@genreismoney",
+        "https://www.youtube.com/@%EC%B0%A8%EC%82%B0%EC%84%A0%EC%83%9D%EB%B2%95%EB%A5%A0%EC%83%81%EC%8B%9D-d6j",
+        "https://www.youtube.com/@geniussklee",
+        "https://www.youtube.com/@geniussklee_act2838",
+        "https://www.youtube.com/@choemazon",
+        "https://www.youtube.com/@TTimesTV",
+        "https://www.youtube.com/@%ED%94%BD%EC%B8%84",
+        "https://www.youtube.com/@HanSangKi",
+        "https://www.youtube.com/@hansangki9105",
+        "https://www.youtube.com/@TEDEd",
+        "https://www.youtube.com/@kurzgesagt",
+        "https://www.youtube.com/@nightshift_kurzgesagt",
+        "https://www.youtube.com/@Vox",
+        "https://www.youtube.com/@LGElectronicsKorea",
+        "https://www.youtube.com/@LGSTORY",
+        "https://www.youtube.com/@DisneyMovieKr",
+        "https://www.youtube.com/@MarvelKorea",
+        "https://www.youtube.com/@ArgentUnicorn",
+        "https://www.youtube.com/@ArgentUnicornPlayground",
+        "https://www.youtube.com/@kfoodrecipes",
+        "https://www.youtube.com/@bamgongwon",
+        "https://www.youtube.com/@haeinleezy",
+        "https://www.youtube.com/@%EB%B0%A4%EA%B3%B5%EC%9B%90",
     ]
 
     # TEST
     # urllist = [
     # 'https://www.youtube.com/user/dlrldud1111/videos'
     # ]
-    headers = {"User-Agent" : generate_user_agent(device_type = 'desktop', navigator='chrome')}
+    headers = {"User-Agent" : generate_user_agent(device_type = 'desktop', navigator='chrome'),
+    "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1"}
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main(urllist))
     # 시간1과 시간2의 차이를 구한다
