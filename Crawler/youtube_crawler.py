@@ -95,7 +95,7 @@ async def fetch(
             yt_datePublisheddtkst = yt_datePublisheddtpst.astimezone(kst)
 
             # 제목 추출
-            yt_title = Soup2.find("title").get_text().strip().replace(" - YouTube", "")
+            yt_title = Soup2.find("title").get_text().strip().replace(" - YouTube", "").replace("#shorts", "")
 
             # 채널 찾기
             channelname = Soup2.find("link", attrs={"itemprop": "name"})["content"]
