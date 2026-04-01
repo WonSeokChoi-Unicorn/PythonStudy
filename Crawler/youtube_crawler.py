@@ -46,7 +46,7 @@ width = "560"
 height = "315"
 
 # 한국어로 구글 번역할 영어 채널 리스트
-englishchannel = ["Kurzgesagt – In a Nutshell", "TED-Ed", "Vox"]
+englishchannel = ["Kurzgesagt – In a Nutshell", "TED-Ed", "Vox", "Nightshift – Kurzgesagt After Dark"]
 
 # 전일 오전 6시
 yesterday = datetime.today() - timedelta(days=1)
