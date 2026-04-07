@@ -282,6 +282,7 @@ async def main(urllist):
 
                 if fileContent:
                     with open(filename, "a", encoding="utf-8") as f:
+                        f.write(f"--------------- {tab_name} ---------------\n")
                         f.write(fileContent)
                     print(f"[{tab_name}] 탭에서 조건에 맞는 영상 기록 완료")
 
