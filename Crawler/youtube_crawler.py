@@ -294,7 +294,7 @@ if __name__ == "__main__":
         "https://www.youtube.com/@14FMBC",
         "https://www.youtube.com/@%EC%82%90%EB%A7%A8",
         "https://www.youtube.com/@Btv%EC%9D%B4%EB%8F%99%EC%A7%84%EC%9D%98%ED%8C%8C%EC%9D%B4%EC%95%84%ED%82%A4%EC%95%84",
-        "https://www.youtube.com/@%EA%B0%80%EC%A0%84%EC%A3%BC%EB%B6%80GJJB",
+        "https://www.youtube.com/@Gajoo",
         "https://www.youtube.com/@%EA%B3%A0%EB%AA%BD",
         "https://www.youtube.com/@%EA%B9%80%EB%B0%94%EB%B9%84",
         "https://www.youtube.com/@%EB%A8%B8%EB%8B%88%EC%95%A4%EB%9D%BC%EC%9D%B4%ED%94%84",
