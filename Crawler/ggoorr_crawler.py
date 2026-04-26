@@ -269,44 +269,60 @@ def getDetail(detailUrl, option):
             # 2023.11.29 불필요 <p style="text-align:center;"></p> 제외
             try:
                 if (
-                    pLine["style"] == "text-align:center;"
+                    pLine.get("style") == "text-align:center;"
                     and pLine.get_text().strip() == ""
                 ):
-                    # img 태그 있으면 다음 pLine으로 진행하지 않음
-                    if not pLine.find("img"):
+                    # img 태그 또는 video 태그가 있으면 다음 pLine으로 진행하지 않음
+                    if not pLine.find("img") and not pLine.find("video"):
                         continue
             except:
                 pass
 
-            # 2023.03.21 video height 속성 삭제
+            # img 태그의 속성 중 src만 남기기
             try:
-                if pLine.name == "video":
-                    del pLine["height"]
+                if pLine.name == "img":
+                    src = pLine.get("src")
+                    pLine.attrs = {} # 모든 속성 지우기
+                    if src:
+                        pLine["src"] = src
+                for img in pLine.find_all("img"):
+                    src = img.get("src")
+                    img.attrs = {}
+                    if src:
+                        img["src"] = src
             except:
                 pass
-            # 2023.03.21 video width 속성 삭제 후 100%로 설정
+
+            # video 태그의 속성 중 src, controls, width="100%"만 남기기
             try:
                 if pLine.name == "video":
-                    del pLine["width"]
-                    # width를 100%로 설정
+                    src = pLine.get("src")
+                    has_controls = "controls" in pLine.attrs
+                    controls_val = pLine.get("controls")
+
+                    pLine.attrs = {} # 모든 속성 지우기
+
+                    if src:
+                        pLine["src"] = src
+                    if has_controls:
+                        pLine["controls"] = controls_val if controls_val is not None else ""
                     pLine["width"] = "100%"
+
+                for video in pLine.find_all("video"):
+                    src = video.get("src")
+                    has_controls = "controls" in video.attrs
+                    controls_val = video.get("controls")
+
+                    video.attrs = {} # 모든 속성 지우기
+
+                    if src:
+                        video["src"] = src
+                    if has_controls:
+                        video["controls"] = controls_val if controls_val is not None else ""
+                    video["width"] = "100%"
             except:
                 pass
-            # 2023.08.21 video width 속성 삭제 후 100%로 설정
-            try:
-                pLinevideo = pLine.find("video")
-                if not pLinevideo.has_attr("width"):
-                    pLinevideo["width"] = "100%"
-                else:
-                    pLinevideo["width"] = "100%"
-            except:
-                pass
-            # 2023.04.25 video style 속성 삭제
-            try:
-                if pLine.name == "video":
-                    del pLine["style"]
-            except:
-                pass
+
             # 2023.11.11 video를 p로 감싸기
             try:
                 if pLine.name == "video":
