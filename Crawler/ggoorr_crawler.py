@@ -293,7 +293,7 @@ def getDetail(detailUrl, option):
             except:
                 pass
 
-            # video 태그의 속성 중 src, controls, width, height, muted, autoplay, loop, playsinline 남기기
+            # video 태그의 속성 중 src, controls, width, muted, autoplay, loop, playsinline 남기기
             # 2026.04.30 muted, autoplay, loop, playsinline 속성 보존 추가
             try:
                 if pLine.name == "video":
@@ -304,7 +304,6 @@ def getDetail(detailUrl, option):
                     has_autoplay = "autoplay" in pLine.attrs
                     has_loop = "loop" in pLine.attrs
                     has_playsinline = "playsinline" in pLine.attrs
-                    height = pLine.get("height")
 
                     pLine.attrs = {}  # 모든 속성 지우기
 
@@ -314,8 +313,6 @@ def getDetail(detailUrl, option):
                         pLine["controls"] = controls_val if controls_val is not None else ""
                     else:
                         pLine["width"] = "100%"
-                    if height:
-                        pLine["height"] = height
                     if has_muted:
                         pLine["muted"] = ""
                     if has_autoplay:
@@ -333,7 +330,6 @@ def getDetail(detailUrl, option):
                     has_autoplay = "autoplay" in video.attrs
                     has_loop = "loop" in video.attrs
                     has_playsinline = "playsinline" in video.attrs
-                    height = video.get("height")
 
                     video.attrs = {}  # 모든 속성 지우기
 
@@ -343,8 +339,6 @@ def getDetail(detailUrl, option):
                         video["controls"] = controls_val if controls_val is not None else ""
                     else:
                         video["width"] = "100%"
-                    if height:
-                        video["height"] = height
                     if has_muted:
                         video["muted"] = ""
                     if has_autoplay:
