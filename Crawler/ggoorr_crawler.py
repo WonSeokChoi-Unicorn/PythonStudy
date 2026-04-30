@@ -293,33 +293,66 @@ def getDetail(detailUrl, option):
             except:
                 pass
 
-            # video 태그의 속성 중 src, controls, width="100%"만 남기기
+            # video 태그의 속성 중 src, controls, width, height, muted, autoplay, loop, playsinline 남기기
+            # 2026.04.30 muted, autoplay, loop, playsinline 속성 보존 추가
             try:
                 if pLine.name == "video":
                     src = pLine.get("src")
                     has_controls = "controls" in pLine.attrs
                     controls_val = pLine.get("controls")
+                    has_muted = "muted" in pLine.attrs
+                    has_autoplay = "autoplay" in pLine.attrs
+                    has_loop = "loop" in pLine.attrs
+                    has_playsinline = "playsinline" in pLine.attrs
+                    height = pLine.get("height")
 
-                    pLine.attrs = {} # 모든 속성 지우기
+                    pLine.attrs = {}  # 모든 속성 지우기
 
                     if src:
                         pLine["src"] = src
                     if has_controls:
                         pLine["controls"] = controls_val if controls_val is not None else ""
-                    pLine["width"] = "100%"
+                    else:
+                        pLine["width"] = "100%"
+                    if height:
+                        pLine["height"] = height
+                    if has_muted:
+                        pLine["muted"] = ""
+                    if has_autoplay:
+                        pLine["autoplay"] = ""
+                    if has_loop:
+                        pLine["loop"] = ""
+                    if has_playsinline:
+                        pLine["playsinline"] = ""
 
                 for video in pLine.find_all("video"):
                     src = video.get("src")
                     has_controls = "controls" in video.attrs
                     controls_val = video.get("controls")
+                    has_muted = "muted" in video.attrs
+                    has_autoplay = "autoplay" in video.attrs
+                    has_loop = "loop" in video.attrs
+                    has_playsinline = "playsinline" in video.attrs
+                    height = video.get("height")
 
-                    video.attrs = {} # 모든 속성 지우기
+                    video.attrs = {}  # 모든 속성 지우기
 
                     if src:
                         video["src"] = src
                     if has_controls:
                         video["controls"] = controls_val if controls_val is not None else ""
-                    video["width"] = "100%"
+                    else:
+                        video["width"] = "100%"
+                    if height:
+                        video["height"] = height
+                    if has_muted:
+                        video["muted"] = ""
+                    if has_autoplay:
+                        video["autoplay"] = ""
+                    if has_loop:
+                        video["loop"] = ""
+                    if has_playsinline:
+                        video["playsinline"] = ""
             except:
                 pass
 
