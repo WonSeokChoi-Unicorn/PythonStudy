@@ -295,6 +295,7 @@ def getDetail(detailUrl, option):
 
             # video 태그의 속성 중 src, controls, width, muted, autoplay, loop, playsinline 남기기
             # 2026.04.30 muted, autoplay, loop, playsinline 속성 보존 추가
+            # 2026.05.01 controls 유무 관계없이 width="100%" 항상 추가
             try:
                 if pLine.name == "video":
                     src = pLine.get("src")
@@ -311,8 +312,7 @@ def getDetail(detailUrl, option):
                         pLine["src"] = src
                     if has_controls:
                         pLine["controls"] = controls_val if controls_val is not None else ""
-                    else:
-                        pLine["width"] = "100%"
+                    pLine["width"] = "100%"          # ← else 없애고 항상 넣기
                     if has_muted:
                         pLine["muted"] = ""
                     if has_autoplay:
@@ -337,8 +337,7 @@ def getDetail(detailUrl, option):
                         video["src"] = src
                     if has_controls:
                         video["controls"] = controls_val if controls_val is not None else ""
-                    else:
-                        video["width"] = "100%"
+                    video["width"] = "100%"          # ← else 없애고 항상 넣기
                     if has_muted:
                         video["muted"] = ""
                     if has_autoplay:
@@ -349,7 +348,6 @@ def getDetail(detailUrl, option):
                         video["playsinline"] = ""
             except:
                 pass
-
             # 2023.11.11 video를 p로 감싸기
             try:
                 if pLine.name == "video":
