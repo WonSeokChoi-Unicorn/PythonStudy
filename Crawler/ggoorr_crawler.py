@@ -100,24 +100,24 @@ def getDetail(detailUrl, option):
         # [수정 1-2] 기준 날짜(target_base_date) 결정
         if 'TARGET_DATE' in globals() and TARGET_DATE:
             target_base_date = datetime.strptime(TARGET_DATE, "%Y-%m-%d")
-            # 지정된 날짜가 있으면 시간(todaytimeHH)과 관계없이 해당 날짜의 06:00 ~ 익일 05:59를 기준으로 설정
+            # 지정된 날짜가 있으면 시간(todaytimeHH)과 관계없이 해당 날짜의 05:00 ~ 익일 04:59를 기준으로 설정
             fromdate = datetime(
                 target_base_date.year,
                 target_base_date.month,
                 target_base_date.day,
-                6,
+                5,
                 0,
                 0,
             ).astimezone(kst_timezone)
 
             tomorrow = target_base_date + timedelta(days=1)
             todate = datetime(
-                tomorrow.year, tomorrow.month, tomorrow.day, 5, 59, 59
+                tomorrow.year, tomorrow.month, tomorrow.day, 4, 59, 59
             ).astimezone(kst_timezone)
         else:
             # 2023.07.21 실행 시간에 따라서 기준(시작~종료) 시간을 변경
             if todaytimeHH >= "15":
-                # 당일 오전 6시
+                # 당일 오전 5시
                 fromdate = datetime(
                     datetime.today().year,
                     datetime.today().month,
@@ -127,24 +127,24 @@ def getDetail(detailUrl, option):
                     0,
                 ).astimezone(kst_timezone)
 
-                # 내일 오전 5시 59분 59초
+                # 내일 오전 4시 59분 59초
                 tomorrow = datetime.today() + timedelta(days=1)
                 todate = datetime(
-                    tomorrow.year, tomorrow.month, tomorrow.day, 5, 59, 59
+                    tomorrow.year, tomorrow.month, tomorrow.day, 4, 59, 59
                 ).astimezone(kst_timezone)
             else:
-                # 전일 오전 6시
+                # 전일 오전 5시
                 yesterday = datetime.today() - timedelta(days=1)
                 fromdate = datetime(
-                    yesterday.year, yesterday.month, yesterday.day, 6, 0, 0
+                    yesterday.year, yesterday.month, yesterday.day, 5, 0, 0
                 ).astimezone(kst_timezone)
 
-                # 당일 오전 5시 59분 59초
+                # 당일 오전 4시 59분 59초
                 todate = datetime(
                     datetime.today().year,
                     datetime.today().month,
                     datetime.today().day,
-                    5,
+                    4,
                     59,
                     59,
                 ).astimezone(kst_timezone)
