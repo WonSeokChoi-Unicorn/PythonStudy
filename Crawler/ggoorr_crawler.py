@@ -1,6 +1,5 @@
 import requests
 import time
-import sys
 from bs4 import BeautifulSoup
 from bs4 import NavigableString
 from datetime import datetime, timedelta
@@ -11,6 +10,31 @@ import html
 import re
 import pytz
 from pathlib import Path
+import logging
+
+# 로거 생성
+logger = logging.getLogger("GgoorrLogger")
+logger.setLevel(logging.INFO)
+
+# 출력 형식 설정
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+# 콘솔 출력 설정
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+stream_handler.setLevel(logging.INFO)
+
+# 날짜별 로그 파일 생성
+log_file = (
+    f"D:\\Python\\LOG\\{datetime.now().strftime('%Y%m%d%H%M%S')}_ggoorr.log"
+)
+file_handler = logging.FileHandler(log_file, encoding="utf-8")
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+file_handler.setLevel(logging.DEBUG)
 
 # 크롤링 기준 날짜 설정 (None이면 오늘 날짜, "YYYY-MM-DD" 형식이면 해당 날짜 지정)
 TARGET_DATE = None
@@ -73,9 +97,8 @@ def getDetail(detailUrl, option):
         # 상세 주소 요청 및 응답 수신
         detailRes = requests.get(detailUrl, headers=headers)
     except:
-        print(
-            datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-            + ", 오류가 발생했습니다."
+        logger.info(
+            "오류가 발생했습니다."
             + detailUrl
         )
         # 오류가 발생하면 errorurl에 추가
@@ -150,10 +173,8 @@ def getDetail(detailUrl, option):
                 ).astimezone(kst_timezone)
 
         # 진행
-        print(
-            datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-            + ", "
-            + title
+        logger.info(
+            title
             + " - "
             + detailUrl
         )
@@ -162,25 +183,22 @@ def getDetail(detailUrl, option):
         if option == "Y":
             # 처리
             if writetime > todate:
-                print(
-                    datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                    + ", 작성 대상 아님 ("
+                logger.info(
+                    "작성 대상 아님 ("
                     + todate.strftime("%Y-%m-%d %H:%M:%S")
                     + " 이후)"
                 )
                 return
             elif writetime < fromdate:
-                print(
-                    datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                    + ", 작성 대상 아님 - ("
+                logger.info(
+                    "작성 대상 아님 - ("
                     + fromdate.strftime("%Y-%m-%d %H:%M:%S")
                     + " 이전)"
                 )
                 return
             else:
-                print(
-                    datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                    + ", 작성 대상 맞음 ("
+                logger.info(
+                    "작성 대상 맞음 ("
                     + fromdate.strftime("%Y-%m-%d %H:%M:%S")
                     + " ~ "
                     + todate.strftime("%Y-%m-%d %H:%M:%S")
@@ -196,8 +214,8 @@ def getDetail(detailUrl, option):
         articleBodyGIFText2 = articleBodyText.find("gifmp4_video")
         # 링크로 보여줘야 되는 것들에 대한 처리
         if articleBodyGIFText2 > 0:
-            print(
-                datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", replace with link"
+            logger.info(
+                "replace with link"
             )
             # 파일에 저장
             fileContent = (
@@ -546,7 +564,7 @@ def getDetail(detailUrl, option):
         # writetimetemp + realwritetime을 key로해서 html코드를 value로 저장
         contentDictionary[writetimetemp + ":" + realwritetime] = fileContent
     else:
-        print(datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", >>>> GET ERROR.....")
+        logger.error(">>>> GET ERROR.....")
     # 대기
     time.sleep(waittime)
 
@@ -555,9 +573,8 @@ def getDetail(detailUrl, option):
 # 게시글 처리 대상 - 전일 오전 7시 ~ 당일 오전 6시 59분 59초
 def searchList(page):
 
-    print(
-        datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-        + ", ========== "
+    logger.info(
+        " ========== "
         + str(page)
         + " page start =========="
     )
@@ -587,10 +604,8 @@ def searchList(page):
             detailUrllist.append(detailUrl)
         return True
     else:
-        print(
-            datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-            + ", "
-            + GGOORR_DETAIL_URL
+        logger.error(
+            GGOORR_DETAIL_URL
             + str(page)
             + " >>>> GET ERROR....."
         )
@@ -608,8 +623,8 @@ def SaveSortedContentDictionary():
 
     if f is not None:
         f.close
-        print(
-            datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", fileContent write OK "
+        logger.info(
+            "fileContent write OK "
         )
 
 
@@ -617,51 +632,47 @@ def SaveSortedContentDictionary():
 def startCrawlering():
     # 시간1
     datetime1 = datetime.now()
-    print(datetime1.strftime("%Y-%m-%d %H:%M:%S") + " - Starting")
+    logger.info("Starting")
 
     # 페이지 탐색 범위 결정 로직
     if 'TARGET_DATE' in globals() and TARGET_DATE:
         # 특정 날짜 지정 모드: 설정된 시작~종료 페이지 사용
         s_page = TARGET_START_PAGE
         e_page = TARGET_END_PAGE
-        print(f"Target Date Mode: {TARGET_DATE} (Page {s_page} ~ {e_page})")
+        logger.info(f"Target Date Mode: {TARGET_DATE} (Page {s_page} ~ {e_page})")
     else:
         # 일반 모드 (매일 실행): 1 ~ 10 페이지
         s_page = 1
         e_page = 10
-        print(f"Daily Routine Mode (Page {s_page} ~ {e_page})")
+        logger.info(f"Daily Routine Mode (Page {s_page} ~ {e_page})")
 
     # 결정된 범위로 검색 수행
     for page in range(s_page, e_page + 1):
         searchList(page)
 
-    print(datetime.today().strftime("%Y-%m-%d %H:%M:%S") + ", Starting Crawling")
+    logger.info("Starting Crawling")
 
     # 크롤링 시작
     for detailUrl in detailUrllist:
-        print(
-            datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-            + ", "
-            + str(detailUrllist.index(detailUrl) + 1)
+        logger.info(
+            str(detailUrllist.index(detailUrl) + 1)
             + "/"
             + str(len(detailUrllist))
         )
         getDetail(detailUrl, "Y")
-    print(datetime.today().strftime("%Y-%m-%d %H:%M:%S") + " Ending Crawling")
+    logger.info("Ending Crawling")
 
     # 에러 url들이 있을 경우 크롤링 시작
     if len(errorurls) != 0:
-        print(
-            datetime.today().strftime("%Y-%m-%d %H:%M:%S") + " Starting Error Crawling"
+        logger.info(
+            "Starting Error Crawling"
         )
         # 에러 url들이 사라질 때까지 반복
         while True:
             # 에러 url 가져오기
             for errorurl in errorurls[:]:
-                print(
-                    datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                    + ", "
-                    + str(errorurls.index(errorurl))
+                logger.info(
+                    str(errorurls.index(errorurl))
                     + "/"
                     + str(len(errorurls))
                 )
@@ -673,18 +684,14 @@ def startCrawlering():
             if len(errorurls) == 0:
                 # 에러 url들에 대한 크롤링 종료
                 break
-        print(datetime.today().strftime("%Y-%m-%d %H:%M:%S") + " Ending Error Crawling")
+        logger.info("Ending Error Crawling")
     # 데이터 정렬하여 파일에 저장 처리
     SaveSortedContentDictionary()
     # 시간1과 시간2의 차이를 구한다
     datetime2 = datetime.now()
-    print(
-        datetime1.strftime("%Y-%m-%d %H:%M:%S")
-        + " ~ "
-        + datetime2.strftime("%Y-%m-%d %H:%M:%S")
-        + " - Ending"
+    logger.info("Ending"
     )
-    print(datetime2 - datetime1)
+    logger.info(datetime2 - datetime1)
 
 
 tempurllist = [

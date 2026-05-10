@@ -12,13 +12,38 @@ import json
 import asyncio
 import aiohttp
 import time
+import logging
+
 from pathlib import Path
+# 로거 생성
+logger = logging.getLogger("YoutubeLogger")
+logger.setLevel(logging.INFO)
+
+# 출력 형식 설정
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+# 콘솔 출력 설정
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+stream_handler.setLevel(logging.INFO)
+
+# 날짜별 로그 파일 생성
+log_file = (
+    f"D:\\Python\\LOG\\{datetime.now().strftime('%Y%m%d%H%M%S')}_youtube.log"
+)
+file_handler = logging.FileHandler(log_file, encoding="utf-8")
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+file_handler.setLevel(logging.DEBUG)
 
 # ─────────────────────────────────────────────────────────────
 # 설정값
 # ─────────────────────────────────────────────────────────────
 datetime1 = datetime.now()
-print(datetime1.strftime("%Y-%m-%d %H:%M:%S") + " - Starting")
+logger.info(datetime1.strftime("%Y-%m-%d %H:%M:%S") + " - Starting")
 
 pst = pytz.timezone("America/Los_Angeles")
 kst = pytz.timezone("Asia/Seoul")
@@ -117,17 +142,17 @@ async def get_with_retry(session, url, label=""):
             resp = await session.get(url, timeout=aiohttp.ClientTimeout(total=FETCH_TIMEOUT))
             return resp
         except asyncio.TimeoutError:
-            print(f"  [타임아웃 {attempt}/{RETRY_MAX}] {label or url}")
+            logger.error(f"  [타임아웃 {attempt}/{RETRY_MAX}] {label or url}")
             if attempt < RETRY_MAX:
                 await asyncio.sleep(RETRY_WAIT)
         except aiohttp.ClientConnectionError as e:
-            print(f"  [연결 오류 {attempt}/{RETRY_MAX}] {label or url} → {e}")
+            logger.error(f"  [연결 오류 {attempt}/{RETRY_MAX}] {label or url} → {e}")
             if attempt < RETRY_MAX:
                 await asyncio.sleep(RETRY_WAIT)
         except Exception as e:
-            print(f"  [요청 오류] {label or url} → {e}")
+            logger.error(f"  [요청 오류] {label or url} → {e}")
             return None   # 재시도해도 의미 없는 예외는 즉시 중단
-    print(f"  [최종 실패] {label or url} — {RETRY_MAX}회 모두 타임아웃")
+    logger.error(f"  [최종 실패] {label or url} — {RETRY_MAX}회 모두 타임아웃")
     return None
 
 # ─────────────────────────────────────────────────────────────
@@ -140,7 +165,7 @@ async def fetch(session, yt_videoid):
 
     try:
         if resp.status != 200:
-            print(f"[fetch 실패] status={resp.status} / {yt_videoid}")
+            logger.error(f"[fetch 실패] status={resp.status} / {yt_videoid}")
             return None
 
         Html2  = await resp.text()
@@ -157,7 +182,7 @@ async def fetch(session, yt_videoid):
                     yt_datePublished = mm.group(1)
                     break
             if not yt_datePublished:
-                print(f"[날짜 없음] {yt_videoid}")
+                logger.error(f"[날짜 없음] {yt_videoid}")
                 return None
             yt_datePublisheddt = datetime.strptime(yt_datePublished, "%Y-%m-%dT%H:%M:%S%z")
         else:
@@ -190,13 +215,13 @@ async def fetch(session, yt_videoid):
 
         # 날짜 기준 체크
         if yt_datePublisheddtkst > todate:
-            print(f"[대상 아님 - 이후] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
+            logger.info(f"[대상 아님 - 이후] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
             return None
         elif yt_datePublisheddtkst <= fromdate:
-            print(f"[대상 아님 - 이전] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
+            logger.info(f"[대상 아님 - 이전] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
             return None
         else:
-            print(f"[대상 맞음] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
+            logger.info(f"[대상 맞음] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
             iframe = yt.video(yt_videoid, width=width, height=height)
 
             tempstr  = f"<p>{yt_title}</p>\n"
@@ -208,7 +233,7 @@ async def fetch(session, yt_videoid):
             return tempstr
 
     except Exception as e:
-        print(f"[fetch 처리 오류] {yt_videoid} → {e}")
+        logger.error(f"[fetch 처리 오류] {yt_videoid} → {e}")
         return None
 
 # ─────────────────────────────────────────────────────────────
@@ -333,7 +358,7 @@ def extract_video_ids_from_html(html_text: str, tab_name: str) -> list:
     Soup_tab      = BeautifulSoup(html_text, "lxml")
     yt_scripttags = Soup_tab.find_all("script", string=re.compile(r"ytInitialData"))
     if not yt_scripttags:
-        print(f"  [{tab_name}] ytInitialData 없음 (봇 차단 / 로그인 유도 가능성)")
+        logger.error(f"  [{tab_name}] ytInitialData 없음 (봇 차단 / 로그인 유도 가능성)")
         return []
 
     yt_datascript = yt_scripttags[0].string
@@ -345,18 +370,18 @@ def extract_video_ids_from_html(html_text: str, tab_name: str) -> list:
     if not m:
         m = re.search(r"ytInitialData\s*=\s*({.*});", yt_datascript, re.DOTALL)
     if not m:
-        print(f"  [{tab_name}] ytInitialData JSON 추출 실패")
+        logger.error(f"  [{tab_name}] ytInitialData JSON 추출 실패")
         return []
 
     try:
         yt_initialdata = json.loads(m.group(1))
     except json.JSONDecodeError as e:
-        print(f"  [{tab_name}] JSON 파싱 오류: {e}")
+        logger.error(f"  [{tab_name}] JSON 파싱 오류: {e}")
         return []
 
     tab_contents = get_selected_tab_contents(yt_initialdata)
     if not tab_contents:
-        print(f"  [{tab_name}] selected 탭 contents 없음")
+        logger.error(f"  [{tab_name}] selected 탭 contents 없음")
         return []
 
     yt_videoids = []
@@ -386,19 +411,19 @@ async def main(urllist):
             # ── 채널 홈 접속 (재시도 포함) ─────────────────────
             response1 = await get_with_retry(session1, base_url, label=f"채널홈 {base_url}")
             if response1 is None:
-                print(f"[채널 skip] {base_url} → 접속 최종 실패")
+                logger.error(f"[채널 skip] {base_url} → 접속 최종 실패")
                 await asyncio.sleep(channel_delay)
                 continue
 
             if response1.status != 200:
-                print(f"[채널 skip] {base_url} → HTTP {response1.status}")
+                logger.error(f"[채널 skip] {base_url} → HTTP {response1.status}")
                 await asyncio.sleep(channel_delay)
                 continue
 
             try:
                 Html1 = await response1.text()
             except Exception as e:
-                print(f"[채널 HTML 읽기 오류] {base_url} → {e}")
+                logger.error(f"[채널 HTML 읽기 오류] {base_url} → {e}")
                 await asyncio.sleep(channel_delay)
                 continue
 
@@ -410,9 +435,9 @@ async def main(urllist):
             )
 
             available_tabs = detect_available_tabs(Html1)
-            print("##################################################################")
-            print(f"{channelname}  →  탭: {available_tabs}")
-            print("##################################################################")
+            logger.info("##################################################################")
+            logger.info(f"{channelname}  →  탭: {available_tabs}")
+            logger.info("##################################################################")
 
             channelheader = "\n" + "#####***** " + channelname + " *****#####\n"
             filename = savefolder / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
@@ -426,29 +451,29 @@ async def main(urllist):
                 # 탭 페이지 요청 (재시도 포함)
                 response_tab = await get_with_retry(session1, url, label=f"[{tab_name}] {url}")
                 if response_tab is None:
-                    print(f"  [{tab_name}] 최종 실패 → skip")
+                    logger.error(f"  [{tab_name}] 최종 실패 → skip")
                     await asyncio.sleep(tab_delay)
                     continue
 
                 if response_tab.status != 200:
-                    print(f"  [{tab_name}] skip → HTTP {response_tab.status} ({url})")
+                    logger.error(f"  [{tab_name}] skip → HTTP {response_tab.status} ({url})")
                     await asyncio.sleep(tab_delay)
                     continue
 
                 try:
                     Html_tab = await response_tab.text()
                 except Exception as e:
-                    print(f"  [{tab_name}] HTML 읽기 오류: {e}")
+                    logger.error(f"  [{tab_name}] HTML 읽기 오류: {e}")
                     await asyncio.sleep(tab_delay)
                     continue
 
                 yt_videoids = extract_video_ids_from_html(Html_tab, tab_name)
                 if not yt_videoids:
-                    print(f"  [{tab_name}] 영상 ID 없음 → skip")
+                    logger.error(f"  [{tab_name}] 영상 ID 없음 → skip")
                     await asyncio.sleep(tab_delay)
                     continue
 
-                print(f"  [{tab_name}] 영상 {len(yt_videoids)}개 수집")
+                logger.info(f"  [{tab_name}] 영상 {len(yt_videoids)}개 수집")
 
                 tasks   = [fetch(session1, vid) for vid in yt_videoids]
                 results = await asyncio.gather(*tasks)
@@ -458,7 +483,7 @@ async def main(urllist):
                     with open(filename, "a", encoding="utf-8") as f:
                         f.write(f"--------------- {tab_name} ---------------\n")
                         f.write(fileContent)
-                    print(f"  [{tab_name}] 조건에 맞는 영상 기록 완료")
+                    logger.info(f"  [{tab_name}] 조건에 맞는 영상 기록 완료")
 
                 await asyncio.sleep(tab_delay)
 
@@ -535,10 +560,10 @@ if __name__ == "__main__":
     asyncio.run(main(urllist))
 
     datetime2 = datetime.now()
-    print(
+    logger.info(
         datetime1.strftime("%Y-%m-%d %H:%M:%S")
         + " ~ "
         + datetime2.strftime("%Y-%m-%d %H:%M:%S")
         + " - Ending"
     )
-    print(datetime2 - datetime1)
+    logger.info(datetime2 - datetime1)
