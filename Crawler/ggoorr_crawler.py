@@ -85,6 +85,32 @@ regex1 = r"\d+"
 regex2 = r"embed/([a-zA-Z0-9_-]+)"
 
 
+def resolve_img_src(img_tag):
+    """
+    img 태그에서 절대경로 src를 추출한다.
+    우선순위: data-cke-saved-src(절대) > src(절대) > data-cke-saved-src(상대) > src(상대)
+    상대경로는 https://ggoorr.net 을 붙여 절대경로로 변환.
+    """
+    BASE_URL = "https://ggoorr.net"
+
+    src = img_tag.get("src", "")
+    cke_src = img_tag.get("data-cke-saved-src", "")
+
+    # 절대경로 우선 반환
+    if cke_src.startswith("http"):
+        return cke_src
+    if src.startswith("http"):
+        return src
+
+    # 둘 다 상대경로인 경우 → BASE_URL 붙이기
+    if cke_src.startswith("/"):
+        return BASE_URL + cke_src
+    if src.startswith("/"):
+        return BASE_URL + src
+
+    # 아무것도 없는 경우
+    return src
+
 # 상세 게시글 HTML 수집 함수
 def getDetail(detailUrl, option):
     # 2022.12.06 게시글 순번으로 sort
@@ -300,12 +326,12 @@ def getDetail(detailUrl, option):
             # img 태그의 속성 중 src만 남기기
             try:
                 if pLine.name == "img":
-                    src = pLine.get("src")
+                    src = resolve_img_src(pLine)
                     pLine.attrs = {} # 모든 속성 지우기
                     if src:
                         pLine["src"] = src
                 for img in pLine.find_all("img"):
-                    src = img.get("src")
+                    src = resolve_img_src(img)
                     img.attrs = {}
                     if src:
                         img["src"] = src
@@ -535,7 +561,7 @@ def getDetail(detailUrl, option):
             ggoorrvideoIndex = pLineText.find('src="/files/')
 
             # ggoorr video 존재 확인
-            if ggoorrvideoIndex > 0:
+            if ggoorrvideoIndex > 0 and "<video" in pLineText:
                 # 전체 URL로 변경
                 pLineText = pLineText.replace(
                     'src="/files/', 'src="https://ggoorr.net/files/'
