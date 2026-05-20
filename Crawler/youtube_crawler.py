@@ -13,50 +13,44 @@ import asyncio
 import aiohttp
 import time
 import logging
-
 from pathlib import Path
+
 # 로거 생성
 logger = logging.getLogger("YoutubeLogger")
 logger.setLevel(logging.INFO)
 
-# 출력 형식 설정
 formatter = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
-# 콘솔 출력 설정
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 stream_handler.setLevel(logging.INFO)
 
-# 날짜별 로그 파일 생성
-log_file = (
-    f"D:\\Python\\LOG\\{datetime.now().strftime('%Y%m%d%H%M%S')}_youtube.log"
-)
+log_file = f"D:\\Python\\LOG\\{datetime.now().strftime('%Y%m%d%H%M%S')}_youtube.log"
 file_handler = logging.FileHandler(log_file, encoding="utf-8")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 file_handler.setLevel(logging.DEBUG)
 
-# ─────────────────────────────────────────────────────────────
 # 설정값
-# ─────────────────────────────────────────────────────────────
 datetime1 = datetime.now()
 logger.info(datetime1.strftime("%Y-%m-%d %H:%M:%S") + " - Starting")
 
 pst = pytz.timezone("America/Los_Angeles")
 kst = pytz.timezone("Asia/Seoul")
 
-waittime5       = 5
-tab_delay       = 1.5    # 탭 요청 간 딜레이 (봇 감지 방지)
-channel_delay   = 2.0    # 채널 요청 간 딜레이
-RETRY_MAX       = 3      # 타임아웃/오류 시 최대 재시도 횟수
-RETRY_WAIT      = 5.0    # 재시도 전 대기 시간(초)
-FETCH_TIMEOUT   = 30     # fetch() 1회 타임아웃(초)
-SESSION_TIMEOUT = 60     # 세션 전체 타임아웃(초)
+waittime5 = 5
+tab_delay = 1.5
+channel_delay = 2.0
 
-width  = "560"
+RETRY_MAX = 3
+RETRY_WAIT = 5.0
+FETCH_TIMEOUT = 30
+SESSION_TIMEOUT = 60
+
+width = "560"
 height = "315"
 
 englishchannel = [
@@ -67,27 +61,20 @@ englishchannel = [
 ]
 
 yesterday = datetime.today() - timedelta(days=1)
-fromdate  = datetime(yesterday.year, yesterday.month, yesterday.day,  5,  0,  0).astimezone(kst)
-todate    = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 4, 59, 59).astimezone(kst)
-nowDate   = datetime.now()
+fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 5, 0, 0).astimezone(kst)
+todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 4, 59, 59).astimezone(kst)
 
 translator = Translator()
 savefolder = Path("D:/ggoorr")
 
-# ─────────────────────────────────────────────────────────────
-# 채널 홈 HTML에서 존재하는 탭 자동 감지
-# ─────────────────────────────────────────────────────────────
 TAB_TITLES = {
-    "videos":  ["동영상", "Videos"],
+    "videos": ["동영상", "Videos"],
     "streams": ["라이브", "Live"],
-    "shorts":  ["Shorts", "쇼츠"],
+    "shorts": ["Shorts", "쇼츠"],
 }
 
+
 def detect_available_tabs(html_text: str) -> list[str]:
-    """
-    채널 홈 HTML에서 ytInitialData를 파싱해 실제 존재하는 탭(videos/streams/shorts)만 반환.
-    파싱 실패 시 기본값 ["videos", "streams", "shorts"] 반환.
-    """
     m = re.search(r"ytInitialData\s*=\s*({.*?});\s*(?:var |window\.|)", html_text, re.DOTALL)
     if not m:
         m = re.search(r"ytInitialData\s*=\s*({.*});", html_text, re.DOTALL)
@@ -101,20 +88,21 @@ def detect_available_tabs(html_text: str) -> list[str]:
 
     tabs_data = (
         data.get("contents", {})
-            .get("twoColumnBrowseResultsRenderer", {})
-            .get("tabs", [])
+        .get("twoColumnBrowseResultsRenderer", {})
+        .get("tabs", [])
     )
 
     found_tabs = []
     for tab in tabs_data:
-        tr       = tab.get("tabRenderer", {})
-        title    = tr.get("title", "")
+        tr = tab.get("tabRenderer", {})
+        title = tr.get("title", "")
         endpoint = tr.get("endpoint", {})
         url_path = (
             endpoint.get("commandMetadata", {})
-                    .get("webCommandMetadata", {})
-                    .get("url", "")
+            .get("webCommandMetadata", {})
+            .get("url", "")
         )
+
         for key, keywords in TAB_TITLES.items():
             if any(kw.lower() == title.lower() for kw in keywords):
                 found_tabs.append(key)
@@ -128,36 +116,28 @@ def detect_available_tabs(html_text: str) -> list[str]:
         return ["videos", "streams", "shorts"]
     return ordered
 
-# ─────────────────────────────────────────────────────────────
-# 비동기 HTTP GET (타임아웃 재시도 포함)
-# ─────────────────────────────────────────────────────────────
+
 async def get_with_retry(session, url, label=""):
-    """
-    aiohttp GET 요청. asyncio.TimeoutError / aiohttp.ServerDisconnectedError 등
-    일시적 오류 발생 시 RETRY_MAX 회까지 RETRY_WAIT 초 후 재시도.
-    최종 실패 시 None 반환.
-    """
     for attempt in range(1, RETRY_MAX + 1):
         try:
             resp = await session.get(url, timeout=aiohttp.ClientTimeout(total=FETCH_TIMEOUT))
             return resp
         except asyncio.TimeoutError:
-            logger.error(f"  [타임아웃 {attempt}/{RETRY_MAX}] {label or url}")
+            logger.error(f"[타임아웃 {attempt}/{RETRY_MAX}] {label or url}")
             if attempt < RETRY_MAX:
                 await asyncio.sleep(RETRY_WAIT)
         except aiohttp.ClientConnectionError as e:
-            logger.error(f"  [연결 오류 {attempt}/{RETRY_MAX}] {label or url} → {e}")
+            logger.error(f"[연결 오류 {attempt}/{RETRY_MAX}] {label or url} → {e}")
             if attempt < RETRY_MAX:
                 await asyncio.sleep(RETRY_WAIT)
         except Exception as e:
-            logger.error(f"  [요청 오류] {label or url} → {e}")
-            return None   # 재시도해도 의미 없는 예외는 즉시 중단
-    logger.error(f"  [최종 실패] {label or url} — {RETRY_MAX}회 모두 타임아웃")
+            logger.error(f"[요청 오류] {label or url} → {e}")
+            return None
+
+    logger.error(f"[최종 실패] {label or url} — {RETRY_MAX}회 모두 타임아웃")
     return None
 
-# ─────────────────────────────────────────────────────────────
-# 비동기 fetch 함수 (개별 영상 정보 수집)
-# ─────────────────────────────────────────────────────────────
+
 async def fetch(session, yt_videoid):
     resp = await get_with_retry(session, yt_videoid, label=yt_videoid)
     if resp is None:
@@ -168,43 +148,51 @@ async def fetch(session, yt_videoid):
             logger.error(f"[fetch 실패] status={resp.status} / {yt_videoid}")
             return None
 
-        Html2  = await resp.text()
-        Soup2  = BeautifulSoup(Html2, "lxml")
+        Html2 = await resp.text()
+        Soup2 = BeautifulSoup(Html2, "lxml")
 
-        # ── 날짜 추출 (meta itemprop → ytInitialPlayerResponse fallback) ──
+        lbc_match = re.search(r'liveBroadcastContent[\"]*\s*:\s*[\"]*(\w+)', Html2)
+        if lbc_match and lbc_match.group(1) == "upcoming":
+            logger.info(f"[SKIP-UPCOMING] {yt_videoid}")
+            return None
+
+        if re.search(r'scheduledStartTime', Html2):
+            logger.info(f"[SKIP-SCHEDULED] {yt_videoid}")
+            return None
+
         date_meta = Soup2.find("meta", attrs={"itemprop": "datePublished"})
         if not date_meta:
-            script_tags    = Soup2.find_all("script", string=re.compile(r"ytInitialPlayerResponse"))
+            script_tags = Soup2.find_all("script", string=re.compile(r"ytInitialPlayerResponse"))
             yt_datePublished = None
+
             for st in script_tags:
                 mm = re.search(r'"publishDate"\s*:\s*"([^"]+)"', st.string or "")
                 if mm:
                     yt_datePublished = mm.group(1)
                     break
+
             if not yt_datePublished:
                 logger.error(f"[날짜 없음] {yt_videoid}")
                 return None
+
             yt_datePublisheddt = datetime.strptime(yt_datePublished, "%Y-%m-%dT%H:%M:%S%z")
         else:
-            yt_datePublished   = date_meta["content"]
+            yt_datePublished = date_meta["content"]
             yt_datePublisheddt = datetime.strptime(yt_datePublished, "%Y-%m-%dT%H:%M:%S%z")
 
         yt_datePublisheddtkst = yt_datePublisheddt.astimezone(pst).astimezone(kst)
 
-        # 제목 추출
         title_tag = Soup2.find("title")
-        yt_title  = (
+        yt_title = (
             title_tag.get_text().strip()
-                      .replace(" - YouTube", "")
-                      .replace("#shorts", "")
+            .replace(" - YouTube", "")
+            .replace("#shorts", "")
             if title_tag else "제목 없음"
         )
 
-        # 채널명 추출
         channel_link = Soup2.find("link", attrs={"itemprop": "name"})
-        channelname  = channel_link["content"] if channel_link else ""
+        channelname = channel_link["content"] if channel_link else ""
 
-        # 영어 채널이면 번역
         if channelname in englishchannel:
             while True:
                 try:
@@ -213,7 +201,6 @@ async def fetch(session, yt_videoid):
                 except Exception:
                     time.sleep(waittime5)
 
-        # 날짜 기준 체크
         if yt_datePublisheddtkst > todate:
             logger.info(f"[대상 아님 - 이후] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
             return None
@@ -222,42 +209,92 @@ async def fetch(session, yt_videoid):
             return None
         else:
             logger.info(f"[대상 맞음] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
-            iframe = yt.video(yt_videoid, width=width, height=height)
 
-            tempstr  = f"<p>{yt_title}</p>\n"
-            tempstr += (
-                f'<p><a target=_blank href="{yt_videoid}">{yt_videoid}</a></p>\n'
-            )
-            tempstr += f"<p>{iframe}</p>\n"
+        iframe = yt.video(yt_videoid, width=width, height=height)
 
-            return tempstr
+        tempstr  = f"<p>{yt_title}</p>\n"
+        tempstr += (
+            f'<p><a target=_blank href="{yt_videoid}">{yt_videoid}</a></p>\n'
+        )
+        tempstr += f"<p>{iframe}</p>\n"
+
+        return tempstr
 
     except Exception as e:
         logger.error(f"[fetch 처리 오류] {yt_videoid} → {e}")
         return None
 
-# ─────────────────────────────────────────────────────────────
-# richItemRenderer 단일 항목에서 videoId 추출
-# 패턴 A: videoRenderer        (구버전/라이브 탭)
-# 패턴 B: shortsLockupViewModel (쇼츠 신버전)
-# 패턴 C: lockupViewModel       (동영상 탭 신버전 2025~)
-# 패턴 D: reelItemRenderer      (쇼츠 구버전)
-# ─────────────────────────────────────────────────────────────
+
+def is_members_only_text(text: str) -> bool:
+    if not text:
+        return False
+    text = text.lower()
+    keywords = [
+        "회원 전용",
+        "멤버 전용",
+        "members only",
+        "members-only",
+        "member only",
+        "for members",
+        "가입",
+    ]
+    return any(k.lower() in text for k in keywords)
+
+
+def has_members_only_badge_in_lockup(lv: dict) -> bool:
+    metadata_rows = (
+        lv.get("metadata", {})
+        .get("lockupMetadataViewModel", {})
+        .get("metadata", {})
+        .get("contentMetadataViewModel", {})
+        .get("metadataRows", [])
+    )
+
+    for row in metadata_rows:
+        badges = row.get("badges", [])
+        for badge in badges:
+            bv = badge.get("badgeViewModel", {})
+            badge_text = bv.get("badgeText", "")
+            acc_label = (
+                bv.get("rendererContext", {})
+                .get("accessibilityContext", {})
+                .get("label", "")
+            )
+            if is_members_only_text(badge_text) or is_members_only_text(acc_label):
+                return True
+
+    lv_text = json.dumps(lv, ensure_ascii=False).lower()
+    members_keywords = [
+        "회원 전용",
+        "멤버 전용",
+        "members only",
+        "members-only",
+        "member only",
+        "badge_style_type_members_only",
+        "sponsorsonly",
+        "sponsoronly",
+    ]
+    return any(k in lv_text for k in members_keywords)
+
+
 def parse_rich_item(content_item: dict) -> str | None:
-    # ── 패턴 A ────────────────────────────────────────────────
+    # 패턴 A: videoRenderer
     if "videoRenderer" in content_item:
-        vr         = content_item["videoRenderer"]
+        vr = content_item["videoRenderer"]
         yt_videoid = vr.get("videoId")
         if not yt_videoid:
             return None
+
         if "upcomingEventData" in vr:
             return None
+
         overlays = vr.get("thumbnailOverlays", [])
         if any(
             ov.get("thumbnailOverlayTimeStatusRenderer", {}).get("style") == "UPCOMING"
             for ov in overlays
         ):
             return None
+
         badges = vr.get("badges", [])
         if any(
             b.get("metadataBadgeRenderer", {}).get("style") == "BADGE_STYLE_TYPE_MEMBERS_ONLY"
@@ -265,32 +302,44 @@ def parse_rich_item(content_item: dict) -> str | None:
             for b in badges
         ):
             return None
+
+        vr_text = json.dumps(vr, ensure_ascii=False).lower()
+        if any(k in vr_text for k in ["회원 전용", "멤버 전용", "members only", "members-only"]):
+            return None
+
         return "https://www.youtube.com/watch?v=" + yt_videoid
 
-    # ── 패턴 B ────────────────────────────────────────────────
+    # 패턴 B: shortsLockupViewModel
     if "shortsLockupViewModel" in content_item:
-        sl       = content_item["shortsLockupViewModel"]
+        sl = content_item["shortsLockupViewModel"]
+
+        sl_text = json.dumps(sl, ensure_ascii=False).lower()
+        if any(k in sl_text for k in ["회원 전용", "멤버 전용", "members only", "members-only"]):
+            return None
+
         url_path = (
             sl.get("onTap", {})
-              .get("innertubeCommand", {})
-              .get("commandMetadata", {})
-              .get("webCommandMetadata", {})
-              .get("url", "")
+            .get("innertubeCommand", {})
+            .get("commandMetadata", {})
+            .get("webCommandMetadata", {})
+            .get("url", "")
         )
         if url_path.startswith("/shorts/"):
             vid_id = url_path.replace("/shorts/", "").split("?")[0]
         else:
             entity_id = sl.get("entityId", "")
-            vid_id    = (
+            vid_id = (
                 entity_id.replace("shorts-shelf-item-", "")
                 if entity_id.startswith("shorts-shelf-item-")
                 else None
             )
+
         return ("https://www.youtube.com/watch?v=" + vid_id) if vid_id else None
 
-    # ── 패턴 C ────────────────────────────────────────────────
+    # 패턴 C: lockupViewModel
     if "lockupViewModel" in content_item:
-        lv           = content_item["lockupViewModel"]
+        lv = content_item["lockupViewModel"]
+
         content_type = lv.get("contentType", "")
         if content_type not in (
             "LOCKUP_CONTENT_TYPE_VIDEO",
@@ -299,29 +348,43 @@ def parse_rich_item(content_item: dict) -> str | None:
             "",
         ):
             return None
+
+        # 회원 전용 체크
+        if has_members_only_badge_in_lockup(lv):
+            return None
+
+        # 예정 동영상 체크
+        lv_text = json.dumps(lv, ensure_ascii=False).lower()
+        if any(k in lv_text for k in ["upcoming", "scheduledstarttime", "livebroadcastcontent"]):
+            if "upcoming" in lv_text or "scheduledstarttime" in lv_text:
+                return None
+
         vid_id = lv.get("contentId")
         if not vid_id:
             vid_id = (
                 lv.get("rendererContext", {})
-                  .get("commandContext", {})
-                  .get("onTap", {})
-                  .get("innertubeCommand", {})
-                  .get("watchEndpoint", {})
-                  .get("videoId")
+                .get("commandContext", {})
+                .get("onTap", {})
+                .get("innertubeCommand", {})
+                .get("watchEndpoint", {})
+                .get("videoId")
             )
+
         return ("https://www.youtube.com/watch?v=" + vid_id) if vid_id else None
 
-    # ── 패턴 D ────────────────────────────────────────────────
+    # 패턴 D: reelItemRenderer
     if "reelItemRenderer" in content_item:
-        vid_id = content_item["reelItemRenderer"].get("videoId")
+        rr = content_item["reelItemRenderer"]
+        rr_text = json.dumps(rr, ensure_ascii=False).lower()
+        if any(k in rr_text for k in ["회원 전용", "멤버 전용", "members only", "members-only"]):
+            return None
+
+        vid_id = rr.get("videoId")
         return ("https://www.youtube.com/watch?v=" + vid_id) if vid_id else None
 
     return None
 
-# ─────────────────────────────────────────────────────────────
-# ytInitialData에서 selected 탭 contents 추출
-# richGridRenderer / sectionListRenderer 모두 지원
-# ─────────────────────────────────────────────────────────────
+
 def get_selected_tab_contents(yt_initialdata: dict) -> list:
     yt_tabs = (
         yt_initialdata
@@ -329,17 +392,18 @@ def get_selected_tab_contents(yt_initialdata: dict) -> list:
         .get("twoColumnBrowseResultsRenderer", {})
         .get("tabs", [])
     )
+
     for tab in yt_tabs:
         tr = tab.get("tabRenderer", {})
         if not tr.get("selected", False):
             continue
-        content = tr.get("content", {})
 
+        content = tr.get("content", {})
         if "richGridRenderer" in content:
             return content["richGridRenderer"].get("contents", [])
 
         if "sectionListRenderer" in content:
-            items  = content["sectionListRenderer"].get("contents", [])
+            items = content["sectionListRenderer"].get("contents", [])
             merged = []
             for item in items:
                 isr = item.get("itemSectionRenderer", {})
@@ -349,44 +413,45 @@ def get_selected_tab_contents(yt_initialdata: dict) -> list:
                     merged.append(item)
             return merged
         break
+
     return []
 
-# ─────────────────────────────────────────────────────────────
-# HTML → ytInitialData 파싱 → 영상 ID 목록 반환
-# ─────────────────────────────────────────────────────────────
+
 def extract_video_ids_from_html(html_text: str, tab_name: str) -> list:
-    Soup_tab      = BeautifulSoup(html_text, "lxml")
+    Soup_tab = BeautifulSoup(html_text, "lxml")
     yt_scripttags = Soup_tab.find_all("script", string=re.compile(r"ytInitialData"))
     if not yt_scripttags:
-        logger.error(f"  [{tab_name}] ytInitialData 없음 (봇 차단 / 로그인 유도 가능성)")
+        logger.error(f"[{tab_name}] ytInitialData 없음 (봇 차단 / 로그인 유도 가능성)")
         return []
 
     yt_datascript = yt_scripttags[0].string
 
     m = re.search(
         r"ytInitialData\s*=\s*({.*?});\s*(?:var |window\.|)",
-        yt_datascript, re.DOTALL,
+        yt_datascript,
+        re.DOTALL,
     )
     if not m:
         m = re.search(r"ytInitialData\s*=\s*({.*});", yt_datascript, re.DOTALL)
+
     if not m:
-        logger.error(f"  [{tab_name}] ytInitialData JSON 추출 실패")
+        logger.error(f"[{tab_name}] ytInitialData JSON 추출 실패")
         return []
 
     try:
         yt_initialdata = json.loads(m.group(1))
     except json.JSONDecodeError as e:
-        logger.error(f"  [{tab_name}] JSON 파싱 오류: {e}")
+        logger.error(f"[{tab_name}] JSON 파싱 오류: {e}")
         return []
 
     tab_contents = get_selected_tab_contents(yt_initialdata)
     if not tab_contents:
-        logger.error(f"  [{tab_name}] selected 탭 contents 없음")
+        logger.error(f"[{tab_name}] selected 탭 contents 없음")
         return []
 
     yt_videoids = []
     for item in tab_contents:
-        rir          = item.get("richItemRenderer", {})
+        rir = item.get("richItemRenderer", {})
         content_item = rir.get("content", {}) if rir else item
         vid = parse_rich_item(content_item)
         if vid:
@@ -395,20 +460,16 @@ def extract_video_ids_from_html(html_text: str, tab_name: str) -> list:
     yt_videoids = list(dict.fromkeys(yt_videoids))
     return yt_videoids
 
-# ─────────────────────────────────────────────────────────────
-# 메인 함수
-# ─────────────────────────────────────────────────────────────
+
 async def main(urllist):
     async with aiohttp.ClientSession(
         headers=headers,
         connector=aiohttp.TCPConnector(limit=5),
         timeout=aiohttp.ClientTimeout(total=SESSION_TIMEOUT),
     ) as session1:
-
         for base_url in urllist:
             base_url = base_url.rstrip("/")
 
-            # ── 채널 홈 접속 (재시도 포함) ─────────────────────
             response1 = await get_with_retry(session1, base_url, label=f"채널홈 {base_url}")
             if response1 is None:
                 logger.error(f"[채널 skip] {base_url} → 접속 최종 실패")
@@ -427,55 +488,55 @@ async def main(urllist):
                 await asyncio.sleep(channel_delay)
                 continue
 
-            Soup1      = BeautifulSoup(Html1, "lxml")
-            title1     = Soup1.find("title")
+            Soup1 = BeautifulSoup(Html1, "lxml")
+            title1 = Soup1.find("title")
             channelname = (
                 title1.get_text().strip().replace(" - YouTube", "")
                 if title1 else base_url.split("/")[-1]
             )
 
             available_tabs = detect_available_tabs(Html1)
+
             logger.info("##################################################################")
-            logger.info(f"{channelname}  →  탭: {available_tabs}")
+            logger.info(f"{channelname} → 탭: {available_tabs}")
             logger.info("##################################################################")
 
-            channelheader = "\n" + "#####***** " + channelname + " *****#####\n"
+            channelheader = "\n#####***** " + channelname + " *****#####\n"
             filename = savefolder / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
+
             with open(filename, "a", encoding="utf-8") as f:
                 f.write(channelheader)
 
-            # ── 감지된 탭만 크롤링 ──────────────────────────────
             for tab_name in available_tabs:
                 url = f"{base_url}/{tab_name}"
 
-                # 탭 페이지 요청 (재시도 포함)
                 response_tab = await get_with_retry(session1, url, label=f"[{tab_name}] {url}")
                 if response_tab is None:
-                    logger.error(f"  [{tab_name}] 최종 실패 → skip")
+                    logger.error(f"[{tab_name}] 최종 실패 → skip")
                     await asyncio.sleep(tab_delay)
                     continue
 
                 if response_tab.status != 200:
-                    logger.error(f"  [{tab_name}] skip → HTTP {response_tab.status} ({url})")
+                    logger.error(f"[{tab_name}] skip → HTTP {response_tab.status} ({url})")
                     await asyncio.sleep(tab_delay)
                     continue
 
                 try:
                     Html_tab = await response_tab.text()
                 except Exception as e:
-                    logger.error(f"  [{tab_name}] HTML 읽기 오류: {e}")
+                    logger.error(f"[{tab_name}] HTML 읽기 오류: {e}")
                     await asyncio.sleep(tab_delay)
                     continue
 
                 yt_videoids = extract_video_ids_from_html(Html_tab, tab_name)
                 if not yt_videoids:
-                    logger.error(f"  [{tab_name}] 영상 ID 없음 → skip")
+                    logger.error(f"[{tab_name}] 영상 ID 없음 → skip")
                     await asyncio.sleep(tab_delay)
                     continue
 
-                logger.info(f"  [{tab_name}] 영상 {len(yt_videoids)}개 수집")
+                logger.info(f"[{tab_name}] 영상 {len(yt_videoids)}개 수집")
 
-                tasks   = [fetch(session1, vid) for vid in yt_videoids]
+                tasks = [fetch(session1, vid) for vid in yt_videoids]
                 results = await asyncio.gather(*tasks)
 
                 fileContent = "\n".join(filter(None, results))
@@ -483,15 +544,14 @@ async def main(urllist):
                     with open(filename, "a", encoding="utf-8") as f:
                         f.write(f"--------------- {tab_name} ---------------\n")
                         f.write(fileContent)
-                    logger.info(f"  [{tab_name}] 조건에 맞는 영상 기록 완료")
+
+                    logger.info(f"[{tab_name}] 조건에 맞는 영상 기록 완료")
 
                 await asyncio.sleep(tab_delay)
 
             await asyncio.sleep(channel_delay)
 
-# ─────────────────────────────────────────────────────────────
-# 실행부
-# ─────────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
     urllist = [
         "https://youtube.com/channel/UCLKuglhGlMmDteQKoniENIQ",
@@ -546,13 +606,13 @@ if __name__ == "__main__":
     ]
 
     headers = {
-        "User-Agent":              generate_user_agent(device_type="desktop", navigator="chrome"),
-        "Accept-Language":         "en-US,en;q=0.9,ko-KR;q=0.8,ko;q=0.7",
-        "Accept":                  "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Sec-Fetch-Dest":          "document",
-        "Sec-Fetch-Mode":          "navigate",
-        "Sec-Fetch-Site":          "none",
-        "Sec-Fetch-User":          "?1",
+        "User-Agent": generate_user_agent(device_type="desktop", navigator="chrome"),
+        "Accept-Language": "en-US,en;q=0.9,ko-KR;q=0.8,ko;q=0.7",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
         "Upgrade-Insecure-Requests": "1",
     }
 
