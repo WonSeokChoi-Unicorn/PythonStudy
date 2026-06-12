@@ -275,8 +275,20 @@ def getDetail(detailUrl, option):
         youtubekeylist = []
         # 02 article 태그 안에서 <p>태그들을 찾아서 저장함
 
-        # p 로 처리하는 방식에서 문제가 많아 child 방식으로 변경
-        for pLine in articleBody.div.children:
+        # 구조 1: div#article_1 > div.rhymix_content > p (일반 게시글)
+        # 구조 2: div#article_1 > div.rhymix_content > article > div > p (일부 게시글)
+        _inner = articleBody.find("div", class_=lambda c: c and "rhymix_content" in c)
+        if _inner:
+            _article = _inner.find("article")
+            if _article:
+                _content_div = _article.find("div")
+                _target = _content_div if _content_div else _article
+            else:
+                _target = _inner   # ← 두 번째 게시글: 이 경로
+        else:
+            _target = articleBody.div  # fallback (기존 방식)
+
+        for pLine in _target.children:
             # 2024.10.21 "<p> </p>"인 경우 다음으로 진행
             if str(pLine) == "<p> </p>":
                 continue
