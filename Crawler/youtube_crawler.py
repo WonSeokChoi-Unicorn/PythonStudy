@@ -38,7 +38,6 @@ file_handler.setLevel(logging.DEBUG)
 datetime1 = datetime.now()
 logger.info(datetime1.strftime("%Y-%m-%d %H:%M:%S") + " - Starting")
 
-pst = pytz.timezone("America/Los_Angeles")
 kst = pytz.timezone("Asia/Seoul")
 
 waittime5 = 5
@@ -60,9 +59,16 @@ englishchannel = [
     "Nightshift – Kurzgesagt After Dark",
 ]
 
-yesterday = datetime.today() - timedelta(days=1)
-fromdate = datetime(yesterday.year, yesterday.month, yesterday.day, 5, 0, 0).astimezone(kst)
-todate = datetime(datetime.today().year, datetime.today().month, datetime.today().day, 4, 59, 59).astimezone(kst)
+now_kst = datetime.now(kst)
+
+if now_kst.hour >= 15:
+    fromdate = kst.localize(datetime(now_kst.year, now_kst.month, now_kst.day, 5, 0, 0))
+    tomorrow = now_kst + timedelta(days=1)
+    todate = kst.localize(datetime(tomorrow.year, tomorrow.month, tomorrow.day, 5, 0, 0))
+else:
+    yesterday = now_kst - timedelta(days=1)
+    fromdate = kst.localize(datetime(yesterday.year, yesterday.month, yesterday.day, 5, 0, 0))
+    todate = kst.localize(datetime(now_kst.year, now_kst.month, now_kst.day, 5, 0, 0))
 
 translator = Translator()
 savefolder = Path("D:/ggoorr")
@@ -180,7 +186,7 @@ async def fetch(session, yt_videoid):
             yt_datePublished = date_meta["content"]
             yt_datePublisheddt = datetime.strptime(yt_datePublished, "%Y-%m-%dT%H:%M:%S%z")
 
-        yt_datePublisheddtkst = yt_datePublisheddt.astimezone(pst).astimezone(kst)
+        yt_datePublisheddtkst = yt_datePublisheddt.astimezone(kst)
 
         title_tag = Soup2.find("title")
         yt_title = (
@@ -201,10 +207,10 @@ async def fetch(session, yt_videoid):
                 except Exception:
                     time.sleep(waittime5)
 
-        if yt_datePublisheddtkst > todate:
+        if yt_datePublisheddtkst >= todate:
             logger.info(f"[대상 아님 - 이후] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
             return None
-        elif yt_datePublisheddtkst <= fromdate:
+        elif yt_datePublisheddtkst < fromdate:
             logger.info(f"[대상 아님 - 이전] {yt_title} | {yt_videoid} | {yt_datePublisheddtkst:%Y-%m-%d %H:%M:%S}")
             return None
         else:

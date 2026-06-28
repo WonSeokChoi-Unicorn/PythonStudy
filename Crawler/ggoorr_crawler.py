@@ -49,11 +49,6 @@ TARGET_START_PAGE = 45
 # 종료 페이지
 TARGET_END_PAGE = 55
 
-# 오늘 날짜를 YYYYMMDDHHMMSS 형태로 변경
-todaytime = datetime.today().strftime("%Y%m%d%H%M%S")
-# 시간을 HH 형태로 변경
-todaytimeHH = datetime.today().strftime("%H")
-
 # KST 시간대 설정
 kst_timezone = pytz.timezone("Asia/Seoul")
 
@@ -134,100 +129,81 @@ def getDetail(detailUrl, option):
 
     # HTTP 응답 성공 200
     if detailRes.status_code == 200:
-        # 게시글의 HTML을 받아 BeautifulSoup 로 파싱 저장
         detailHtml = detailRes.text
-        # HTML을 'lxml(XML, HTML 처리)'를 사용하여 분석
         detailSoup = BeautifulSoup(detailHtml, "lxml")
-        # 제목
         title = detailSoup.find("h1").get_text().strip()
-        # 작성 날짜/시간
         writetimetemp = detailSoup.find("time")["datetime"]
-        # ISO 8601 형식의 시간을 datetime 객체로 변환
         utc_time = datetime.fromisoformat(writetimetemp)
-        # UTC 시간을 KST로 변환
         writetime = utc_time.astimezone(kst_timezone)
 
-        # [수정 1-2] 기준 날짜(target_base_date) 결정
+        now_kst = datetime.now(kst_timezone)
+
         if 'TARGET_DATE' in globals() and TARGET_DATE:
             target_base_date = datetime.strptime(TARGET_DATE, "%Y-%m-%d")
-            # 지정된 날짜가 있으면 시간(todaytimeHH)과 관계없이 해당 날짜의 05:00 ~ 익일 04:59를 기준으로 설정
-            fromdate = datetime(
-                target_base_date.year,
-                target_base_date.month,
-                target_base_date.day,
-                5,
-                0,
-                0,
-            ).astimezone(kst_timezone)
+            fromdate = kst_timezone.localize(
+                datetime(
+                    target_base_date.year,
+                    target_base_date.month,
+                    target_base_date.day,
+                    5,
+                    0,
+                    0,
+                )
+            )
 
             tomorrow = target_base_date + timedelta(days=1)
-            todate = datetime(
-                tomorrow.year, tomorrow.month, tomorrow.day, 4, 59, 59
-            ).astimezone(kst_timezone)
+            todate = kst_timezone.localize(
+                datetime(
+                    tomorrow.year,
+                    tomorrow.month,
+                    tomorrow.day,
+                    5,
+                    0,
+                    0,
+                )
+            )
         else:
-            # 2023.07.21 실행 시간에 따라서 기준(시작~종료) 시간을 변경
-            if todaytimeHH >= "15":
-                # 당일 오전 5시
-                fromdate = datetime(
-                    datetime.today().year,
-                    datetime.today().month,
-                    datetime.today().day,
-                    6,
-                    0,
-                    0,
-                ).astimezone(kst_timezone)
+            if now_kst.hour >= 15:
+                fromdate = kst_timezone.localize(
+                    datetime(now_kst.year, now_kst.month, now_kst.day, 5, 0, 0)
+                )
 
-                # 내일 오전 4시 59분 59초
-                tomorrow = datetime.today() + timedelta(days=1)
-                todate = datetime(
-                    tomorrow.year, tomorrow.month, tomorrow.day, 4, 59, 59
-                ).astimezone(kst_timezone)
+                tomorrow = now_kst + timedelta(days=1)
+                todate = kst_timezone.localize(
+                    datetime(tomorrow.year, tomorrow.month, tomorrow.day, 5, 0, 0)
+                )
             else:
-                # 전일 오전 5시
-                yesterday = datetime.today() - timedelta(days=1)
-                fromdate = datetime(
-                    yesterday.year, yesterday.month, yesterday.day, 5, 0, 0
-                ).astimezone(kst_timezone)
+                yesterday = now_kst - timedelta(days=1)
+                fromdate = kst_timezone.localize(
+                    datetime(yesterday.year, yesterday.month, yesterday.day, 5, 0, 0)
+                )
 
-                # 당일 오전 4시 59분 59초
-                todate = datetime(
-                    datetime.today().year,
-                    datetime.today().month,
-                    datetime.today().day,
-                    4,
-                    59,
-                    59,
-                ).astimezone(kst_timezone)
+                todate = kst_timezone.localize(
+                    datetime(now_kst.year, now_kst.month, now_kst.day, 5, 0, 0)
+                )
 
-        # 진행
-        logger.info(
-            title
-            + " - "
-            + detailUrl
-        )
+        logger.info(title + " - " + detailUrl)
 
-        # 옵션이 Y인경우 기준대로 작성 대상 확인
         if option == "Y":
-            # 처리
-            if writetime > todate:
+            if writetime >= todate:
                 logger.info(
                     "작성 대상 아님 ("
                     + todate.strftime("%Y-%m-%d %H:%M:%S")
-                    + " 이후)"
+                    + " 이상)"
                 )
                 return
             elif writetime < fromdate:
                 logger.info(
                     "작성 대상 아님 - ("
                     + fromdate.strftime("%Y-%m-%d %H:%M:%S")
-                    + " 이전)"
+                    + " 미만)"
                 )
                 return
             else:
                 logger.info(
                     "작성 대상 맞음 ("
                     + fromdate.strftime("%Y-%m-%d %H:%M:%S")
-                    + " ~ "
+                    + " <= 대상 < "
                     + todate.strftime("%Y-%m-%d %H:%M:%S")
                     + ")"
                 )
