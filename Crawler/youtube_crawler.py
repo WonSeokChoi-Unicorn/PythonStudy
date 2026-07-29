@@ -588,6 +588,7 @@ if __name__ == "__main__":
         "https://youtube.com/channel/UCCQPdv4o4ywVZQkAMOlvFbw",
         "https://youtube.com/channel/UCfcgDLazgMa1L92Kl3r9ZAA",
         "https://youtube.com/channel/UCW-xgKdaPidxpJ6j6HZPC-g",
+        "https://youtube.com/channel/UCiDmfbYvuMEVbRxPmFP4sng",
         "https://youtube.com/channel/UCMnFS27HnroIc1D4ct37TUA",
         "https://youtube.com/channel/UCn7WoT17_HlpfOPQHEqgUkw",
         "https://youtube.com/channel/UCgsSoMtSPekGiQF8DS5pI_w",
