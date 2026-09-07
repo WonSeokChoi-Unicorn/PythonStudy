@@ -507,11 +507,13 @@ async def main(urllist):
             logger.info(f"{channelname} → 탭: {available_tabs}")
             logger.info("##################################################################")
 
-            channelheader = "\n#####***** " + channelname + " *****#####\n"
+            safe_channelname = channelname.replace("--", "—")
+            channelheader = f"#####***** {safe_channelname} *****#####"
+
             filename = savefolder / f"{datetime.now().strftime('%Y-%m-%d')}_youtube.txt"
 
             with open(filename, "a", encoding="utf-8") as f:
-                f.write(channelheader)
+                f.write(f"<!-- {channelheader} -->\n")
 
             for tab_name in available_tabs:
                 url = f"{base_url}/{tab_name}"
@@ -548,7 +550,7 @@ async def main(urllist):
                 fileContent = "\n".join(filter(None, results))
                 if fileContent:
                     with open(filename, "a", encoding="utf-8") as f:
-                        f.write(f"--------------- {tab_name} ---------------\n")
+                        f.write(f"<!-- TAB: {tab_name} -->\n")
                         f.write(fileContent)
 
                     logger.info(f"[{tab_name}] 조건에 맞는 영상 기록 완료")
